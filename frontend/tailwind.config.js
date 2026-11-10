@@ -1,4 +1,7 @@
-/** @type {import('tailwindcss').Config} */
+/**
+ * Tailwind configuration for the portfolio frontend.
+ * Uses CSS custom properties defined in globals.css to match the original design palette.
+ */
 module.exports = {
   content: [
     './src/**/*.{js,ts,jsx,tsx}',
