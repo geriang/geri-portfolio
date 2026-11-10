@@ -61,9 +61,11 @@ Create a solid Next.js (TypeScript) foundation for the portfolio site, includi
 
 ## Progress log
 - Added Tailwind CSS configuration and PostCSS setup.
-- Created `Layout` component with static year.
+- Created `Layout` component with **dynamic year**.
 - Added placeholder pages for index, skill, framework, resume, portfolio.
 - Set up Jest + React Testing Library with a Layout smoke test.
 - Added Lighthouse script.
-- Updated CI workflow to verify static export and run tests.
+- Updated CI workflow to verify static export, run tests, and execute Lighthouse.
+- Refined Tailwind config with **exact colour palette** values.
+- Added `export` script and CI build+export verification.
 - Updated roadmap status: Phase 2 marked as merged.
