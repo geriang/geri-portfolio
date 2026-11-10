@@ -8,7 +8,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </header>
       <main className="flex-1 container mx-auto p-4">{children}</main>
       <footer className="bg-foreground text-background p-2 text-center text-sm">
-        © 2026 gach.work
+        © {new Date().getFullYear()} gach.work
       </footer>
     </div>
   );
