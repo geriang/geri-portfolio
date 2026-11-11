@@ -29,6 +29,10 @@ jobs:
           npm run build
           npm run export
           test -d out || { echo 'out directory missing'; exit 1; }
+      - name: Verify lazy‑load chunk
+        if: matrix.dir == 'frontend'
+        working-directory: ${{ matrix.dir }}
+        run: npm run verify-lazy
       - name: Run tests (frontend only)
         if: matrix.dir == 'frontend'
         working-directory: ${{ matrix.dir }}

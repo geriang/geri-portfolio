@@ -87,7 +87,7 @@ Add a chat UI to the Next.js frontend that provides a floating **ChatButton** vi
 ---
 
 ## Progress log
-- Implemented ChatContext, ChatButton, ChatOverlay, updated Layout, added tests for global visibility and console error check. Removed test conditional, added comment in Layout, improved test mocking. Updated ChatOverlay key to use index. Added lazy‑load verification script (`npm run verify-lazy`) and manually confirmed chunk exists. CI pipeline runs lint, test, and build locally with no errors. Commit ae51c3b.
+- Implemented ChatContext, ChatButton, ChatOverlay, updated Layout, added tests for global visibility and console error check. Removed test conditional, added comment in Layout, improved test mocking. Updated ChatOverlay key to use index. Added lazy‑load verification script (`npm run verify-lazy`) and manually confirmed chunk exists. CI pipeline runs lint, test, and build locally with no errors. Commit 11492b0.
 
 ---
 

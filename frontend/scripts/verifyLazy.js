@@ -2,7 +2,11 @@ const fs = require('fs');
 const path = require('path');
 
 // After a Next.js build, dynamic imports are emitted as separate chunk files in .next/static/chunks
-const chunksDir = path.join(__dirname, '..', '.next', 'static', 'chunks');
+const possibleDirs = [
+  path.join(__dirname, '..', '.next', 'static', 'chunks'),
+  path.join(__dirname, '..', '.next', 'server', 'chunks')
+];
+const chunksDir = possibleDirs.find(dir => fs.existsSync(dir));
 
 function findOverlayChunk() {
   if (!fs.existsSync(chunksDir)) {
