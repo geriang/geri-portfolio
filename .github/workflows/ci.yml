@@ -22,3 +22,16 @@ jobs:
       - name: Lint
         working-directory: ${{ matrix.dir }}
         run: npm run lint
+      - name: Build static export (frontend only)
+        if: matrix.dir == 'frontend'
+        working-directory: ${{ matrix.dir }}
+        run: |
+          npm run build
+          npm run export
+          test -d out || { echo 'out directory missing'; exit 1; }
+      - name: Run tests (frontend only)
+        if: matrix.dir == 'frontend'
+        working-directory: ${{ matrix.dir }}
+        run: |
+          npm test
+          npm run lighthouse
