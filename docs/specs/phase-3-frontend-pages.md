@@ -81,4 +81,5 @@ Re‑implement the five portfolio pages (Home, Skill, Framework, Resume, Portfol
 
 ---
 
-*If any of the above assumptions or acceptance criteria need adjustment, please let me know before I finalize the spec.*
+## Progress log
+- Implemented placeholder Tailwind pages, added per-page smoke tests, removed Bootstrap references, verified lint, tests, and build pass. Commit 36917e1 on branch agent/phase-3-frontend-pages.
