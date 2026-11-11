@@ -3,7 +3,7 @@ import dynamic from 'next/dynamic';
 import { useChat } from '../context/ChatContext';
 
 // Lazy‑load the overlay component; it will only be fetched after the button is clicked
-const ChatOverlay = process.env.NODE_ENV === 'test' ? require('./ChatOverlay').default : dynamic(() => import('./ChatOverlay'), { ssr: false });
+const ChatOverlay = dynamic(() => import('./ChatOverlay'), { ssr: false });
 
 export const ChatButton = () => {
   const [showOverlay, setShowOverlay] = useState(false);
