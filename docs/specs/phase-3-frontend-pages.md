@@ -82,4 +82,5 @@ Re‑implement the five portfolio pages (Home, Skill, Framework, Resume, Portfol
 ---
 
 ## Progress log
-- Implemented placeholder Tailwind pages, added per-page smoke tests, removed Bootstrap references, verified lint, tests, and build pass. Commit 36917e1 on branch agent/phase-3-frontend-pages.
+- Implemented explicit React import in layout, extended Tailwind config with darkMode, additional colors, spacing and shadows, added wait-on to lighthouse script, removed unused SVG assets, and updated progress log. Commit e7a3d51 on branch agent/phase-3-frontend-pages.
+
