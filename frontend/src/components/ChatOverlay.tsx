@@ -25,7 +25,7 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose, queuePosition }) => 
         <p className="text-sm text-gray-600 mb-2">Position: {queuePosition}</p>
         <div className="space-y-2">
           {messages.map((msg, idx) => (
-            <p key={`${msg}-${idx}`} className="text-gray-800 dark:text-gray-200">
+            <p key={idx} className="text-gray-800 dark:text-gray-200">
               {msg}
             </p>
           ))}

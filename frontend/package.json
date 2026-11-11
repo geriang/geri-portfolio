@@ -8,6 +8,7 @@
     "lint": "eslint .",
     "test": "jest",
     "export": "echo 'no-op export'",
+    "verify-lazy": "npm run build && node scripts/verifyLazy.js",
     "lighthouse": "npm run dev & npx wait-on http://localhost:3000 && npx lighthouse http://localhost:3000 --quiet --chrome-flags=\\\"--headless\\\" --output=json --output-path=lhreport.json && node -e \\\"const fs=require('fs');const report=JSON.parse(fs.readFileSync('lhreport.json','utf8'));process.exit(report.categories.performance.score<0.8?1:0);\\\""
   },
   "dependencies": {
