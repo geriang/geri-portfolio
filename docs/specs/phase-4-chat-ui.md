@@ -87,7 +87,7 @@ Add a chat UI to the Next.js frontend that provides a floating **ChatButton** vi
 ---
 
 ## Progress log
-- (To be filled during implementation)
+- Implemented ChatContext, ChatButton, ChatOverlay, updated Layout, added tests for global visibility and console error check. Removed test conditional, added comment in Layout, improved test mocking. Commit f884f0d.
 
 ---
 
