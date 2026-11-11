@@ -14,6 +14,8 @@ module.exports = {
         backgroundDark: '#0a0a0a',
         foregroundLight: '#171717',
         foregroundDark: '#ededed',
+        background: '#ffffff',
+        foreground: '#171717',
       },
       fontFamily: {
         sans: ['var(--font-geist-sans)', 'system-ui'],
