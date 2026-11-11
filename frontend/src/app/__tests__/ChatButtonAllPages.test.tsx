@@ -2,7 +2,8 @@
 jest.mock('next/dynamic', () => {
   const mock = jest.fn(() => {
     // Return a component that renders the overlay markup
-    const Component = ({ onClose, queuePosition }: any) => (
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const Component = ({ onClose, queuePosition }: { onClose: () => void; queuePosition: number }) => (
       <div>
         <h2>Chat Demo</h2>
         <p>Position: {queuePosition}</p>

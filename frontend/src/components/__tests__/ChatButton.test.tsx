@@ -8,16 +8,17 @@ import { ChatProvider } from '../../context/ChatContext';
 jest.mock('next/dynamic', () => () => {
   const React = require('react');
   const { useChat } = require('../../context/ChatContext');
-  // @ts-ignore
-  const MockOverlay = ({ onClose, queuePosition }) => {
+  const MockOverlay = ({ onClose, queuePosition }: { onClose: () => void; queuePosition: number }) => {
     const { messages } = useChat();
     return (
-      React.createElement(React.Fragment, null,
-        React.createElement('h2', null, 'Chat Demo'),
-        React.createElement('p', null, `Position: ${queuePosition}`),
-        // @ts-ignore
-        ...messages.map((msg, i) => React.createElement('p', { key: i }, msg))
-      )
+      <div>
+        <h2>Chat Demo</h2>
+        <p>Position: {queuePosition}</p>
+        {messages.map((msg, i) => (
+          <p key={i}>{msg}</p>
+        ))}
+        <button onClick={onClose}>Close</button>
+      </div>
     );
   };
   return MockOverlay;
