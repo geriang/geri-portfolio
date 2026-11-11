@@ -14,7 +14,7 @@ jest.mock('next/dynamic', () => () => {
       <div>
         <h2>Chat Demo</h2>
         <p>Position: {queuePosition}</p>
-        {messages.map((msg, i) => (
+        {messages.map((msg: string, i: number) => (
           <p key={i}>{msg}</p>
         ))}
         <button onClick={onClose}>Close</button>
