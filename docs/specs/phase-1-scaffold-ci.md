@@ -124,7 +124,9 @@ Create the initial monolithic repository layout for the project and set up a min
 - Removed backend eslint.config.cjs file. Verified lint script runs without error. Commit 4f24cc1.
 - Updated lint scripts in both frontend and backend to `eslint . --ext .js,.ts` and verified lint passes. Commit 087e07e
 - Fixed JSON syntax in frontend/package.json and ensured backend/.prettierrc is tracked. Commit 961f00a.
-- Executed `frontend/test-dev` script and verified `npm run dev` starts the Next.js server without errors (server responded correctly). Commit <SHA>.
+- Executed `frontend/test-dev` script and verified `npm run dev` starts the Next.js server without errors (server responded correctly). Commit a5310bff1b3710b5a40c80b401f19612cbc98a25.
+
+- CI workflow ran successfully on this branch; CI badge added to README to show passing status.
 
 ## Deviations
 
