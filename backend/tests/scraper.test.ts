@@ -1,8 +1,14 @@
 import db, { initSchema } from '../src/db';
 import axios from 'axios';
+import cheerio from 'cheerio';
 
 jest.mock('axios');
 const mockedAxios = axios as jest.Mocked<typeof axios>;
+
+jest.mock('cheerio', () => {
+  const cheerio = jest.requireActual('cheerio');
+  return { __esModule: true, default: cheerio };
+});
 
 beforeAll(() => {
   // Clean DB
