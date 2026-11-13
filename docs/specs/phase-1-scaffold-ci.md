@@ -73,7 +73,7 @@ Create the initial monolithic repository layout for the project and set up a min
 ---
 
 # Tasks (ordered checklist) – each task includes a verification command
-1. **Create branch** – `git switch -c agent/phase-1-scaffold-ci-v3` (verify `git branch` shows the new branch).
+✅ 1. **Create branch** – `git switch -c agent/phase-1-scaffold-ci-v3` (verify `git branch` shows the new branch).
 2. **Create directories** – `mkdir frontend backend scripts .github/workflows` (verify with `ls`).
 3. **Add .gitignore** – write the file (verify `git status` shows it as untracked).
 4. **Scaffold frontend** – run `npx create-next-app@latest frontend --ts --eslint --src-dir` (verify `frontend/package.json` exists and `npm run dev` works).
