@@ -83,7 +83,7 @@ Create a functional backend using Node 22, TypeScript, Express 5, and SQLite
 
 
 ## Progress log
-- Clean generated files: remove node_modules and stray DB (Commit 
+- Clean generated files: remove node_modules and stray DB (Commit 724fa2600dbbc4ee77280b0878b0b0518e21ab21)
 - Remove generated SQLite file and update .gitignore, add types for express (Commit 526ebbad2ec1104cae5b2850cf192ab00ad09bde)
 - Verified README instructions on a fresh clone and updated progress log (Commit f4dca1859d9e6d391e554fa260df92989a395fbf)
 
