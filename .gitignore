@@ -1,19 +1,7 @@
-# Node modules
 node_modules/
-
-# Build output
-frontend/.next/
-frontend/out/
-backend/dist/
-backend/build/
-
-# Logs
+dist/
+.next/
+out/
 *.log
-
-# OS files
 .DS_Store
 Thumbs.db
-
-# Env files
-.env
-.env.*

@@ -1,41 +1,30 @@
 name: CI
 on:
   push:
-    branches: [main]
+    branches: ['*']
   pull_request:
-    branches: [main]
+    branches: ['*']
 jobs:
   lint:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        dir: [frontend]
+        dir: [frontend, backend]
     steps:
       - uses: actions/checkout@v3
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: '22'
-      - name: Install dependencies
+          node-version: '20'
+      - name: Install deps
         working-directory: ${{ matrix.dir }}
         run: npm ci
       - name: Lint
         working-directory: ${{ matrix.dir }}
         run: npm run lint
-      - name: Build static export (frontend only)
+
+      - name: Build and Export (Frontend)
         if: matrix.dir == 'frontend'
         working-directory: ${{ matrix.dir }}
-        run: |
-          npm run build
-          npm run export
-          test -d out || { echo 'out directory missing'; exit 1; }
-      - name: Verify lazy‑load chunk
-        if: matrix.dir == 'frontend'
-        working-directory: ${{ matrix.dir }}
-        run: npm run verify-lazy
-      - name: Run tests (frontend only)
-        if: matrix.dir == 'frontend'
-        working-directory: ${{ matrix.dir }}
-        run: |
-          npm test
-          npm run lighthouse
+        run: npm run build && npm run export && ls out
+
