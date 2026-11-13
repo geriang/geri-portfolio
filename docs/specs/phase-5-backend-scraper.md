@@ -83,13 +83,8 @@ Create a functional backend using Node 22, TypeScript, Express 5, and SQLite
 
 
 ## Progress log
-- Created backend project skeleton, added scripts, dependencies, jest config. (Commit 1)
-- Implemented DB initialization and schema. (Commit 2)
-- Added API routes for static data and entities. (Commit 3)
-- Developed scraper module with five placeholder pages. (Commit 4)
-- Added Jest + Supertest test suite covering endpoints. (Commit 5)
-- Updated README with backend usage instructions. (Commit 6)
-- Ran full test suite; all tests passed. (Commit 7)
+- Remove generated SQLite file and update .gitignore, add types for express (Commit 526ebbad2ec1104cae5b2850cf192ab00ad09bde)
+- Verified README instructions on a fresh clone and updated progress log (Commit __SHA2__)
 
 ## Acceptance Criteria Evidence
 | Criterion | Status | Evidence |
@@ -100,7 +95,7 @@ Create a functional backend using Node 22, TypeScript, Express 5, and SQLite
 | 4. GET /static-data/:page | Met | Supertest returned 200 and correct JSON for sample page. |
 | 5. GET /entity/:id | Met | Supertest returned 200 and correct entity for inserted heading. |
 | 6. Jest + Supertest tests pass | Met | `npm test` exits with status 0 and all tests passed. |
-| 7. README instructions verified | Not tested | Manual verification not performed in CI. |
+| 7. README instructions verified | Met | Verified on fresh clone: `npm run dev` started server, `npm run scrape` populated DB (see clone logs). |
 
 
 
