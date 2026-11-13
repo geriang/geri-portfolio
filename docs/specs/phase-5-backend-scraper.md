@@ -83,6 +83,7 @@ Create a functional backend using Node 22, TypeScript, Express 5, and SQLite
 
 
 ## Progress log
+- Added Jest test for scraper functionality (Commit <commit-sha>)
 - Clean generated files: remove node_modules and stray DB (Commit 724fa2600dbbc4ee77280b0878b0b0518e21ab21)
 - Remove generated SQLite file and update .gitignore, add types for express (Commit 526ebbad2ec1104cae5b2850cf192ab00ad09bde)
 - Added runtime dependencies better-sqlite3 (13.1.1) and cheerio (1.2.0); added Jest config (Commit a2176fb)
@@ -97,6 +98,7 @@ Backend listening on port 8080
 - Added ignore rule for backend/data/ (Commit 35a2f34)
 - Removed compiled JS artifacts from backend/src (Commit 0d58af7)
 - Removed duplicate compiled JS test files (entity.test.js, staticData.test.js) (Commit b7337cbdb123dd10ed51f023123577041c88f52e)
+- Updated test imports to default db export (Commit 95d88b0)
 ```
 Test Suites: 2 passed, 2 total
 Tests:       4 passed, 4 total
