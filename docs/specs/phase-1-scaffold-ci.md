@@ -127,8 +127,9 @@ Create the initial monolithic repository layout for the project and set up a min
 - Fixed JSON syntax in frontend/package.json and ensured backend/.prettierrc is tracked. Commit 961f00a.
 - Executed `frontend/test-dev` script and verified `npm run dev` starts the Next.js server without errors (server responded correctly). Commit a5310bff1b3710b5a40c80b401f19612cbc98a25.
 
-- CI workflow ran successfully on this branch; CI badge added to README to show passing status.
-
+- Updated eslint-config-next version to ^14.0.0 in frontend/package.json. Commit <hash>.
+- Changed tsconfig "jsx" to "react-jsx" in frontend/tsconfig.json. Commit <hash>.
+- Modified CI workflow to use wait-on for dev tests in both frontend and backend. Commit <hash>.
 ## Deviations
 
 - Updated the branch name to `agent/phase-1-scaffold-ci-v3` as a deviation from the original spec.

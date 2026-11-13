@@ -26,7 +26,7 @@ jobs:
       - name: Frontend Dev Test
         if: matrix.dir == 'frontend'
         working-directory: ${{ matrix.dir }}
-        run: npm run test-dev
+        run: npm run dev & SERVER_PID=$!; if [ "${{ matrix.dir }}" = "frontend" ]; then URL=http://localhost:3000; else URL=http://localhost:8080/health; fi; npx wait-on $URL && curl -s $URL && kill $SERVER_PID
       - name: Build and Export (Frontend)
         if: matrix.dir == 'frontend'
         working-directory: ${{ matrix.dir }}
@@ -35,4 +35,4 @@ jobs:
       - name: Backend Dev Test
         if: matrix.dir == 'backend'
         working-directory: ${{ matrix.dir }}
-        run: npm run test-dev
+        run: npm run dev & SERVER_PID=$!; if [ "${{ matrix.dir }}" = "frontend" ]; then URL=http://localhost:3000; else URL=http://localhost:8080/health; fi; npx wait-on $URL && curl -s $URL && kill $SERVER_PID
