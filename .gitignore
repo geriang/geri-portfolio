@@ -8,3 +8,4 @@ Thumbs.db
 *.db
 backend/data/
 backend/src/*.js
+backend/src/routes/*.js
