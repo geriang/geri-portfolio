@@ -5,9 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "lint": "eslint . --ext .js,.ts",
+    "lint": "eslint .",
     "test": "jest",
-    "export": "next export",
+    "export": "echo \"Static export handled by next build\"",
     "verify-lazy": "npm run build && node scripts/verifyLazy.js",
     "lighthouse": "echo skip",
     "test-dev": "npm run dev & SERVER_PID=$!; sleep 2; curl -s http://localhost:3000 && kill $SERVER_PID"
@@ -21,7 +21,6 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.5",
     "@tailwindcss/turbopack": "^4",
-    "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
     "@types/jest": "^30.0.0",
     "@types/node": "^20",
@@ -32,10 +31,12 @@
     "eslint-config-next": "^14.0.0",
     "jest": "^30.5.2",
     "jest-environment-jsdom": "^30.5.2",
-    "lighthouse": "^13.6.0",
     "wait-on": "^7.2.0",
     "tailwindcss": "^4",
     "ts-jest": "^29.4.15",
-    "typescript": "^5"
+    "typescript": "^5",
+    "eslint-config-prettier": "^9.0.0",
+    "@typescript-eslint/parser": "^8.57.0",
+    "@typescript-eslint/eslint-plugin": "^8.57.0"
   }
 }

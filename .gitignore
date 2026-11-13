@@ -5,3 +5,8 @@ out/
 *.log
 .DS_Store
 Thumbs.db
+*.db
+frontend/eslint.config.mjs
+backend/data/
+backend/src/*.js
+backend/src/routes/*.js
