@@ -100,8 +100,8 @@ Backend listening on port 8080
 - Removed compiled JS route files (Commit 8e7fba7)
 - Removed duplicate compiled JS test files (entity.test.js, staticData.test.js) (Commit b7337cbdb123dd10ed51f023123577041c88f52e)
 - Updated test imports to default db export (Commit 95d88b0)
-- Remove broken ESLint config file and ignore it (Commit b78e344)
-```
+- Removed Node 22‑only dev dependencies and updated lockfile (Commit ac6eea5)
+
 Test Suites: 2 passed, 2 total
 Tests:       4 passed, 4 total
 Ran all test suites.
@@ -110,7 +110,7 @@ Ran all test suites.
 
 - Updated lint script in backend/package.json for flat ESLint config (Commit 6e1a0ffcdd4bba4a8bc872366ecc73d8f5aab705)
 - Updated lint script in frontend/package.json for flat ESLint config (Commit 2cc9cadb7c1cad53c53170d6385afe88718ce928)
-- Added eslint-config-prettier devDependency to frontend (Commit 014d074)
+- Added @typescript-eslint parser and plugin devDependencies (Commit 4e3ae28)
 
 ## Acceptance Criteria Evidence
 | Criterion | Status | Evidence |
