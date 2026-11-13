@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "lint": "eslint . --ext .js,.ts",
+    "lint": "eslint .",
     "test": "jest",
     "export": "next export",
     "verify-lazy": "npm run build && node scripts/verifyLazy.js",
