@@ -101,6 +101,7 @@ Backend listening on port 8080
 - Removed duplicate compiled JS test files (entity.test.js, staticData.test.js) (Commit b7337cbdb123dd10ed51f023123577041c88f52e)
 - Updated test imports to default db export (Commit 95d88b0)
 - Removed Node 22‑only dev dependencies and updated lockfile (Commit ac6eea5)
+- Updated frontend ESLint config to include @typescript-eslint (Commit bc689f5)
 
 Test Suites: 2 passed, 2 total
 Tests:       4 passed, 4 total
