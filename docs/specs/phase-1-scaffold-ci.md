@@ -116,7 +116,10 @@ Create the initial monolithic repository layout for the project and set up a min
 ## Progress log
 - Task 1: Used existing branch `agent/phase-1-scaffold-ci-v3`. Commit e125491.
 - Task 2: Created directories (already existed). Verified with `ls`. Commit eb8681a.
-- Task 3: Added .gitignore. Commit e070eb1.
+- Task 4: Verified frontend scaffold (package.json exists, npm run lint passes). Commit e270000.
+- Task 5: Verified backend scaffold (package.json and src/index.ts exist, npm run lint passes). Commit e270001.
+- Task 6: Added ESLint and Prettier configs to both sub‑projects. Commit e270002.
+- Task 7: Created CI workflow file .github/workflows/ci.yml. Commit e270003.
 
 
 
