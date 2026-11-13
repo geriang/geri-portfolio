@@ -23,6 +23,10 @@ jobs:
         working-directory: ${{ matrix.dir }}
         run: npm run lint
 
+      - name: Frontend Dev Test
+        if: matrix.dir == 'frontend'
+        working-directory: ${{ matrix.dir }}
+        run: npm run test-dev
       - name: Build and Export (Frontend)
         if: matrix.dir == 'frontend'
         working-directory: ${{ matrix.dir }}
