@@ -2,7 +2,8 @@ import request from 'supertest';
 import express from 'express';
 import staticDataRouter from '../src/routes/staticData';
 import entityRouter from '../src/routes/entity';
-import { db } from '../src/db';
+import db from '../src/db';
+import { initSchema } from '../src/db';
 
 // Set up a test app
 const app = express();
@@ -13,8 +14,8 @@ beforeAll(() => {
   // Ensure clean DB for tests
   db.exec('DROP TABLE IF EXISTS pages; DROP TABLE IF EXISTS headings; DROP TABLE IF EXISTS paragraphs; DROP TABLE IF EXISTS lists; DROP TABLE IF EXISTS images;');
   // Reinitialize schema
-  const init = require('../src/db').initSchema;
-  init();
+  initSchema();
+
   // Insert a sample page with known data
   const pageId = db.prepare('INSERT INTO pages (url, identifier) VALUES (?, ?)').run('http://example.com', 'sample').lastInsertRowid as number;
   db.prepare('INSERT INTO headings (page_id, level, text) VALUES (?, ?, ?)').run(pageId, 1, 'Sample Heading');
