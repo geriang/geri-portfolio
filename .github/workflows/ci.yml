@@ -26,5 +26,5 @@ jobs:
       - name: Build and Export (Frontend)
         if: matrix.dir == 'frontend'
         working-directory: ${{ matrix.dir }}
-        run: npm run build && npm run export && ls out
+        run: npm run build && ls out
 
