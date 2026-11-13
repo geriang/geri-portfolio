@@ -120,17 +120,18 @@ Create the initial monolithic repository layout for the project and set up a min
 - Added .gitkeep to scripts directory to satisfy repo layout.
 - Task 4: Verified frontend scaffold (package.json exists, npm run lint passes). Commit 4a25ab5.
 - Task 6: Updated frontend export script to `next export`, corrected lint scripts to real ESLint, added flat ESLint config for backend, and enabled Next.js static export via next.config.js. Verified lint passes for both projects and `npm run export` generates `out/` folder. Commit 6e8cbc0fac8a825ecb181eaba82a56845c8d377b.
+- Build frontend and generate out folder: ran `npm run build && npm run export` in `frontend`, `out/` directory exists. Commit <PLACEHOLDER_SHA>.
 - Updated frontend export script to use "next export" with fallback and verified out folder generation. Commit 4f24cc1.
 - Modified backend test-dev script to verify server start and health endpoint. Verified successful curl response. Commit 4f24cc1.
 - Removed backend eslint.config.cjs file. Verified lint script runs without error. Commit 4f24cc1.
 - Updated lint scripts in both frontend and backend to `eslint . --ext .js,.ts` and verified lint passes. Commit 087e07e
 - Fixed JSON syntax in frontend/package.json and ensured backend/.prettierrc is tracked. Commit 961f00a.
 - Executed `frontend/test-dev` script and verified `npm run dev` starts the Next.js server without errors (server responded correctly). Commit a5310bff1b3710b5a40c80b401f19612cbc98a25.
+- CI badge shows passing status. Commit <PLACEHOLDER_SHA>.
 
-- Updated eslint-config-next version to ^14.0.0 in frontend/package.json. Commit <hash>.
-- Changed tsconfig "jsx" to "react-jsx" in frontend/tsconfig.json. Commit <hash>.
-- Modified CI workflow to use wait-on for dev tests in both frontend and backend. Commit <hash>.
-## Deviations
+- Updated eslint-config-next version to ^14.0.0 in frontend/package.json. Commit 4240034a9ad986613af56d61bd3326725a4a9704.
+- Changed tsconfig "jsx" to "react-jsx" in frontend/tsconfig.json. Commit 4240034a9ad986613af56d61bd3326725a4a9704.
+- Modified CI workflow to use wait-on for dev tests in both frontend and backend. Commit 4240034a9ad986613af56d61bd3326725a4a9704.## Deviations
 
 - Updated the branch name to `agent/phase-1-scaffold-ci-v3` as a deviation from the original spec.
 
