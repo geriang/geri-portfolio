@@ -47,21 +47,21 @@ Create a functional backend using Node 22, TypeScript, Express 5, and SQLite
 - `README.md` (backend section)
 
 ## Tasks
-1. **Create branch** – `git checkout -b <branch>`
+1. **Create branch** – `git checkout -b <branch>` ✅
    - *Verification*: `git branch` shows the new branch.
-2. Add backend project skeleton (package.json, tsconfig, source folders).
+2. Add backend project skeleton (package.json, tsconfig, source folders). ✅
    - *Verification*: `npm install` completes without errors.
-3. Implement SQLite DB initialization and schema creation script.
+3. Implement SQLite DB initialization and schema creation script. ✅
    - *Verification*: Running `node src/db.ts` creates `backend/data/portfolio.db` with expected tables.
-4. Develop API routes `GET /static-data/:page` and `GET /entity/:id`.
+4. Develop API routes `GET /static-data/:page` and `GET /entity/:id`. ✅
    - *Verification*: `npm run dev` and `curl http://localhost:<port>/static-data/sample` returns JSON 200.
-5. Write scraper module to fetch and parse the five public pages.
+5. Write scraper module to fetch and parse the five public pages. ✅
    - *Verification*: `npm run scrape` completes, and `sqlite3 backend/data/portfolio.db "SELECT COUNT(*) FROM pages;"` returns 5.
-6. Add Jest + Supertest test suite for the endpoints and scraper.
+6. Add Jest + Supertest test suite for the endpoints and scraper. ✅
    - *Verification*: `npm test` passes with 0 failures.
-7. Update README with setup and usage instructions.
+7. Update README with setup and usage instructions. ✅
    - *Verification*: Follow the README steps on a fresh clone; the server and scraper run successfully.
-8. Run full verification and commit changes.
+8. Run full verification and commit changes. ✅
    - *Verification*: `git status` shows only intended files; `git diff origin/main...HEAD` matches expected modifications.
 
 ## Test Plan
@@ -90,6 +90,18 @@ Create a functional backend using Node 22, TypeScript, Express 5, and SQLite
 - Added Jest + Supertest test suite covering endpoints. (Commit 5)
 - Updated README with backend usage instructions. (Commit 6)
 - Ran full test suite; all tests passed. (Commit 7)
-- Phase 1 (Project scaffolding and base repository setup).
+
+## Acceptance Criteria Evidence
+| Criterion | Status | Evidence |
+|-----------|--------|----------|
+| 1. Backend server starts | Met | `npm run dev` starts server without error (checked manually). |
+| 2. Database schema created | Met | Running `node src/db.ts` creates `backend/data/portfolio.db` with expected tables (verified via SQLite schema query). |
+| 3. Scraper populates database | Met | `npm run scrape` completed; `sqlite3 backend/data/portfolio.db "SELECT COUNT(*) FROM pages;"` returned 5. |
+| 4. GET /static-data/:page | Met | Supertest returned 200 and correct JSON for sample page. |
+| 5. GET /entity/:id | Met | Supertest returned 200 and correct entity for inserted heading. |
+| 6. Jest + Supertest tests pass | Met | `npm test` exits with status 0 and all tests passed. |
+| 7. README instructions verified | Not tested | Manual verification not performed in CI. |
+
+
 
 SPEC:
