@@ -7,3 +7,4 @@ out/
 Thumbs.db
 *.db
 backend/data/
+backend/src/*.js
