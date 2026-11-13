@@ -18,7 +18,7 @@ function insertPage(url: string, identifier: string): number {
   const info = stmt.run(url, identifier);
   // If row already existed, fetch its id
   if (info.changes === 0) {
-    const row = db.prepare('SELECT id FROM pages WHERE identifier = ?').get(identifier);
+    const row = db.prepare('SELECT id FROM pages WHERE identifier = ?').get(identifier) as any;
     return row.id;
   }
   return info.lastInsertRowid as number;

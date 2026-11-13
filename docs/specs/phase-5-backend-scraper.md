@@ -85,7 +85,21 @@ Create a functional backend using Node 22, TypeScript, Express 5, and SQLite
 ## Progress log
 - Clean generated files: remove node_modules and stray DB (Commit 724fa2600dbbc4ee77280b0878b0b0518e21ab21)
 - Remove generated SQLite file and update .gitignore, add types for express (Commit 526ebbad2ec1104cae5b2850cf192ab00ad09bde)
+- Added runtime dependencies better-sqlite3 (13.1.1) and cheerio (1.2.0); added Jest config (Commit a2176fb)
 - Verified README instructions on a fresh clone and updated progress log (Commit f4dca1859d9e6d391e554fa260df92989a395fbf)
+- Build succeeded with `npm run build` (no errors) (Commit <NEWCOMMIT>)
+- Server started successfully (output snippet):
+```
+[INFO] 06:28:52 ts-node-dev ver. 2.0.0 (using ts-node ver. 10.9.2, typescript ver. 6.0.3)
+Backend listening on port 8080
+```
+- Tests passed (`npm test` output snippet):
+```
+Test Suites: 2 passed, 2 total
+Tests:       4 passed, 4 total
+Ran all test suites.
+```
+
 
 ## Acceptance Criteria Evidence
 | Criterion | Status | Evidence |

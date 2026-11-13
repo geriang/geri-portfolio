@@ -8,28 +8,26 @@
     "test": "jest",
     "scrape": "ts-node src/scraper.ts",
     "lint": "eslint . --ext .js,.ts",
-    "test-dev": "npm run dev & SERVER_PID=$!; sleep 2; curl -s http://localhost:8080/health && kill $SERVER_PID"
-
-
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/cors": "^2.2.7",
+    "@types/express": "^5.0.0",
+    "@types/jest": "^30.0.0",
+    "@types/supertest": "^6.0.0",
     "@typescript-eslint/eslint-plugin": "^8.72.1",
     "@typescript-eslint/parser": "^8.72.1",
     "eslint": "^8.57.0",
-    "prettier": "^3.9.10",
-    "ts-node-dev": "^2.0.0",
-    "typescript": "^6.0.3",
     "jest": "^30.5.2",
+    "prettier": "^3.9.10",
     "supertest": "^7.0.0",
-    "@types/jest": "^30.0.0",
-    "@types/supertest": "^6.0.0",
     "ts-jest": "^29.4.15",
-    "@types/cors": "^2.2.7",
-    "@types/express": "^5.0.0",
-
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^6.0.3"
   },
   "dependencies": {
     "axios": "^1.21.0",

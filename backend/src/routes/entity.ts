@@ -4,7 +4,7 @@ import db from '../db';
 const router = Router();
 
 router.get('/:id', (req: Request, res: Response) => {
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt(req.params.id as string, 10);
   // Try each table
   const heading = db.prepare('SELECT level, text FROM headings WHERE id = ?').get(id);
   if (heading) {
@@ -14,7 +14,7 @@ router.get('/:id', (req: Request, res: Response) => {
   if (paragraph) {
     return res.json({ type: 'paragraph', ...paragraph });
   }
-  const list = db.prepare('SELECT ordered, items FROM lists WHERE id = ?').get(id);
+  const list = db.prepare('SELECT ordered, items FROM lists WHERE id = ?').get(id) as any;
   if (list) {
     return res.json({ type: 'list', ordered: !!list.ordered, items: JSON.parse(list.items) });
   }
