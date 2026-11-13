@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn src/index.ts",
-    "lint": "echo \"lint passed\"",
+    "lint": "eslint . --ext .js,.ts",
     "test-dev": "npm run dev & SERVER_PID=$!; sleep 2; curl -s http://localhost:8080/health && kill $SERVER_PID"
 
   },

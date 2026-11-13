@@ -5,9 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "lint": "echo \"lint passed\"",
+    "lint": "eslint . --ext .js,.ts",
     "test": "jest",
-    "export": "next export || mkdir -p out && echo '<!DOCTYPE html><html><body>fallback</body></html>' > out/index.html",
+    "export": "next export",
     "verify-lazy": "npm run build && node scripts/verifyLazy.js",
     "lighthouse": "npm run dev & npx wait-on http://localhost:3000 && npx lighthouse http://localhost:3000 --quiet --chrome-flags=\\\"--headless\\\" --output=json --output-path=lhreport.json && node -e \"const fs=require('fs'); const report=JSON.parse(fs.readFileSync('lhreport.json','utf8')); if(report.categories.performance.score<0.8){process.exit(1);} else {process.exit(0);}\""
   },
