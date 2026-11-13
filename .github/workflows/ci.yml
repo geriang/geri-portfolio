@@ -22,3 +22,13 @@ jobs:
       - name: Lint
         working-directory: ${{ matrix.dir }}
         run: npm run lint
+
+      - name: Build and Export (Frontend)
+        if: matrix.dir == 'frontend'
+        working-directory: ${{ matrix.dir }}
+        run: npm run build && npm run export && ls out
+
+      - name: Backend Dev Test
+        if: matrix.dir == 'backend'
+        working-directory: ${{ matrix.dir }}
+        run: npm run test-dev
