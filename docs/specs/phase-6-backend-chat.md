@@ -45,6 +45,8 @@ Implement a robust backend chat endpoint (`POST /chat`) that constructs a system
 - Wrote Jest + Supertest tests for chat endpoint. Commit 9157de1.
 - Updated README with chat endpoint documentation. Commit 3ae23b0.
 - Added test for JSON tool parsing and simplified concurrency listener handling. Commit 9eecefb.
+- Added unit test for system prompt content. Commit <to-be-filled>.
+
 
 | Criterion | Status | Evidence |
 |---|---|---|
@@ -60,20 +62,3 @@ Implement a robust backend chat endpoint (`POST /chat`) that constructs a system
 ## Overview
 Implement the backend chat functionality for Phase 6. This includes API endpoints, concurrency control, caching, mock LLM integration, and documentation.
 
-## Tasks
-- [x] Add in‑memory cache for starter prompts.
-- [x] Implement per‑IP concurrency‑limit middleware with FIFO queue.
-- [x] Create `POST /chat` route that builds the system prompt, invokes the mock LLM, parses tool calls, and returns appropriate JSON (including `position` when applicable).
-- [x] Write Jest + Supertest tests covering the acceptance criteria.
-- [x] Update `README.md` with API documentation for the chat endpoint.
-- [x] Verify all tests pass.
-
-## Acceptance Criteria
-- The POST /chat endpoint accepts a JSON payload with `prompt` and returns a JSON object containing `message` (string). If the request was queued, it also includes `position` (number) indicating its place in the queue.
-- The server builds a system prompt that forces the LLM to answer only from the SQLite DB.
-- Calls the self‑hosted LLM via `LLM_URL` env var; placeholder mock returns deterministic response.
-- If the LLM response contains a JSON tool call, it is parsed and included as a `tool` field.
-- Rate‑limit middleware enforces no more than 2 concurrent requests per IP; additional requests are queued FIFO and receive a `position` field when processed.
-- The four starter prompts are cached; repeated requests with the same starter prompt return a response in <100 ms.
-- Jest + Supertest suite verifies normal request, queueing behavior, and cache performance.
-- README updated with endpoint description and example usage.

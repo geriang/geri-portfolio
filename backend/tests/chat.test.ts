@@ -44,6 +44,13 @@ describe('POST /chat endpoint', () => {
     expect(response.body.tool).toEqual({ action: 'test', data: 123 });
   });
 
+  test('system prompt includes DB directive', async () => {
+    const app = createApp();
+    const response = await request(app).post('/chat').send({ prompt: 'Test system' });
+    expect(response.status).toBe(200);
+    expect(response.body.message).toContain('Answer using only data from the portfolio DB');
+  });
+
   test('caches starter prompt responses under 100ms', async () => {
     const app = createApp();
     const starter = 'Explain the portfolio summary.';
