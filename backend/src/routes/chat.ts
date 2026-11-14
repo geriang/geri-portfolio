@@ -28,6 +28,10 @@ async function callLLM(systemPrompt: string): Promise<{ message: string; tool?: 
   }
   // Mock deterministic response with artificial delay to simulate processing time
   await new Promise(resolve => setTimeout(resolve, 200));
+  // If the systemPrompt includes a special marker for JSON tool test, return a JSON message
+  if (systemPrompt.includes('json tool test')) {
+    return { message: JSON.stringify({ action: 'test', data: 123 }) };
+  }
   return { message: `Mock response for: ${systemPrompt}` };
 }
 
