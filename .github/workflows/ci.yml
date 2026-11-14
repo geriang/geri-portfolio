@@ -27,4 +27,33 @@ jobs:
         if: matrix.dir == 'frontend'
         working-directory: ${{ matrix.dir }}
         run: npm run build && ls out
+      - name: Install Playwright browsers (Frontend)
+        if: matrix.dir == 'frontend'
+        working-directory: ${{ matrix.dir }}
+        run: npx playwright install --with-deps
+      - name: Run Playwright E2E tests (Frontend)
+        if: matrix.dir == 'frontend'
+        working-directory: ${{ matrix.dir }}
+        run: npm run test:e2e
+      - name: Build Docker image (Backend)
+        if: matrix.dir == 'backend'
+        working-directory: ${{ matrix.dir }}
+        run: |
+          docker build -t gach-backend .
+      - name: Run Docker health check (Backend)
+        if: matrix.dir == 'backend'
+        run: |
+          docker run -d --name backend-test -p 8081:8080 gach-backend
+          sleep 5
+          curl -f http://localhost:8081/health
+          docker stop backend-test
+          docker rm backend-test
+      - name: Deploy to Netlify (Frontend)
+        if: matrix.dir == 'frontend' && env.NETLIFY_AUTH_TOKEN != ''
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        working-directory: ${{ matrix.dir }}
+        run: |
+          npm install -g netlify-cli
+          netlify deploy --dir=out --prod
 

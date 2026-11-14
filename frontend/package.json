@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "lint": "eslint .",
-    "test": "jest",
+
+    "test:e2e": "playwright test",
     "export": "echo \"Static export handled by next build\"",
     "verify-lazy": "npm run build && node scripts/verifyLazy.js",
     "lighthouse": "echo skip",
@@ -37,6 +38,6 @@
     "typescript": "^5",
     "eslint-config-prettier": "^9.0.0",
     "@typescript-eslint/parser": "^8.57.0",
-    "@typescript-eslint/eslint-plugin": "^8.57.0"
+    "playwright": "^1.44.0",
   }
 }
