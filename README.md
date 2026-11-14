@@ -58,3 +58,4 @@ The container will start the backend server on the specified `PORT`. A health ch
 
 The frontend is exported as a static site (`npm run build && npm run export`). CI automatically deploys the `out/` folder to Netlify. After a successful workflow run, the site will be available at the Netlify URL (e.g., `https://gach.netlify.app`). Verify the deployment by opening the URL and confirming that the chat UI loads and can communicate with the backend container.
 
+
