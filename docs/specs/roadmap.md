@@ -32,3 +32,5 @@ Each phase is sized to fit inside a single PR that can be reviewed and merged wi
 
 ## Progress log
 - Phase 6 backend chat: implemented, all tests pass. Commit 183655421bfe0c05bab671831ad4fa11225580a9
+- Fixed Phase 6 status: already "merged"; no change needed.
+- Verified Phase 7 status remains "not started".
