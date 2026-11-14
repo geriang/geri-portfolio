@@ -28,9 +28,17 @@ async function callLLM(systemPrompt: string): Promise<{ message: string; tool?: 
   }
   // Mock deterministic response with artificial delay to simulate processing time
   await new Promise(resolve => setTimeout(resolve, 200));
-  // If the systemPrompt includes a special marker for JSON tool test, return a JSON message
-  if (systemPrompt.includes('json tool test')) {
-    return { message: JSON.stringify({ action: 'test', data: 123 }) };
+  if (systemPrompt.toLowerCase().includes('top three projects')) {
+    return {
+      message: `Mock response for: ${systemPrompt}`,
+      tool: {
+        type: 'projectList',
+        projects: [
+          { name: 'Project A', description: 'Desc A' },
+          { name: 'Project B', description: 'Desc B' }
+        ]
+      }
+    };
   }
   return { message: `Mock response for: ${systemPrompt}` };
 }
@@ -78,7 +86,7 @@ router.post('/', concurrencyLimit, async (req: Request, res: Response) => {
   // Attach position if queued
   const position = (req as any).position;
   if (position !== null && position !== undefined) {
-    llmResponse.position = position;
+    (llmResponse as any).position = position;
   }
 
   res.json(llmResponse);

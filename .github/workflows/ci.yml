@@ -27,4 +27,67 @@ jobs:
         if: matrix.dir == 'frontend'
         working-directory: ${{ matrix.dir }}
         run: npm run build && ls out
+      - name: Install Playwright browsers (Frontend)
+        if: matrix.dir == 'frontend'
+        working-directory: ${{ matrix.dir }}
+        run: npx playwright install --with-deps
+      - name: Run Playwright E2E tests (Frontend)
+        if: matrix.dir == 'frontend'
+        working-directory: ${{ matrix.dir }}
+        run: npm run test:e2e
+      - name: Upload Playwright test results
+        if: matrix.dir == 'frontend'
+        uses: actions/upload-artifact@v3
+        with:
+          name: playwright-results
+          path: ${{ matrix.dir }}/test-results
+      - name: Build Docker image (Backend)
+        if: matrix.dir == 'backend'
+        working-directory: ${{ matrix.dir }}
+        run: |
+          docker build -t gach-backend .
+      - name: Run Docker health check (Backend)
+        if: matrix.dir == 'backend'
+        run: |
+          docker run -d --name backend-test -p 8081:8080 gach-backend
+          sleep 5
+          curl -f http://localhost:8081/health
+          docker stop backend-test
+          docker rm backend-test
+      - name: Deploy to Netlify (Frontend)
+        if: matrix.dir == 'frontend' && env.NETLIFY_AUTH_TOKEN != ''
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        working-directory: ${{ matrix.dir }}
+        run: |
+          npm install -g netlify-cli
+          DEPLOY_OUTPUT=$(netlify deploy --dir=out --prod --json)
+          echo "$DEPLOY_OUTPUT"
+          URL=$(echo "$DEPLOY_OUTPUT" | grep -o 'https://[^"}]*')
+          echo "NETLIFY_URL=$URL" >> $GITHUB_ENV
+          echo "Deployed to $URL"
+
+      - name: Run Lighthouse on Netlify URL
+        if: matrix.dir == 'frontend' && env.NETLIFY_URL != ''
+        run: |
+          npm install -g lighthouse
+          lighthouse ${{ env.NETLIFY_URL }} --quiet --chrome-flags="--headless" --output=json --output-path=lhreport.json
+          cat lhreport.json
+            # Check scores and fail if any <90
+            node - <<'NODE'
+            const report = require('./lhreport.json');
+            const categories = report.categories;
+            let failed = false;
+            for (const [name, cat] of Object.entries(categories)) {
+              const score = cat.score * 100;
+              if (score < 90) { console.error(`${name} score ${score} is below 90`); failed = true; }
+            }
+            if (failed) process.exit(1);
+            NODE
+
+      - name: Verify Netlify deployment
+        if: matrix.dir == 'frontend' && env.NETLIFY_URL != ''
+        run: |
+          curl -f ${{ env.NETLIFY_URL }}
+          echo "Netlify site reachable at ${{ env.NETLIFY_URL }}"
 
