@@ -38,6 +38,7 @@ Implement a robust backend chat endpoint (`POST /chat`) that constructs a system
 
 ## Progress log
 
+- Updated spec with detailed tasks and acceptance criteria. Commit 64824b3.
 
 ## Overview
 Implement the backend chat functionality for Phase 6. This includes API endpoints, concurrency control, caching, mock LLM integration, and documentation.

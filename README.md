@@ -27,6 +27,7 @@ This will fetch the five configured pages and store the extracted content in `ba
 ### API Endpoints
 - `GET /static-data/:page` – Returns all scraped content for the given page identifier.
 - `GET /entity/:id` – Returns a single entity (heading, paragraph, list, or image) by its database ID.
+- `POST /chat` – Accepts a JSON body `{ prompt: string }`. Returns `{ message: string, position?: number, tool?: any }`. The endpoint builds a system prompt grounded to the portfolio DB, calls a mock LLM, parses optional JSON tool calls, and enforces per‑IP concurrency limiting (max 2 concurrent) with a FIFO queue that provides a `position` field for queued requests. Starter prompts are cached for fast responses (<100 ms).
 
 ### Tests
 ```bash
