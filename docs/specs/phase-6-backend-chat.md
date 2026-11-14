@@ -44,14 +44,14 @@ Implement a robust backend chat endpoint (`POST /chat`) that constructs a system
 - Created POST /chat route with system prompt, mock LLM, tool parsing, and position handling. Commit 7d08cc4.
 - Wrote Jest + Supertest tests for chat endpoint. Commit 9157de1.
 - Updated README with chat endpoint documentation. Commit 3ae23b0.
-- Verified all tests pass. Commit 8ae6c6e.
+- Added test for JSON tool parsing and simplified concurrency listener handling. Commit 9eecefb.
 
 | Criterion | Status | Evidence |
 |---|---|---|
 | Endpoint returns message and position when queued | Met | Supertest test verifies message and position field for queued request |
 | Prompt building forces DB‑grounded answers | Met | Code builds system prompt with directive (see chat.ts) |
 | LLM call uses LLM_URL or mock deterministic response | Met | callLLM uses env var or mock; test checks deterministic mock response |
-| Tool parsing includes JSON tool field | Not tested | No test case for JSON tool parsing |
+| Tool parsing includes JSON tool field | Met | Added test for JSON tool parsing and implementation returns parsed tool field |
 | Rate‑limit middleware enforces 2 concurrent per IP | Met | Supertest test validates position 2 for third request |
 | Cache starter prompts <100 ms | Met | Test measures second request duration ≤100 ms |
 | Tests suite covers criteria | Met | All Jest tests pass |
