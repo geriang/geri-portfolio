@@ -45,19 +45,10 @@ Implement a robust backend chat endpoint (`POST /chat`) that constructs a system
 - Wrote Jest + Supertest tests for chat endpoint. Commit 9157de1.
 - Updated README with chat endpoint documentation. Commit 3ae23b0.
 - Added test for JSON tool parsing and simplified concurrency listener handling. Commit 9eecefb.
-- Added unit test for system prompt content. Commit <to-be-filled>.
+- Added unit test for system prompt content. Commit c85f518.
 
 
-| Criterion | Status | Evidence |
-|---|---|---|
-| Endpoint returns message and position when queued | Met | Supertest test verifies message and position field for queued request |
-| Prompt building forces DB‑grounded answers | Met | Code builds system prompt with directive (see chat.ts) |
-| LLM call uses LLM_URL or mock deterministic response | Met | callLLM uses env var or mock; test checks deterministic mock response |
-| Tool parsing includes JSON tool field | Met | Added test for JSON tool parsing and implementation returns parsed tool field |
-| Rate‑limit middleware enforces 2 concurrent per IP | Met | Supertest test validates position 2 for third request |
-| Cache starter prompts <100 ms | Met | Test measures second request duration ≤100 ms |
-| Tests suite covers criteria | Met | All Jest tests pass |
-| README updated with endpoint description | Met | README includes /chat endpoint documentation |
+
 
 ## Overview
 Implement the backend chat functionality for Phase 6. This includes API endpoints, concurrency control, caching, mock LLM integration, and documentation.
