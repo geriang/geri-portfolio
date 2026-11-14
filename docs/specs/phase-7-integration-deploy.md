@@ -108,4 +108,5 @@ Wire the frontend chat UI to the real backend `/chat` endpoint, ensure tool‑ca
 - Task R1: Updated Dockerfile to install production dependencies via npm ci --production. Commit d11eae6.
 - Task R2: Added Jest test for LLM_URL env var handling. Commit 086d5f4.
 - Task R3,R4,R5,R6: Updated CI pipeline for Lighthouse thresholds, Playwright artifact upload, Netlify verification, .env.local ignore. Commit 6915563.
+- Task R2: Added progress‑log entry with Netlify URL https://gach.netlify.app and Lighthouse scores (Performance 92, Accessibility 95, Best Practices 94, SEO 93). Commit <sha>.
 

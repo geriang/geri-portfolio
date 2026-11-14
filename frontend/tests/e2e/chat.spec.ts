@@ -9,5 +9,5 @@ test('full chat flow with tool rendering', async ({ page }) => {
   await page.getByPlaceholder('Ask something...').fill('List the top three projects.');
   await page.getByRole('button', { name: 'Send' }).click();
   // Wait for tool card to appear
-  await expect(page.locator('text=Project A')).toBeVisible({ timeout: 5000 });
+  await expect(page.locator('[data-testid="project-card"]').filter({ hasText: 'Project A' })).toBeVisible({ timeout: 5000 });
 });
