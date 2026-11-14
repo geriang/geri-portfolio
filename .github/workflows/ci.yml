@@ -55,5 +55,16 @@ jobs:
         working-directory: ${{ matrix.dir }}
         run: |
           npm install -g netlify-cli
-          netlify deploy --dir=out --prod
+          DEPLOY_OUTPUT=$(netlify deploy --dir=out --prod --json)
+          echo "$DEPLOY_OUTPUT"
+          URL=$(echo "$DEPLOY_OUTPUT" | grep -o 'https://[^"}]*')
+          echo "NETLIFY_URL=$URL" >> $GITHUB_ENV
+          echo "Deployed to $URL"
+
+      - name: Run Lighthouse on Netlify URL
+        if: matrix.dir == 'frontend' && env.NETLIFY_URL != ''
+        run: |
+          npm install -g lighthouse
+          lighthouse ${{ env.NETLIFY_URL }} --quiet --chrome-flags="--headless" --output=json --output-path=lhreport.json
+          cat lhreport.json
 
