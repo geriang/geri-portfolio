@@ -8,7 +8,7 @@ interface IPState {
 const ipMap = new Map<string, IPState>();
 
 export function concurrencyLimit(req: Request, res: Response, next: NextFunction) {
-  const ip = req.ip;
+  const ip = req.ip as string;
   let state = ipMap.get(ip);
   if (!state) {
     state = { active: 0, queue: [] };
@@ -29,14 +29,14 @@ export function concurrencyLimit(req: Request, res: Response, next: NextFunction
     });
   };
 
-  if (state.active < 2) {
-    state.active++;
+  if (state!.active < 2) {
+    state!.active++;
     (req as any).position = null;
     attachFinish(state);
     next();
   } else {
-    const position = state.active + state.queue.length;
-    state.queue.push({ req, res, next, position });
+    const position = state!.active + state!.queue.length;
+    state!.queue.push({ req, res, next, position });
     // Do not call next now; request will be processed later.
   }
 }

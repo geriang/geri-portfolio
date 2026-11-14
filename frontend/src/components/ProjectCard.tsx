@@ -1,6 +1,6 @@
 import React from 'react';
 
-type ToolData = any; // Replace with proper type when known
+type ToolData = unknown; // Replace with proper type when defined
 
 interface ProjectCardProps {
   tool: ToolData;

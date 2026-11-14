@@ -86,7 +86,7 @@ router.post('/', concurrencyLimit, async (req: Request, res: Response) => {
   // Attach position if queued
   const position = (req as any).position;
   if (position !== null && position !== undefined) {
-    llmResponse.position = position;
+    (llmResponse as any).position = position;
   }
 
   res.json(llmResponse);

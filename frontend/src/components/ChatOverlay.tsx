@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useChat } from '../context/ChatContext';
 import ProjectCard from './ProjectCard';
 
@@ -10,7 +10,7 @@ interface ChatOverlayProps {
 const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose, queuePosition }) => {
   const { messages: initialMessages } = useChat();
   const [messages, setMessages] = useState<string[]>(initialMessages);
-  const [toolData, setToolData] = useState<any>(null);
+  const [toolData, setToolData] = useState<unknown>(null);
   const [input, setInput] = useState('');
 
   const sendPrompt = async (prompt: string) => {
@@ -68,7 +68,7 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose, queuePosition }) => 
           {messages.map((msg, idx) => (
             <p key={idx} className="text-gray-800 dark:text-gray-200">{msg}</p>
           ))}
-          {toolData && <ProjectCard tool={toolData} />}
+          {toolData !== null && toolData !== undefined && <ProjectCard tool={toolData} /> }
         </div>
       </div>
     </div>
