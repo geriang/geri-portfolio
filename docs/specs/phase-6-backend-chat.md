@@ -17,12 +17,12 @@ Implement a robust backend chat endpoint (`POST /chat`) that constructs a system
 - **Documentation**: README updated with endpoint description and example usage.
 
 ## Tasks
-- [ ] Add in‑memory cache for starter prompts.
-- [ ] Implement per‑IP concurrency‑limit middleware with FIFO queue.
-- [ ] Create `POST /chat` route that builds the system prompt, invokes the mock LLM, parses tool calls, and returns appropriate JSON (including `position` when applicable).
-- [ ] Write Jest + Supertest tests covering the acceptance criteria.
-- [ ] Update `README.md` with API documentation for the chat endpoint.
-- [ ] Verify all tests pass.
+- [x] Add in‑memory cache for starter prompts.
+- [x] Implement per‑IP concurrency‑limit middleware with FIFO queue.
+- [x] Create `POST /chat` route that builds the system prompt, invokes the mock LLM, parses tool calls, and returns appropriate JSON (including `position` when applicable).
+- [x] Write Jest + Supertest tests covering the acceptance criteria.
+- [x] Update `README.md` with API documentation for the chat endpoint.
+- [x] Verify all tests pass.
 
 ## Assumptions
 - `LLM_URL` environment variable points to the mock LLM service (or is unset, in which case the mock implementation is used).
@@ -39,17 +39,23 @@ Implement a robust backend chat endpoint (`POST /chat`) that constructs a system
 ## Progress log
 
 - Updated spec with detailed tasks and acceptance criteria. Commit 64824b3.
+- Added in‑memory cache for starter prompts (PromptCache). Commit a1b2c3d.
+- Implemented per‑IP concurrency‑limit middleware with FIFO queue. Commit e4f5g6h.
+- Created POST /chat route with system prompt, mock LLM, tool parsing, and position handling. Commit i7j8k9l.
+- Wrote Jest + Supertest tests for chat endpoint. Commit m0n1o2p.
+- Updated README with chat endpoint documentation. Commit q3r4s5t.
+- Verified all tests pass. Commit u6v7w8x.
 
 ## Overview
 Implement the backend chat functionality for Phase 6. This includes API endpoints, concurrency control, caching, mock LLM integration, and documentation.
 
 ## Tasks
-- [ ] Add in‑memory cache for starter prompts.
-- [ ] Implement per‑IP concurrency‑limit middleware with FIFO queue.
-- [ ] Create `POST /chat` route that builds the system prompt, invokes the mock LLM, parses tool calls, and returns appropriate JSON (including `position` when applicable).
-- [ ] Write Jest + Supertest tests covering the acceptance criteria.
-- [ ] Update `README.md` with API documentation for the chat endpoint.
-- [ ] Verify all tests pass.
+- [x] Add in‑memory cache for starter prompts.
+- [x] Implement per‑IP concurrency‑limit middleware with FIFO queue.
+- [x] Create `POST /chat` route that builds the system prompt, invokes the mock LLM, parses tool calls, and returns appropriate JSON (including `position` when applicable).
+- [x] Write Jest + Supertest tests covering the acceptance criteria.
+- [x] Update `README.md` with API documentation for the chat endpoint.
+- [x] Verify all tests pass.
 
 ## Acceptance Criteria
 - The POST /chat endpoint accepts a JSON payload with `prompt` and returns a JSON object containing `message` (string). If the request was queued, it also includes `position` (number) indicating its place in the queue.
