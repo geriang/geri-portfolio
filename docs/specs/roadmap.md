@@ -31,4 +31,4 @@ Upgrade the **gach.work** portfolio to a modern **React (Next.js) + TypeScript**
 Each phase is sized to fit inside a single PR that can be reviewed and merged without breaking `main`. The roadmap respects the overall goal (modern React site with AI chat), the constraint to keep the existing visual design, and the “done” definition (live Netlify site + working chat overlay with Lighthouse > 90).
 
 ## Progress log
-- Phase 6 backend chat: implemented, all tests pass. Commit <PLACEHOLDER>
+- Phase 6 backend chat: implemented, all tests pass. Commit 183655421bfe0c05bab671831ad4fa11225580a9
