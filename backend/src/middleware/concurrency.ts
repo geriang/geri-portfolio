@@ -22,11 +22,8 @@ export function concurrencyLimit(req: Request, res: Response, next: NextFunction
         const nextItem = stateRef.queue.shift()!;
         (nextItem.req as any).position = nextItem.position;
         stateRef.active++;
-        // Attach finish handler for this dequeued request as well
-        nextItem.res.on('finish', () => {
-          // This will be handled when the request finishes again in the outer logic if needed
-          // No further action needed here because the outer attachment will manage subsequent queues.
-        });
+        // Attach finish handler for dequeued request
+        attachFinish(stateRef);
         nextItem.next();
       }
     });
