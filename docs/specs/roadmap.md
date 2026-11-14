@@ -20,11 +20,11 @@ Upgrade the **gach.work** portfolio to a modern **React (Next.js) + TypeScript**
 
 # Status
 
-- **Phase 1**: not started
+- **Phase 1**: merged
 - **Phase 2**: merged
-- **Phase 3**: not started
-- **Phase 4**: not started
-- **Phase 5**: not started
+- **Phase 3**: merged
+- **Phase 4**: merged
+- **Phase 5**: merged
 - **Phase 6**: not started
 - **Phase 7**: not started
 

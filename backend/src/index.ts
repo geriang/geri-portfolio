@@ -11,9 +11,11 @@ app.get('/health', (req, res) => {
 
 import staticDataRouter from './routes/staticData';
 import entityRouter from './routes/entity';
+import chatRouter from './routes/chat';
 
 app.use('/static-data', staticDataRouter);
 app.use('/entity', entityRouter);
+app.use('/chat', chatRouter);
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
