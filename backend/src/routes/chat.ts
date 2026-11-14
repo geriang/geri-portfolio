@@ -28,6 +28,18 @@ async function callLLM(systemPrompt: string): Promise<{ message: string; tool?: 
   }
   // Mock deterministic response with artificial delay to simulate processing time
   await new Promise(resolve => setTimeout(resolve, 200));
+  if (systemPrompt.toLowerCase().includes('top three projects')) {
+    return {
+      message: `Mock response for: ${systemPrompt}`,
+      tool: {
+        type: 'projectList',
+        projects: [
+          { name: 'Project A', description: 'Desc A' },
+          { name: 'Project B', description: 'Desc B' }
+        ]
+      }
+    };
+  }
   return { message: `Mock response for: ${systemPrompt}` };
 }
 
