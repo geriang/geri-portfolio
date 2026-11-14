@@ -38,14 +38,11 @@ Implement a robust backend chat endpoint (`POST /chat`) that constructs a system
 
 ## Progress log
 
-- Updated spec with detailed tasks and acceptance criteria. Commit 64824b3.
-- Added in‑memory cache for starter prompts (PromptCache). Commit 9157de1.
-- Implemented per‑IP concurrency‑limit middleware with FIFO queue. Commit 1fdc175.
-- Created POST /chat route with system prompt, mock LLM, tool parsing, and position handling. Commit 7d08cc4.
-- Wrote Jest + Supertest tests for chat endpoint. Commit 9157de1.
-- Updated README with chat endpoint documentation. Commit 3ae23b0.
-- Added test for JSON tool parsing and simplified concurrency listener handling. Commit 9eecefb.
-- Added unit test for system prompt content. Commit c85f518.
+- 2813b19 – Initial progress log and acceptance evidence added.
+- c3ce015 – Final spec cleanup.
+- c85f518 – Unit test for system prompt and duplicate removal.
+- b55e3cb – Tool parsing implemented and progress entry updated.
+- 9eecefb – JSON tool parsing test and middleware simplification.
 
 
 
