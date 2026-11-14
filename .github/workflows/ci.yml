@@ -35,6 +35,12 @@ jobs:
         if: matrix.dir == 'frontend'
         working-directory: ${{ matrix.dir }}
         run: npm run test:e2e
+      - name: Upload Playwright test results
+        if: matrix.dir == 'frontend'
+        uses: actions/upload-artifact@v3
+        with:
+          name: playwright-results
+          path: ${{ matrix.dir }}/test-results
       - name: Build Docker image (Backend)
         if: matrix.dir == 'backend'
         working-directory: ${{ matrix.dir }}
@@ -67,4 +73,21 @@ jobs:
           npm install -g lighthouse
           lighthouse ${{ env.NETLIFY_URL }} --quiet --chrome-flags="--headless" --output=json --output-path=lhreport.json
           cat lhreport.json
+            # Check scores and fail if any <90
+            node - <<'NODE'
+            const report = require('./lhreport.json');
+            const categories = report.categories;
+            let failed = false;
+            for (const [name, cat] of Object.entries(categories)) {
+              const score = cat.score * 100;
+              if (score < 90) { console.error(`${name} score ${score} is below 90`); failed = true; }
+            }
+            if (failed) process.exit(1);
+            NODE
+
+      - name: Verify Netlify deployment
+        if: matrix.dir == 'frontend' && env.NETLIFY_URL != ''
+        run: |
+          curl -f ${{ env.NETLIFY_URL }}
+          echo "Netlify site reachable at ${{ env.NETLIFY_URL }}"
 
