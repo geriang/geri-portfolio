@@ -105,5 +105,7 @@ Wire the frontend chat UI to the real backend `/chat` endpoint, ensure tool‑ca
 - Task 4: Updated ChatOverlay to POST to backend and render messages and tool UI. Commit 95e76e8.
 - Task 5: Added .env.local with NEXT_PUBLIC_API_URL. Commit 95e76e8.
 - Task 6: Added Playwright dev dependency, test script, and e2e test. Commit cd10cbaa65a6135e36452d4c0b7f6130c34222af.
-- Task 7: Extended CI workflow with Playwright, Docker build, health check, Netlify deploy steps. Commit d044de6005cb69a915cd8e7f97610430a66a6c6e.
+- Task R1: Updated Dockerfile to install production dependencies via npm ci --production. Commit d11eae6.
+- Task R2: Added Jest test for LLM_URL env var handling. Commit 086d5f4.
+- Task R3,R4,R5,R6: Updated CI pipeline for Lighthouse thresholds, Playwright artifact upload, Netlify verification, .env.local ignore. Commit 6915563.
 
