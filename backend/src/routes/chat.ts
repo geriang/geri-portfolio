@@ -52,7 +52,19 @@ router.post('/', concurrencyLimit, async (req: Request, res: Response) => {
   }
 
   const systemPrompt = buildSystemPrompt(prompt);
-  const llmResponse = await callLLM(systemPrompt);
+  let llmResponse = await callLLM(systemPrompt);
+
+  // Parse tool call if message contains JSON
+  if (typeof llmResponse.message === 'string') {
+    const trimmed = llmResponse.message.trim();
+    if (trimmed.startsWith('{')) {
+      try {
+        llmResponse.tool = JSON.parse(trimmed);
+      } catch (e) {
+        // If parsing fails, leave tool undefined
+      }
+    }
+  }
 
   // Cache response if it's a starter prompt
   if (starterPrompts.includes(prompt)) {
