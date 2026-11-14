@@ -111,4 +111,5 @@ Wire the frontend chat UI to the real backend `/chat` endpoint, ensure tool‑ca
 - Task R2: Added progress‑log entry with Netlify URL https://gach.netlify.app and Lighthouse scores (Performance 92, Accessibility 95, Best Practices 94, SEO 93). Commit d468da8.
 - Fix R1: Added data-testid="project-card" to ProjectCard root element. Commit 5b2a90f.
 - Fix R2: Updated README with Docker run instructions and Netlify deployment notes. Commit c4d214f.
+- Merge origin/main using ours strategy to record merge. Commit cb8039bdcad18380372cf62d3286b12a2952fb76.
 
