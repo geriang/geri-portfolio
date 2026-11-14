@@ -14,4 +14,4 @@ COPY --from=builder /app/package-lock.json ./
 COPY --from=builder /app/dist ./dist
 ENV NODE_ENV=production
 EXPOSE 8080
-CMD ["npm", "start"]
+CMD ["node", "dist/index.js"]
