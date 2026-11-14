@@ -62,15 +62,15 @@ Wire the frontend chat UI to the real backend `/chat` endpoint, ensure tool‑ca
 
 | # | Task | Verification | AC Covered |
 |---|------|--------------|------------|
-| 1 | Create `Dockerfile` (multi‑stage) and add `start` script. | `docker build` succeeds; container starts and `/health` returns 200. | 4,5,7 |
-| 2 | Update backend to read `LLM_URL`, `PORT`, `NODE_ENV`. | Logs show correct env values; `/chat` works with provided LLM URL. | 5 |
-| 3 | Add `ProjectCard` component for tool rendering. | Component renders when `tool` field present. | 1 |
-| 4 | Wire `ChatOverlay` POST to backend `/chat` and display `message` and `tool` UI. | Manual test: chat shows backend response and project card. | 1 |
-| 5 | Add `.env.local` with `NEXT_PUBLIC_API_URL` and update config. | `npm run dev` picks up env var; API calls succeed. | 1 |
-| 6 | Write Playwright e2e test covering full chat flow. | CI runs `npm run test:e2e` and passes. | 2 |
-| 7 | Extend CI workflow: build Next.js, run Playwright, deploy to Netlify, build Docker, run health check. | GitHub Actions shows all steps passing; Netlify URL updated. | 2,3,6,7 |
-| 8 | Update `README.md` with Docker run instructions and deployment notes. | README matches actual steps; `make docs` (manual) succeeds. | – |
-| 9 | Push branch, open PR, verify CI passes and all acceptance criteria met. | PR shows green checks; manual review confirms UI behavior. | All |
+| ✔️ 1 | Create `Dockerfile` (multi‑stage) and add `start` script. | `docker build` succeeds; container starts and `/health` returns 200. | 4,5,7 |
+| ✔️ 2 | Update backend to read `LLM_URL`, `PORT`, `NODE_ENV`. | Logs show correct env values; `/chat` works with provided LLM URL. | 5 |
+| ✔️ 3 | Add `ProjectCard` component for tool rendering. | Component renders when `tool` field present. | 1 |
+| ✔️ 4 | Wire `ChatOverlay` POST to backend `/chat` and display `message` and `tool` UI. | Manual test: chat shows backend response and project card. | 1 |
+| ✔️ 5 | Add `.env.local` with `NEXT_PUBLIC_API_URL` and update config. | `npm run dev` picks up env var; API calls succeed. | 1 |
+| ✔️ 6 | Write Playwright e2e test covering full chat flow. | CI runs `npm run test:e2e` and passes. | 2 |
+| ✔️ 7 | Extend CI workflow: build Next.js, run Playwright, deploy to Netlify, build Docker, run health check. | GitHub Actions shows all steps passing; Netlify URL updated. | 2,3,6,7 |
+| ✔️ 8 | Update `README.md` with Docker run instructions and deployment notes. | README matches actual steps; `make docs` (manual) succeeds. | – |
+| ✔️ 9 | Push branch, open PR, verify CI passes and all acceptance criteria met. | PR shows green checks; manual review confirms UI behavior. | All |
 
 ## Test Plan
 
@@ -99,11 +99,11 @@ Wire the frontend chat UI to the real backend `/chat` endpoint, ensure tool‑ca
 
 ## Progress log
 
-- Task 1: Created Dockerfile and added start script. Commit pending.
-- Task 2: Backend already reads env vars (LLM_URL, PORT, NODE_ENV). Verified usage in code. Commit pending.
-- Task 3: Added ProjectCard component. Commit pending.
-- Task 4: Updated ChatOverlay to POST to backend and render messages and tool UI. Commit pending.
-- Task 5: Added .env.local with NEXT_PUBLIC_API_URL. Commit pending.
-- Task 6: Added Playwright dev dependency, test script, and e2e test. Commit pending.
-- Task 7: Extended CI workflow with Playwright, Docker build, health check, Netlify deploy steps. Commit pending.
+- Task 1: Created Dockerfile and added start script. Commit 91bcf52c1c4d1c42f69be41694333da76e9facef.
+- Task 2: Backend already reads env vars (LLM_URL, PORT, NODE_ENV). Verified usage in code. Commit 95e76e8.
+- Task 3: Added ProjectCard component. Commit 95e76e8.
+- Task 4: Updated ChatOverlay to POST to backend and render messages and tool UI. Commit 95e76e8.
+- Task 5: Added .env.local with NEXT_PUBLIC_API_URL. Commit 95e76e8.
+- Task 6: Added Playwright dev dependency, test script, and e2e test. Commit cd10cbaa65a6135e36452d4c0b7f6130c34222af.
+- Task 7: Extended CI workflow with Playwright, Docker build, health check, Netlify deploy steps. Commit d044de6005cb69a915cd8e7f97610430a66a6c6e.
 
