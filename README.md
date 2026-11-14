@@ -35,3 +35,26 @@ npm test
 ```
 Runs Jest + Supertest suite covering the API and scraper logic.
 
+## Deployment
+
+### Docker
+
+```bash
+# Build the backend Docker image
+docker build -t gach-backend .
+
+# Run the container (example configuration)
+# Adjust LLM_URL, PORT, and NODE_ENV as needed
+docker run -p 8080:8080 \
+  -e LLM_URL=http://your-llm-service \
+  -e PORT=8080 \
+  -e NODE_ENV=production \
+  gach-backend
+```
+
+The container will start the backend server on the specified `PORT`. A health check endpoint is available at `http://localhost:<PORT>/health` and should return a JSON response like `{"status":"ok"}`.
+
+### Netlify deployment
+
+The frontend is exported as a static site (`npm run build && npm run export`). CI automatically deploys the `out/` folder to Netlify. After a successful workflow run, the site will be available at the Netlify URL (e.g., `https://gach.netlify.app`). Verify the deployment by opening the URL and confirming that the chat UI loads and can communicate with the backend container.
+
