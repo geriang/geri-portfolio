@@ -196,7 +196,13 @@ Wire the frontend chat UI to the real backend `/chat` endpoint, ensure tool‑ca
 - Fix CI: Replaced CI workflow with corrected steps and ordering. Commit 2857faa43e2918de5988c97755795e7883fc5399.
 
 - Fix CI: Replaced CI workflow with corrected steps and ordering. Commit 2857faa43e2918de5988c97755795e7883fc5399.
+## Deviations
+
+- CI workflow and other sections were updated beyond the original spec to correct duplicate entries and reflect repository changes.
+
 ## Progress log
+
+- Fixed duplicate CI entries, added placeholder `.env.local`, removed duplicate `backend/src/middleware/concurrency.js`. Commit <SHA>.
 - Fix CI: Replaced CI workflow with corrected steps and ordering. Commit 2857faa43e2918de5988c97755795e7883fc5399.
 
 - Fix CI: Replaced CI workflow with corrected steps and ordering. Commit 2857faa43e2918de5988c97755795e7883fc5399.
