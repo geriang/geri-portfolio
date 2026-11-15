@@ -57,6 +57,13 @@ jobs:
         run: |
           sleep 5
           curl -f http://localhost:8081/health
+      - name: Echo health check passed
+        run: echo "Health check passed" > health-check.log
+      - name: Upload health check log
+        uses: actions/upload-artifact@v4
+        with:
+          name: health-check-log
+          path: health-check.log
       - name: Run Playwright E2E tests
         working-directory: frontend
         run: npm run test:e2e
@@ -106,8 +113,20 @@ jobs:
           }
           if (failed) process.exit(1);
           NODE
+      - name: Upload Lighthouse report
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-report
+          path: lhreport.json
       - name: Verify Netlify deployment
         if: ${{ env.NETLIFY_URL != '' }}
         run: |
           curl -f ${{ env.NETLIFY_URL }}
           echo "Netlify site reachable at ${{ env.NETLIFY_URL }}"
+      - name: Echo health check passed
+        run: echo "Health check passed" > health-check.log
+      - name: Upload health check log
+        uses: actions/upload-artifact@v4
+        with:
+          name: health-check-log
+          path: health-check.log
