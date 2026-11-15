@@ -31,11 +31,32 @@ jobs:
         if: matrix.dir == 'frontend'
         working-directory: ${{ matrix.dir }}
         run: npx playwright install --with-deps
-      - name: Run Playwright E2E tests (Frontend)
+              - name: Build Docker image (Backend)
+          if: matrix.dir == 'frontend'
+          run: docker build -t gach-backend ./backend
+        - name: Start backend container for Playwright
+          if: matrix.dir == 'frontend'
+          run: |
+            docker run -d --name backend-test -p 8081:8080 gach-backend
+            echo "NEXT_PUBLIC_API_URL=http://localhost:8081" >> $GITHUB_ENV
+        - name: Run Playwright E2E tests (Frontend)
+          if: matrix.dir == 'frontend'
+          working-directory: ${{ matrix.dir }}
+          run: npm run test:e2e
         if: matrix.dir == 'frontend'
         working-directory: ${{ matrix.dir }}
         run: npm run test:e2e
-      - name: Upload Playwright test results
+              - name: Upload Playwright test results
+          if: matrix.dir == 'frontend'
+          uses: actions/upload-artifact@v4
+          with:
+            name: playwright-results
+            path: ${{ matrix.dir }}/test-results
+        - name: Stop backend container
+          if: matrix.dir == 'frontend'
+          run: |
+            docker stop backend-test
+            docker rm backend-test
         if: matrix.dir == 'frontend'
         uses: actions/upload-artifact@v4
         with:

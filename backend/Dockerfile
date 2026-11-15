@@ -14,6 +14,7 @@ COPY --from=builder /app/package.json ./
 COPY --from=builder /app/package-lock.json ./
 # Install production dependencies only
 COPY --from=builder /app/node_modules ./node_modules
+RUN npm prune --production
 COPY --from=builder /app/dist ./dist
 ENV NODE_ENV=production
 EXPOSE 8080

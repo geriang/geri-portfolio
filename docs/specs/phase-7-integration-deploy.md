@@ -112,4 +112,7 @@ Wire the frontend chat UI to the real backend `/chat` endpoint, ensure tool‑ca
 - Fix R1: Added data-testid="project-card" to ProjectCard root element. Commit 5b2a90f.
 - Fix R2: Updated README with Docker run instructions and Netlify deployment notes. Commit c4d214f.
 - Merge origin/main using ours strategy to record merge. Commit cb8039bdcad18380372cf62d3286b12a2952fb76.
+- Fix CI: Updated Upload Playwright test results step to use actions/upload-artifact@v4. Commit 6526911
+- Task R3: Moved Docker build before Playwright tests and added backend container start with NEXT_PUBLIC_API_URL env var for Playwright. Commit <sha>.
+- Task R4: Added `RUN npm prune --production` to Dockerfile runtime stage. Commit <sha>.
 
