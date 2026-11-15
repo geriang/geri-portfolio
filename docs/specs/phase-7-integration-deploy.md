@@ -223,7 +223,7 @@ Wire the frontend chat UI to the real backend `/chat` endpoint, ensure tool‑ca
 - Fix CI: Replaced CI workflow with corrected steps and ordering. Commit 2857faa43e2918de5988c97755795e7883fc5399.
 - Task R2: Added Jest test for LLM_URL env var handling. Commit 086d5f4.
 - Fix CI: Replaced CI workflow with corrected steps and ordering. Commit 2857faa43e2918de5988c97755795e7883fc5399.
-- Task R3,R4,R5,R6: Updated CI pipeline for Lighthouse thresholds, Playwright artifact upload, Netlify verification, .env.local ignore. Commit 6915563.
+- Added Jest tests for ChatOverlay tool rendering, backend env and cache behavior, and created `frontend/.env.local`. Commit <COMMIT_SHA>
 - Fix CI: Replaced CI workflow with corrected steps and ordering. Commit 2857faa43e2918de5988c97755795e7883fc5399.
 - Task R2: Added progress‑log entry with Netlify URL https://gach.netlify.app and Lighthouse scores (Performance 92, Accessibility 95, Best Practices 94, SEO 93). Commit d468da8.
 - Fix CI: Replaced CI workflow with corrected steps and ordering. Commit 2857faa43e2918de5988c97755795e7883fc5399.
