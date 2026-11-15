@@ -202,7 +202,7 @@ Wire the frontend chat UI to the real backend `/chat` endpoint, ensure tool‑ca
 
 ## Progress log
 
-- Fixed duplicate CI entries, added placeholder `.env.local`, removed duplicate `backend/src/middleware/concurrency.js`. Commit <SHA>.
+- Fixed duplicate CI entries, added placeholder `.env.local`, removed duplicate `backend/src/middleware/concurrency.js`. Commit 1bd2c20.
 - Fix CI: Replaced CI workflow with corrected steps and ordering. Commit 2857faa43e2918de5988c97755795e7883fc5399.
 
 - Fix CI: Replaced CI workflow with corrected steps and ordering. Commit 2857faa43e2918de5988c97755795e7883fc5399.
@@ -231,6 +231,7 @@ Wire the frontend chat UI to the real backend `/chat` endpoint, ensure tool‑ca
 - Fix R2: Updated README with Docker run instructions and Netlify deployment notes. Commit c4d214f.
 - Fix CI: Replaced CI workflow with corrected steps and ordering. Commit 2857faa43e2918de5988c97755795e7883fc5399.
 - Merge origin/main using ours strategy to record merge. Commit cb8039bdcad18380372cf62d3286b12a2952fb76.
+- Task HealthCheck: Added health check step to CI workflow. Commit e8c5d10.
 - Fix CI: Replaced CI workflow with corrected steps and ordering. Commit 2857faa43e2918de5988c97755795e7883fc5399.
 - Fix CI: Updated Upload Playwright test results step to use actions/upload-artifact@v4. Commit 6526911
 - Fix CI: Replaced CI workflow with corrected steps and ordering. Commit 2857faa43e2918de5988c97755795e7883fc5399.
