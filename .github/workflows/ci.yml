@@ -53,6 +53,10 @@ jobs:
           docker run -d --name backend-test -p 8081:8080 gach-backend
           echo "NEXT_PUBLIC_API_URL=http://localhost:8081" >> $GITHUB_ENV
       # Run Playwright tests
+      - name: Health check backend
+        run: |
+          sleep 5
+          curl -f http://localhost:8081/health
       - name: Run Playwright E2E tests
         working-directory: frontend
         run: npm run test:e2e
