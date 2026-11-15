@@ -204,6 +204,7 @@ Wire the frontend chat UI to the real backend `/chat` endpoint, ensure tool‑ca
 
 - Fixed duplicate CI entries, added placeholder `.env.local`, removed duplicate `backend/src/middleware/concurrency.js`. Commit 1bd2c20.
 - Fix CI: Replaced CI workflow with corrected steps and ordering. Commit 2857faa43e2918de5988c97755795e7883fc5399.
+- Fixed CI workflow conditionals. Commit 6e4c29c
 
 - Fix CI: Replaced CI workflow with corrected steps and ordering. Commit 2857faa43e2918de5988c97755795e7883fc5399.
 - Task 1: Created Dockerfile and added start script. Commit 91bcf52c1c4d1c42f69be41694333da76e9facef.
