@@ -4,6 +4,7 @@ on:
     branches: ['*']
   pull_request:
     branches: ['*']
+
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -23,92 +24,86 @@ jobs:
         working-directory: ${{ matrix.dir }}
         run: npm run lint
 
-      - name: Build and Export (Frontend)
-        if: matrix.dir == 'frontend'
-        working-directory: ${{ matrix.dir }}
-        run: npm run build && ls out
-      - name: Install Playwright browsers (Frontend)
-        if: matrix.dir == 'frontend'
-        working-directory: ${{ matrix.dir }}
+  build-test:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+      # Frontend deps, build and export
+      - name: Install frontend deps
+        working-directory: frontend
+        run: npm ci
+      - name: Build and export frontend
+        working-directory: frontend
+        run: npm run build && npm run export
+      # Install Playwright browsers
+      - name: Install Playwright browsers
+        working-directory: frontend
         run: npx playwright install --with-deps
-              - name: Build Docker image (Backend)
-          if: matrix.dir == 'frontend'
-          run: docker build -t gach-backend ./backend
-        - name: Start backend container for Playwright
-          if: matrix.dir == 'frontend'
-          run: |
-            docker run -d --name backend-test -p 8081:8080 gach-backend
-            echo "NEXT_PUBLIC_API_URL=http://localhost:8081" >> $GITHUB_ENV
-        - name: Run Playwright E2E tests (Frontend)
-          if: matrix.dir == 'frontend'
-          working-directory: ${{ matrix.dir }}
-          run: npm run test:e2e
-        if: matrix.dir == 'frontend'
-        working-directory: ${{ matrix.dir }}
+      # Backend Docker build
+      - name: Build Docker image (backend)
+        run: docker build -t gach-backend ./backend
+      # Start backend for e2e tests
+      - name: Start backend container for Playwright
+        run: |
+          docker run -d --name backend-test -p 8081:8080 gach-backend
+          echo "NEXT_PUBLIC_API_URL=http://localhost:8081" >> $GITHUB_ENV
+      # Run Playwright tests
+      - name: Run Playwright E2E tests
+        working-directory: frontend
         run: npm run test:e2e
-              - name: Upload Playwright test results
-          if: matrix.dir == 'frontend'
-          uses: actions/upload-artifact@v4
-          with:
-            name: playwright-results
-            path: ${{ matrix.dir }}/test-results
-        - name: Stop backend container
-          if: matrix.dir == 'frontend'
-          run: |
-            docker stop backend-test
-            docker rm backend-test
-        if: matrix.dir == 'frontend'
+      - name: Upload Playwright test results
         uses: actions/upload-artifact@v4
         with:
           name: playwright-results
-          path: ${{ matrix.dir }}/test-results
-      - name: Build Docker image (Backend)
-        if: matrix.dir == 'backend'
-        working-directory: ${{ matrix.dir }}
+          path: frontend/test-results
+      # Stop backend container
+      - name: Stop backend container
         run: |
-          docker build -t gach-backend .
-      - name: Run Docker health check (Backend)
-        if: matrix.dir == 'backend'
-        run: |
-          docker run -d --name backend-test -p 8081:8080 gach-backend
-          sleep 5
-          curl -f http://localhost:8081/health
           docker stop backend-test
           docker rm backend-test
-      - name: Deploy to Netlify (Frontend)
-        if: matrix.dir == 'frontend' && env.NETLIFY_AUTH_TOKEN != ''
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-test
+    if: env.NETLIFY_AUTH_TOKEN != ''
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+      - name: Deploy to Netlify
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-        working-directory: ${{ matrix.dir }}
+        working-directory: frontend
         run: |
           npm install -g netlify-cli
           DEPLOY_OUTPUT=$(netlify deploy --dir=out --prod --json)
           echo "$DEPLOY_OUTPUT"
           URL=$(echo "$DEPLOY_OUTPUT" | grep -o 'https://[^"}]*')
           echo "NETLIFY_URL=$URL" >> $GITHUB_ENV
-          echo "Deployed to $URL"
-
       - name: Run Lighthouse on Netlify URL
-        if: matrix.dir == 'frontend' && env.NETLIFY_URL != ''
+        if: env.NETLIFY_URL != ''
         run: |
           npm install -g lighthouse
           lighthouse ${{ env.NETLIFY_URL }} --quiet --chrome-flags="--headless" --output=json --output-path=lhreport.json
-          cat lhreport.json
-            # Check scores and fail if any <90
-            node - <<'NODE'
-            const report = require('./lhreport.json');
-            const categories = report.categories;
-            let failed = false;
-            for (const [name, cat] of Object.entries(categories)) {
-              const score = cat.score * 100;
-              if (score < 90) { console.error(`${name} score ${score} is below 90`); failed = true; }
-            }
-            if (failed) process.exit(1);
-            NODE
-
+          node - <<'NODE'
+          const report = require('./lhreport.json');
+          const categories = report.categories;
+          let failed = false;
+          for (const [name, cat] of Object.entries(categories)) {
+            const score = cat.score * 100;
+            if (score < 90) { console.error(`${name} score ${score} is below 90`); failed = true; }
+          }
+          if (failed) process.exit(1);
+          NODE
       - name: Verify Netlify deployment
-        if: matrix.dir == 'frontend' && env.NETLIFY_URL != ''
+        if: env.NETLIFY_URL != ''
         run: |
           curl -f ${{ env.NETLIFY_URL }}
           echo "Netlify site reachable at ${{ env.NETLIFY_URL }}"
-
