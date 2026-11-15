@@ -74,7 +74,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build-test
-    if: env.NETLIFY_AUTH_TOKEN != ''
+    if: ${{ env.NETLIFY_AUTH_TOKEN != '' }}
     steps:
       - uses: actions/checkout@v3
       - name: Setup Node
@@ -92,7 +92,7 @@ jobs:
           URL=$(echo "$DEPLOY_OUTPUT" | grep -o 'https://[^"}]*')
           echo "NETLIFY_URL=$URL" >> $GITHUB_ENV
       - name: Run Lighthouse on Netlify URL
-        if: env.NETLIFY_URL != ''
+        if: ${{ env.NETLIFY_URL != '' }}
         run: |
           npm install -g lighthouse
           lighthouse ${{ env.NETLIFY_URL }} --quiet --chrome-flags="--headless" --output=json --output-path=lhreport.json
@@ -107,7 +107,7 @@ jobs:
           if (failed) process.exit(1);
           NODE
       - name: Verify Netlify deployment
-        if: env.NETLIFY_URL != ''
+        if: ${{ env.NETLIFY_URL != '' }}
         run: |
           curl -f ${{ env.NETLIFY_URL }}
           echo "Netlify site reachable at ${{ env.NETLIFY_URL }}"
