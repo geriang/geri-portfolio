@@ -2,6 +2,7 @@
 FROM node:22-alpine AS builder
 WORKDIR /app
 COPY package.json package-lock.json ./
+RUN apk add --no-cache python3 make gcc g++
 RUN npm ci
 COPY . .
 RUN npm run build
@@ -12,7 +13,7 @@ WORKDIR /app
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/package-lock.json ./
 # Install production dependencies only
-RUN npm ci --production
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 ENV NODE_ENV=production
 EXPOSE 8080
