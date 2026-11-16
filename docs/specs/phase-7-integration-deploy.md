@@ -103,4 +103,4 @@ agent/phase-7-integration-deploy
 - Ensured `frontend/.env.local` is untracked (already untracked). Commit 2dae48a.
 - Task R3: Moved Docker build before Playwright tests and added backend container start with NEXT_PUBLIC_API_URL env var for Playwright. Commit a9cc8f3df7460f03f8698e80f813a374520025c1.
 - Task R4: Added `RUN npm prune --production` to Dockerfile runtime stage. Commit a9cc8f3df7460f03f8698e80f813a374520025c1.
-- CI adjustment: Updated Node version to 22 and replaced npm ci with npm install. Commit <COMMIT_SHA>.
+- CI adjustment: Updated Node version to 22 and replaced npm ci with npm install. Commit 8aa153efa5df067430aaf454a7af4ada759fff3b.
