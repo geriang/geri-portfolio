@@ -16,10 +16,10 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: '22'
       - name: Install deps
         working-directory: ${{ matrix.dir }}
-        run: npm ci
+        run: npm install
       - name: Lint
         working-directory: ${{ matrix.dir }}
         run: npm run lint
@@ -32,11 +32,11 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: '22'
       # Frontend deps, build and export
       - name: Install frontend deps
         working-directory: frontend
-        run: npm ci
+        run: npm install
       - name: Build and export frontend
         working-directory: frontend
         run: npm run build && npm run export
@@ -87,7 +87,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: '22'
       - name: Deploy to Netlify
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
