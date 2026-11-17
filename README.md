@@ -60,4 +60,4 @@ The frontend is exported as a static site (`npm run build && npm run export`). C
 
 # CI trigger
 
-# CI re-trigger
+# CI trigger 2
