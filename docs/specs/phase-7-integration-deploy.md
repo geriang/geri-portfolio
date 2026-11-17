@@ -100,6 +100,7 @@ agent/phase-7-integration-deploy
 - Merged origin/main using ours strategy to record merge. Commit cb8039bdcad18380372cf62d3286b12a2952fb76.
 - Task HealthCheck: Added health check step to CI workflow. Commit e8c5d10.
 - Removed `frontend/.env.local` (already ignored) and added CI artifact steps for Lighthouse report and health‑check logs. Commit d59b807.
+- Fixed CI deploy condition to use secrets.NETLIFY_AUTH_TOKEN. Commit d4610b6.
 - Ensured `frontend/.env.local` is untracked (already untracked). Commit 2dae48a.
 - Task R3: Moved Docker build before Playwright tests and added backend container start with NEXT_PUBLIC_API_URL env var for Playwright. Commit a9cc8f3df7460f03f8698e80f813a374520025c1.
 - Task R4: Added `RUN npm prune --production` to Dockerfile runtime stage. Commit a9cc8f3df7460f03f8698e80f813a374520025c1.
