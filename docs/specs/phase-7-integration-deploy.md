@@ -83,6 +83,7 @@ agent/phase-7-integration-deploy
 - CI workflow was modified to remove duplicated entries, add artifact uploads for Playwright results and Lighthouse reports, and adjust step ordering.
 
 ## Progress log
+- Lint import fix for ChatOverlay test: added missing `render` and `screen` imports from `@testing-library/react`. Commit <sha>.
 - Fixed duplicate CI entries, added placeholder `.env.local`, removed duplicate `backend/src/middleware/concurrency.js`. Commit 1bd2c20.
 - Fixed CI workflow conditionals. Commit 6e4c29c.
 - Task 1: Created Dockerfile and added start script. Commit 91bcf52c1c4d1c42f69be41694333da76e9facef.
