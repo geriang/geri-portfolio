@@ -77,6 +77,7 @@ Configure Playwright for the frontend so that end‑to‑end (e2e) tests run rel
 - No tsconfig changes were made.
 - Captured e2e test output; command exited 0 and output saved to `frontend/tests/e2e/output.txt`.
 - Ran unit tests; output captured in `frontend/tests/unit/output.txt`.
+- Captured Jest unit test output to `frontend/tests/unit/output.txt` (task 7 verification).
 - Updated Jest config to ignore e2e tests; removed generated artefacts (output.txt files and test-results artefacts).
 - Removed out‑of‑scope Playwright example test (frontend/tests/e2e/example.spec.ts).
 - Lint verification: `npm run lint` exited 0 with no errors. Commit effc14f.
