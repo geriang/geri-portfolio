@@ -1,0 +1,10 @@
+
+> frontend@0.1.0 test:e2e
+> playwright test
+
+
+Running 1 test using 1 worker
+
+  ✓  1 tests/e2e/example.spec.ts:3:1 › example passes (2ms)
+
+  1 passed (259ms)

@@ -73,3 +73,4 @@ Configure Playwright for the frontend so that end‑to‑end (e2e) tests run rel
 - Appended '# CI trigger after cleanup' to README.md.
 - Restored ESLint extends configuration.
 - No tsconfig changes were made.
+- Ran e2e tests; output captured in `frontend/tests/e2e/output.txt`.
