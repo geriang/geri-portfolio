@@ -70,3 +70,4 @@ Configure Playwright for the frontend so that end‑to‑end (e2e) tests run rel
 
 ## Progress log
 - Cleaned up unintended changes: removed globals from .eslintrc.json, set tsconfig jsx to "preserve", deleted test-results/.last-run.json, removed @testing-library/react from devDependencies (if present).
+- Appended '# CI trigger after cleanup' to README.md.
