@@ -22,7 +22,7 @@ describe('ChatOverlay', () => {
     const mockTool = { name: 'Test Project', description: 'A project' };
     const mockFetch = jest.spyOn(global, 'fetch').mockResolvedValue({
       json: async () => ({ message: 'Tool response', tool: mockTool })
-    } as any);
+    } as unknown);
 
     render(
       <ChatProvider>
