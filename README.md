@@ -72,3 +72,4 @@ The frontend is exported as a static site (`npm run build && npm run export`). C
 
 # CI trigger after import fix
 # CI trigger after any fix
+# CI trigger after tsconfig fix
