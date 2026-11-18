@@ -69,4 +69,4 @@ Configure Playwright for the frontend so that end‑to‑end (e2e) tests run rel
 ---
 
 ## Progress log
-- Added @testing-library/user-event and @playwright/test to devDependencies, installed packages, created playwright.config.ts with testDir './tests/e2e', lint passes, unit tests pass, e2e test not run (host missing libraries).
+- Cleaned up unintended changes: removed globals from .eslintrc.json, set tsconfig jsx to "preserve", deleted test-results/.last-run.json, removed @testing-library/react from devDependencies (if present).
