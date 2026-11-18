@@ -1,10 +1,12 @@
 import React from 'react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ChatOverlay from '../ChatOverlay';
 import { ChatProvider } from '../../context/ChatContext';
 
 describe('ChatOverlay', () => {
   const onClose = jest.fn();
+
   test('renders static messages and queue position', () => {
     render(
       <ChatProvider>
@@ -38,6 +40,7 @@ describe('ChatOverlay', () => {
     mockFetch.mockRestore();
   });
 
+  test('matches snapshot', () => {
     const { asFragment } = render(
       <ChatProvider>
         <ChatOverlay onClose={onClose} queuePosition={1} />
@@ -46,3 +49,4 @@ describe('ChatOverlay', () => {
     expect(asFragment()).toMatchSnapshot();
   });
 });
+
