@@ -9,4 +9,5 @@ Thumbs.db
 frontend/eslint.config.mjs
 backend/data/
 backend/src/*.js
-backend/src/routes/*.js
+frontend/tests/**/output.txt
+frontend/test-results/**
