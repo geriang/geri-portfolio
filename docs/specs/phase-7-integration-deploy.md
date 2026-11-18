@@ -108,4 +108,4 @@ agent/phase-7-integration-deploy
 - Task R4: Added `RUN npm prune --production` to Dockerfile runtime stage. Commit a9cc8f3df7460f03f8698e80f813a374520025c1.
 - CI adjustment: Updated Node version to 22 and replaced npm ci with npm install. Commit 8aa153efa5df067430aaf454a7af4ada759fff3b.
 - Fix ESLint no-explicit-any in ChatOverlay test: changed cast to unknown. Commit <sha>.
-- CI trigger after tsconfig fix appended to README.md. Commit <sha>
+- CI trigger after tsconfig fix appended to README.md. Commit aae1d39
