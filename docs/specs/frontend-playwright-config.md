@@ -69,6 +69,7 @@ Configure Playwright for the frontend so that end‑to‑end (e2e) tests run rel
 ---
 
 ## Progress log
+- Lint verification captured output to `frontend/lint-output.txt`. Task 5 completed.
 - Cleaned up unintended changes: removed globals from .eslintrc.json, deleted test-results/.last-run.json, removed @testing-library/react from devDependencies (if present).
 - Appended '# CI trigger after cleanup' to README.md.
 - Added '# CI trigger after final fix' to README.md.
