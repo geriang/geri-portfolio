@@ -87,6 +87,7 @@ jobs:
         with:
           node-version: '22'
       - name: Deploy to Netlify
+        if: ${{ env.NETLIFY_AUTH_TOKEN != '' }}
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
         working-directory: frontend
