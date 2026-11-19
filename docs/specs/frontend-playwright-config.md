@@ -81,4 +81,5 @@ Configure Playwright for the frontend so that end‑to‑end (e2e) tests run rel
 - Updated Jest config to ignore e2e tests; removed generated artefacts (output.txt files and test-results artefacts).
 - Removed out‑of‑scope Playwright example test (frontend/tests/e2e/example.spec.ts).
 - Updated CI script: changed `test:e2e` to start dev server and wait before running Playwright, with explanatory comment.
+- Updated test:e2e script to manage dev server lifecycle: starts server in background, waits for it, runs Playwright, then kills the server; added comment explaining the steps.
 - Captured dependency list output with `npm ls @testing-library/user-event @playwright/test` to `frontend/deps-output.txt` (Task 3 verification).

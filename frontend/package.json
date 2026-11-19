@@ -10,7 +10,7 @@
     "export": "echo \"Static export handled by next build\"",
     "verify-lazy": "npm run build && node scripts/verifyLazy.js",
     "lighthouse": "echo skip",
-    "test:e2e": "npm run dev \& wait-on http://localhost:3000 \&\& playwright test # start dev server for CI",
+    "test:e2e": "npm run dev & SERVER_PID=$! && npx wait-on http://localhost:3000 && playwright test && kill $SERVER_PID # start dev server, wait for it, run Playwright, then kill the server",
     "test-dev": "npm run dev \& SERVER_PID=$!; sleep 2; curl -s http://localhost:3000 \&\& kill $SERVER_PID",
 
   },
