@@ -82,4 +82,5 @@ Configure Playwright for the frontend so that end‑to‑end (e2e) tests run rel
 - Removed out‑of‑scope Playwright example test (frontend/tests/e2e/example.spec.ts).
 - Updated CI script: changed `test:e2e` to start dev server and wait before running Playwright, with explanatory comment.
 - Updated test:e2e script to manage dev server lifecycle: starts server in background, waits for it, runs Playwright, then kills the server; added comment explaining the steps.
+- Updated test:e2e script to serve static export for CI (Task 6, commit d0d9ad0).
 - Captured dependency list output with `npm ls @testing-library/user-event @playwright/test` to `frontend/deps-output.txt` (Task 3 verification).
