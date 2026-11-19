@@ -16,4 +16,5 @@ Integrate frontend with backend, run updated end‑to‑end tests, and prepare d
 - Guard Upload Lighthouse report step with NETLIFY_URL check.
 - Added job-level guard to skip deploy job when NETLIFY_AUTH_TOKEN missing.
 - Forced skip of deploy job (Netlify not configured).
+- Added system dependencies installation for Playwright (libglib2.0-0) in CI workflow.
 
