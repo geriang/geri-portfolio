@@ -64,6 +64,8 @@ jobs:
         with:
           name: health-check-log
           path: health-check.log
+      - name: Install Playwright dependencies
+      run: npx playwright install-deps
       - name: Run Playwright E2E tests
         working-directory: frontend
         run: npm run test:e2e
