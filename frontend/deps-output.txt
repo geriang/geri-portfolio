@@ -1,0 +1,6 @@
+frontend@0.1.0 /workspace/gach/frontend
++-- @playwright/test@1.65.1
++-- @testing-library/user-event@14.6.12
+`-- next@14.2.0
+  `-- @playwright/test@1.65.1 deduped
+
