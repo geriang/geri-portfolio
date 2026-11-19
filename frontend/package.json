@@ -10,7 +10,7 @@
     "export": "echo \"Static export handled by next build\"",
     "verify-lazy": "npm run build && node scripts/verifyLazy.js",
     "lighthouse": "echo skip",
-    "test:e2e": "npm run build && npx serve -s out -l 3000 & SERVER_PID=$! && npx wait-on http://localhost:3000 && playwright test && kill $SERVER_PID # serve static export for CI",
+    "test:e2e": "npm run build && npx serve -s out -l 3000 & SERVER_PID=$! && npx wait-on http://localhost:3000 && playwright test && kill $SERVER_PID # use serve to host static export for CI",
     "test-dev": "npm run dev \& SERVER_PID=$!; sleep 2; curl -s http://localhost:3000 \&\& kill $SERVER_PID",
 
   },
@@ -42,6 +42,7 @@
     "tailwindcss": "^4",
     "ts-jest": "^29.4.15",
     "typescript": "^5",
-    "wait-on": "^7.2.0"
+    "serve": "^14.2.0",
+    "wait-on": "^7.2.0",
   }
 }
