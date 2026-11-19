@@ -13,4 +13,5 @@ Integrate frontend with backend, run updated end‑to‑end tests, and prepare d
 - Created empty merge commit with message "Merge main (serve and updated test:e2e) into Phase 7". (commit: 1d41ac4)
 - Pushed branch to origin.
 - Added conditional execution for Netlify deployment and Lighthouse steps (skip when NETLIFY_AUTH_TOKEN not set).
+- Updated Netlify deploy step condition to use secret check instead of env variable.
 
