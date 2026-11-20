@@ -41,7 +41,6 @@ jobs:
       - name: Install system dependencies for Playwright
         run: sudo apt-get update && sudo apt-get install -y libglib2.0-0
         working-directory: frontend
-        run: npm run build && npm run export
       # Install Playwright browsers
       - name: Install Playwright browsers
         working-directory: frontend
