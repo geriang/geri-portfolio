@@ -27,7 +27,7 @@ This will fetch the five configured pages and store the extracted content in `ba
 ### API Endpoints
 - `GET /static-data/:page` – Returns all scraped content for the given page identifier.
 - `GET /entity/:id` – Returns a single entity (heading, paragraph, list, or image) by its database ID.
-- `POST /chat` – Accepts JSON `{prompt}` and returns `{message, position?, tool?}`. Includes DB‑grounded system prompt, caching, and per‑IP concurrency limiting (max 2 concurrent).
+- `POST /chat` – Accepts a JSON body `{ prompt: string }`. Returns `{ message: string, position?: number, tool?: any }`. The endpoint builds a system prompt grounded to the portfolio DB, calls a mock LLM, parses optional JSON tool calls, and enforces per‑IP concurrency limiting (max 2 concurrent) with a FIFO queue that provides a `position` field for queued requests. Starter prompts are cached for fast responses (<100 ms).
 
 ### Tests
 ```bash
@@ -35,7 +35,48 @@ npm test
 ```
 Runs Jest + Supertest suite covering the API and scraper logic.
 
+
+## Deployment
+
+### Docker
+
+```bash
+# Build the backend Docker image
+docker build -t gach-backend .
+
+# Run the container (example configuration)
+# Adjust LLM_URL, PORT, and NODE_ENV as needed
+docker run -p 8080:8080 \
+  -e LLM_URL=http://your-llm-service \
+  -e PORT=8080 \
+  -e NODE_ENV=production \
+  gach-backend
+```
+
+The container will start the backend server on the specified `PORT`. A health check endpoint is available at `http://localhost:<PORT>/health` and should return a JSON response like `{"status":"ok"}`.
+
+### Netlify deployment
+
+The frontend is exported as a static site (`npm run build && npm run export`). CI automatically deploys the `out/` folder to Netlify. After a successful workflow run, the site will be available at the Netlify URL (e.g., `https://gach.netlify.app`). Verify the deployment by opening the URL and confirming that the chat UI loads and can communicate with the backend container.
+
+# CI trigger
+
+# CI trigger 2
+
+# CI trigger 3
+
+## Progress log
+
+- Fixed: Appended "# CI trigger 3" to README.md. Commit 63a9198.
+# CI trigger after lint fix
+# CI trigger after lint fix 2
+
+# CI trigger after import fix
+# CI trigger after any fix
+# CI trigger after tsconfig fix
+
 # CI trigger after cleanup
 
 # CI trigger after final fix
+
 

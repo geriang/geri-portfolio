@@ -15,16 +15,78 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: '22'
       - name: Install deps
         working-directory: ${{ matrix.dir }}
         run: npm ci
       - name: Lint
         working-directory: ${{ matrix.dir }}
         run: npm run lint
-
-      - name: Build and Export (Frontend)
-        if: matrix.dir == 'frontend'
-        working-directory: ${{ matrix.dir }}
-        run: npm run build && ls out
-
+  build-test:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+      # Frontend deps, build and export
+      - name: Install frontend deps
+        working-directory: frontend
+        run: npm ci
+      - name: Build and export frontend
+        working-directory: frontend
+        run: npm run build && npm run export
+      - name: Verify export output
+        working-directory: frontend
+        run: test -d out && echo "Export directory exists"
+      - name: Install system dependencies for Playwright
+        run: sudo apt-get update && sudo apt-get install -y libglib2.0-0
+        working-directory: frontend
+      # Install Playwright browsers
+      - name: Install Playwright browsers
+        working-directory: frontend
+        run: npx playwright install --with-deps
+      # Backend Docker build
+      - name: Build Docker image (backend)
+        run: docker build -t gach-backend ./backend
+      # Start backend for e2e tests
+      - name: Start backend container for Playwright
+        run: |
+          docker run -d --name backend-test -p 8081:8080 gach-backend
+          echo "NEXT_PUBLIC_API_URL=http://localhost:8081" >> $GITHUB_ENV
+      # Run Playwright tests
+      - name: Health check backend
+        run: |
+          sleep 5
+          curl -f http://localhost:8081/health
+      - name: Echo health check passed
+        run: echo "Health check passed" > health-check.log
+      - name: Upload health check log
+        uses: actions/upload-artifact@v4
+        with:
+          name: health-check-log
+          path: health-check.log
+      - name: Install Playwright dependencies
+        run: npx playwright install-deps
+      - name: Run Playwright E2E tests
+        working-directory: frontend
+        run: npm run test:e2e
+      - name: Upload Playwright test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: frontend/test-results
+      # Stop backend container
+      - name: Stop backend container
+        run: |
+          docker stop backend-test
+          docker rm backend-test
+  deploy:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    needs: build-test
+    steps:
+      - name: Skip deployment
+        run: echo "Netlify deployment skipped (no token)"
