@@ -40,4 +40,5 @@ Integrate frontend with backend, run updated end‑to‑end tests, and prepare d
 - Simplified deploy job to skip Netlify steps.
 - Switched npm install to npm ci in CI workflow, removed frontend/.env.local, added export verification step. (commit: pending)
 - Updated test:e2e script to serve static export for CI. (commit: 7a7579f)
+- Removed comment line from frontend/package.json and added frontend/package-lock.json (commit: 4e47906)
 
