@@ -3,6 +3,23 @@
 ## Goal
 Integrate frontend with backend, run updated end‑to‑end tests, and prepare deployment.
 
+## SPEC
+
+### Acceptance Criteria
+
+- CI pipeline passes all jobs.
+- Playwright E2E tests succeed.
+- No Netlify deployment occurs.
+
+### Tasks
+
+- Install dependencies (`npm ci` in both frontend and backend) – verify by checking `node_modules` existence and `npm ls` exit code 0.
+- Lint code (`npm run lint`) – verify exits with code 0.
+- Build and export (`npm run build && npm run export`) – verify `out/` directory created.
+- Install Playwright dependencies (`npx playwright install`) – verify by checking installed browsers (`npx playwright --version`).
+- Run end‑to‑e2e tests (`npm run test:e2e`) – verify exit code 0.
+- Skip Netlify deployment (ensure deploy job is guarded and does not run) – verify by checking CI logs that deploy step is skipped.
+
 ## Progress log
 
 - Created minimal spec file (header, Goal, empty Progress log). (commit: ff0d54f)
@@ -19,4 +36,5 @@ Integrate frontend with backend, run updated end‑to‑end tests, and prepare d
 - Added system dependencies installation for Playwright (libglib2.0-0) in CI workflow.
 - Fixed duplicate run key in CI workflow (removed extra build step).
 - Simplified deploy job to skip Netlify steps.
+- Updated spec with full SPEC section and ensured .gitignore contains `.env*`. (commit: pending)
 
