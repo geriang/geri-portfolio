@@ -8,9 +8,11 @@ function Item({ item }: { item: ResumeItem }) {
     <div className="relative -mt-0.5 border-l-2 border-accent pb-5 pl-5 before:absolute before:-left-[9px] before:top-0 before:h-4 before:w-4 before:rounded-full before:border-2 before:border-accent before:bg-page before:content-[''] last:pb-0">
       <h4 className="mb-2.5 text-lg font-semibold uppercase leading-[18px] text-white/80">{item.heading}</h4>
       {item.period && <h5 className="mb-2.5 inline-block bg-white/10 px-[15px] py-[5px] text-base font-semibold">{item.period}</h5>}
-      <p>
-        <em>{item.org}</em>
-      </p>
+      {item.org && (
+        <p>
+          <em>{item.org}</em>
+        </p>
+      )}
       {item.paragraphs?.map(p => (
         <p key={p}>{p}</p>
       ))}

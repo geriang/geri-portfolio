@@ -22,17 +22,24 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setMenuOpen(false);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [menuOpen]);
+
   return (
     <ChatProvider>
       <div className="flex flex-col min-h-screen bg-page text-fg font-sans">
         <header
-          className={`fixed top-0 inset-x-0 z-[997] py-[15px] transition-all duration-500 ${
+          className={`fixed top-0 inset-x-0 z-40 py-[15px] transition-all duration-500 ${
             scrolled ? 'bg-black/80 shadow-[0_0_18px_rgba(0,0,0,0.1)]' : 'bg-transparent'
           }`}
         >
           <div className="relative mx-auto flex w-full max-w-[1140px] items-center justify-between px-4">
             <Link href="/" className="flex items-center leading-none">
-              <h1 className="m-0 text-[30px] font-bold text-white">{SITE.title}</h1>
+              <span className="m-0 font-heading text-[30px] font-bold text-white">{SITE.title}</span>
             </Link>
 
             <nav aria-label="Main">
@@ -102,7 +109,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             e.preventDefault();
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
-          className={`fixed right-[15px] z-[99999] flex h-11 w-11 items-center justify-center rounded-full bg-accent text-black transition-all duration-500 ${
+          className={`fixed right-[15px] z-40 flex h-11 w-11 items-center justify-center rounded-full bg-accent text-black transition-all duration-500 ${
             scrolled ? 'bottom-[15px] visible opacity-100' : '-bottom-[15px] invisible opacity-0'
           }`}
         >

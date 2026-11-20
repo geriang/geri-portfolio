@@ -16,7 +16,7 @@ export const ChatButton = () => {
     <>
       <button
         onClick={open}
-        className="fixed bottom-4 right-4 bg-blue-600 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg"
+        className="fixed bottom-[70px] right-4 z-40 bg-blue-600 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg"
         aria-label="Open chat"
       >
         💬

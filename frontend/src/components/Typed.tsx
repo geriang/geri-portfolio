@@ -34,10 +34,11 @@ export function Typed({ items }: { items: string[] }) {
 
   return (
     <>
-      <span className="border-b-2 border-accent tracking-[1px]" aria-label={items.join(', ')}>
-        {text}
+      <span className="sr-only">{items.join(', ')}</span>
+      <span aria-hidden="true">
+        <span className="border-b-2 border-accent tracking-[1px]">{text}</span>
+        <span className="typed-cursor">|</span>
       </span>
-      <span className="typed-cursor" aria-hidden="true">|</span>
     </>
   );
 }

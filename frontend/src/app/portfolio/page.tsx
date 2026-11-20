@@ -29,6 +29,7 @@ export default function PortfolioPage() {
               <li key={f.key} className="mx-2.5 mb-[5px]">
                 <button
                   type="button"
+                  aria-pressed={filter === f.key}
                   onClick={() => setFilter(f.key)}
                   className={`cursor-pointer text-sm font-medium leading-none transition-colors hover:text-accent sm:text-[18px] ${
                     filter === f.key ? 'text-accent' : 'text-fg'
@@ -49,7 +50,7 @@ export default function PortfolioPage() {
                     role="img"
                     aria-label={`${p.title} placeholder image`}
                   />
-                  <div className="absolute inset-0 z-[3] bg-black/60 p-[15px] opacity-0 transition-all duration-300 group-hover:opacity-100">
+                  <div className="absolute inset-0 z-[3] bg-black/60 p-[15px] opacity-0 transition-all duration-300 group-hover:opacity-100 group-focus-within:opacity-100 [@media(hover:none)]:opacity-100">
                     <h4 className="inline-block bg-accent px-2.5 py-[5px] text-sm font-normal text-white">{p.title}</h4>
                     <a
                       href={p.href}
