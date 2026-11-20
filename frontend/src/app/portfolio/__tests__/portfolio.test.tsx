@@ -3,5 +3,5 @@ import PortfolioPage from '@/app/portfolio/page';
 
 test('renders Portfolio page heading', () => {
   render(<PortfolioPage />);
-  expect(screen.getByRole('heading', { name: /Portfolio Page/i })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { level: 1, name: /^Portfolio$/i })).toBeInTheDocument();
 });
