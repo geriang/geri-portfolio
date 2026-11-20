@@ -36,5 +36,5 @@ Integrate frontend with backend, run updated end‑to‑end tests, and prepare d
 - Added system dependencies installation for Playwright (libglib2.0-0) in CI workflow.
 - Fixed duplicate run key in CI workflow (removed extra build step).
 - Simplified deploy job to skip Netlify steps.
-- Updated spec with full SPEC section and ensured .gitignore contains `.env*`. (commit: pending)
+- Switched npm install to npm ci in CI workflow, removed frontend/.env.local, added export verification step. (commit: pending)
 
