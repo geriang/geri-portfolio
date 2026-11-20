@@ -22,6 +22,8 @@ Integrate frontend with backend, run updated end‑to‑end tests, and prepare d
 
 ## Progress log
 
+- Added backend/package-lock.json for npm ci compatibility. Frontend lockfile generation blocked due to invalid package.json (contains comments).
+
 - Created minimal spec file (header, Goal, empty Progress log). (commit: ff0d54f)
 - Merged main into branch (no changes, up to date). (commit: 1d41ac4)
 - Ran npm install in frontend. (no output)
@@ -37,4 +39,5 @@ Integrate frontend with backend, run updated end‑to‑end tests, and prepare d
 - Fixed duplicate run key in CI workflow (removed extra build step).
 - Simplified deploy job to skip Netlify steps.
 - Switched npm install to npm ci in CI workflow, removed frontend/.env.local, added export verification step. (commit: pending)
+- Updated test:e2e script to serve static export for CI. (commit: 7a7579f)
 
