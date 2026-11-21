@@ -6,7 +6,6 @@
   --color-fg: #fafafa;
   --color-accent: #18d26e;
   --color-hero: rgba(15, 15, 15, 0.975);
-  --color-footer: #080808;
   --font-sans: "Roboto", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
   --font-heading: "Raleway", sans-serif;
   --font-nav: "Poppins", sans-serif;
@@ -21,65 +20,6 @@ body {
   color: var(--color-fg);
   font-family: var(--font-sans);
 }
-
-/* Container */
-.container {
-  width: 100%;
-  max-width: 1140px;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 15px;
-  padding-right: 15px;
-}
-
-/* Grid system (Bootstrap-like) */
-.row {
-  display: flex;
-  flex-wrap: wrap;
-  margin-left: -15px;
-  margin-right: -15px;
-}
-
-.row.gy-4 > * {
-  margin-top: 1.5rem;
-  margin-bottom: 1.5rem;
-}
-
-.row.gy-4 > *:first-child {
-  margin-top: 0;
-}
-
-.col-lg-3, .col-md-4, .col-lg-4, .col-md-6, .col-lg-6, .col-lg-8 {
-  padding-left: 15px;
-  padding-right: 15px;
-}
-
-.col-lg-3 { width: 25%; }
-.col-md-4 { width: 33.333%; }
-.col-lg-4 { width: 33.333%; }
-.col-md-6 { width: 50%; }
-.col-lg-6 { width: 50%; }
-.col-lg-8 { width: 66.666%; }
-
-@media (max-width: 991px) {
-  .col-lg-3, .col-lg-4, .col-lg-6, .col-lg-8 {
-    width: 50%;
-  }
-}
-
-@media (max-width: 767px) {
-  .col-md-4, .col-md-6, .col-lg-3, .col-lg-4, .col-lg-6, .col-lg-8 {
-    width: 100%;
-  }
-}
-
-/* Flex utilities */
-.d-flex { display: flex; }
-.align-items-center { align-items: center; }
-.justify-content-center { justify-content: center; }
-.justify-content-between { justify-content: space-between; }
-.d-none { display: none; }
-.d-block { display: block; }
 
 @layer base {
   a {
@@ -102,19 +42,6 @@ body {
   button:focus-visible {
     outline: 2px solid var(--color-accent);
     outline-offset: 2px;
-  }
-
-  .hero-note {
-    opacity: 0.8;
-  }
-
-  .stretched-link {
-    position: relative;
-  }
-  .stretched-link::after {
-    position: absolute;
-    inset: 0;
-    content: "";
   }
 
 }

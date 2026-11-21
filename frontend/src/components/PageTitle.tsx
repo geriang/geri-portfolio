@@ -3,19 +3,17 @@ import Link from 'next/link';
 
 export function PageTitle({ title, description }: { title: string; description: string }) {
   return (
-    <div id="page-title" className="bg-page" data-aos="fade">
+    <div className="bg-page">
       <div className="border-t border-white/10 pt-[160px] pb-20">
-        <div className="container">
-          <div className="row d-flex justify-content-center text-center">
-            <div className="col-lg-8">
-              <h1 className="text-[38px] font-bold">{title}</h1>
-              <p className="mb-0">{description}</p>
-            </div>
+        <div className="mx-auto max-w-[1140px] px-4 text-center">
+          <div className="mx-auto max-w-[760px]">
+            <h1 className="text-[38px] font-bold">{title}</h1>
+            <p className="mb-0">{description}</p>
           </div>
         </div>
       </div>
-      <nav aria-label="Breadcrumb" className="breadcrumbs bg-white/10 py-5">
-        <ol className="container">
+      <nav aria-label="Breadcrumb" className="bg-white/10 py-5">
+        <ol className="mx-auto flex max-w-[1140px] flex-wrap px-4 text-base font-semibold">
           <li>
             <Link href="/">Home</Link>
           </li>
