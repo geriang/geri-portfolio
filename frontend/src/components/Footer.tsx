@@ -8,7 +8,10 @@ export function Footer() {
       <div className="mx-auto w-full max-w-[1140px] px-4">
         <SocialLinks variant="footer" />
         <div className="footer-copy">
-          <span>Copyright {new Date().getFullYear()}</span>{' '}
+          {/* Year is a dynamic value in a static export; suppress the (cosmetic,
+              year-boundary-only) hydration mismatch while keeping the correct
+              build-year in the static HTML. */}
+          <span suppressHydrationWarning>Copyright {new Date().getFullYear()}</span>{' '}
           <strong className="px-1">{SITE.title}</strong> <span>All Rights Reserved</span>
         </div>
       </div>
