@@ -7,6 +7,7 @@ test('renders layout with header and footer', () => {
       <div>Test content</div>
     </Layout>
   );
-  expect(screen.getByText('gach.work')).toBeInTheDocument();
+  // The site title renders in both the header logo and the footer.
+  expect(screen.getAllByText('Tech Portfolio').length).toBeGreaterThan(0);
   expect(screen.getByText('Test content')).toBeInTheDocument();
 });
