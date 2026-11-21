@@ -3,5 +3,5 @@ import HomePage from '@/app/page';
 
 test('renders Home page heading', () => {
   render(<HomePage />);
-  expect(screen.getByRole('heading', { name: /Home Page/i })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: /Alex Rivera/i })).toBeInTheDocument();
 });

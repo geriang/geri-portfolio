@@ -3,5 +3,5 @@ import SkillPage from '@/app/skill/page';
 
 test('renders Skill page heading', () => {
   render(<SkillPage />);
-  expect(screen.getByRole('heading', { name: /Skill Page/i })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: /Technical Skill/i })).toBeInTheDocument();
 });
