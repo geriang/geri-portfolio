@@ -28,6 +28,22 @@ exports[`ChatOverlay matches snapshot 1`] = `
       >
         Position: 1
       </p>
+      <form
+        class="mb-2 flex"
+      >
+        <input
+          class="flex-1 border rounded px-2 py-1 mr-2"
+          placeholder="Ask something..."
+          type="text"
+          value=""
+        />
+        <button
+          class="bg-blue-600 text-white px-3 rounded"
+          type="submit"
+        >
+          Send
+        </button>
+      </form>
       <div
         class="space-y-2"
       >

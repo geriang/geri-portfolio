@@ -2,27 +2,637 @@
 @tailwind components;
 @tailwind utilities;
 
+/* --------------------------------------------------------------------------
+ * Design tokens (Tailwind v4 CSS-first theme) — palette + fonts mirrored from
+ * the live gach.work "Personal" template.
+ * ------------------------------------------------------------------------ */
+@theme {
+  /* Fonts */
+  --font-sans: 'Roboto', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-heading: 'Raleway', sans-serif;
+  --font-nav: 'Poppins', sans-serif;
+
+  /* Global colours */
+  --color-page: #000000;
+  --color-surface: #1a1a1a;
+  --color-surface-2: #292929;
+  --color-accent: #18d26e;
+  --color-heading: #ffffff;
+  --color-fg: #fafafa;
+  --color-contrast: #000000;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-page);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+a:hover {
+  color: color-mix(in srgb, var(--color-accent), transparent 25%);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--color-heading);
+  font-family: var(--font-heading);
+}
+
+/* --------------------------------------------------------------------------
+ * Header / navigation
+ * ------------------------------------------------------------------------ */
+.site-header {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 997;
+  padding: 15px 0;
+  transition: all 0.5s;
+  background-color: transparent;
+  color: var(--color-fg);
+}
+
+.site-header.is-scrolled {
+  background-color: rgba(0, 0, 0, 0.8);
+  box-shadow: 0 0 18px rgba(0, 0, 0, 0.1);
+}
+
+.site-logo {
+  font-family: var(--font-heading);
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--color-heading);
+  line-height: 1;
+}
+
+.navmenu ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.navmenu a {
+  font-family: var(--font-nav);
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--color-fg);
+  position: relative;
+  white-space: nowrap;
+  transition: 0.3s;
+}
+
+.navmenu a::after {
+  content: '';
+  position: absolute;
+  height: 2px;
+  bottom: -6px;
+  left: 0;
+  width: 0;
+  background-color: var(--color-accent);
+  transition: all 0.3s ease-in-out;
+}
+
+.navmenu a:hover::after,
+.navmenu a.is-active::after {
+  width: 25px;
+}
+
+.navmenu a:hover,
+.navmenu a.is-active {
+  color: var(--color-accent);
+}
+
+.nav-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--color-fg);
+  font-size: 28px;
+  line-height: 0;
+  cursor: pointer;
+}
+
+@media (max-width: 1199px) {
+  .nav-toggle {
+    display: inline-flex;
+  }
+
+  .navmenu ul {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    inset: 60px 20px 20px 20px;
+    padding: 10px 0;
+    margin: 0;
+    gap: 8px;
+    border-radius: 6px;
+    background-color: var(--color-surface);
+    border: 1px solid color-mix(in srgb, var(--color-fg), transparent 90%);
+  }
+
+  .navmenu.is-open ul {
+    display: flex;
+  }
+
+  .navmenu a {
+    font-size: 17px;
+    font-weight: 500;
+  }
+}
+
+/* --------------------------------------------------------------------------
+ * Hero
+ * ------------------------------------------------------------------------ */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 0;
+  text-align: center;
+}
+
+.hero h1 {
+  font-size: 64px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.hero .hero-role {
+  font-size: 26px;
+  margin: 5px 0 0 0;
+}
+
+.hero .hero-note {
+  margin-top: 20px;
+  font-size: 18px;
+}
+
+.hero .hero-role span.accent {
+  letter-spacing: 1px;
+  border-bottom: 2px solid var(--color-accent);
+}
+
+/* typed effect */
+.typed-cursor {
+  display: inline-block;
+  width: 2px;
+  background-color: var(--color-accent);
+  margin-left: 2px;
+  animation: typed-blink 1s infinite;
+}
+
+@keyframes typed-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero h1 {
+    font-size: 32px;
+  }
+  .hero .hero-role {
+    font-size: 20px;
+  }
+  .hero .hero-note {
+    font-size: 15px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+ * Sections & section titles
+ * ------------------------------------------------------------------------ */
+.section {
+  padding: 60px 0;
+}
+
+.section-title {
+  padding-bottom: 60px;
+  text-align: center;
+}
+
+.section-title .label {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-fg), transparent 50%);
+}
+
+.section-title .label::after {
+  content: '';
+  display: inline-block;
+  width: 120px;
+  height: 1px;
+  background: var(--color-accent);
+  margin: 4px 10px;
+}
+
+.section-title .title {
+  font-family: var(--font-heading);
+  font-size: 28px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--color-heading);
+  margin-top: 10px;
+}
+
+/* --------------------------------------------------------------------------
+ * Page title (sub-page header) + breadcrumbs
+ * ------------------------------------------------------------------------ */
+.page-title {
+  padding-top: 160px;
+  padding-bottom: 80px;
+  border-top: 1px solid color-mix(in srgb, var(--color-fg), transparent 90%);
+  text-align: center;
+}
+
+.page-title h1 {
+  font-size: 38px;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+}
+
+.page-title .breadcrumbs {
+  margin-top: 24px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.page-title .breadcrumbs li + li {
+  padding-left: 10px;
+}
+
+.page-title .breadcrumbs li + li::before {
+  content: '/';
+  display: inline-block;
+  padding-right: 10px;
+  color: color-mix(in srgb, var(--color-fg), transparent 70%);
+}
+
+/* --------------------------------------------------------------------------
+ * Feature items (skill interests grid)
+ * ------------------------------------------------------------------------ */
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  background-color: var(--color-surface);
+  border: 1px solid color-mix(in srgb, var(--color-fg), transparent 90%);
+  transition: 0.3s;
+}
+
+.feature-item:hover {
+  border-color: var(--color-accent);
+}
+
+.feature-item h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0;
+  color: var(--color-heading);
+}
+
+.feature-item h3 a {
+  color: var(--color-heading);
+  transition: 0.3s;
+}
+
+.feature-item:hover h3 a {
+  color: var(--color-accent);
+}
+
+.glyph {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--color-contrast);
+}
+
+/* --------------------------------------------------------------------------
+ * Service items (framework grid)
+ * ------------------------------------------------------------------------ */
+.service-item {
+  background-color: var(--color-surface);
+  text-align: center;
+  padding: 80px 20px;
+  transition: all ease-in-out 0.3s;
+  height: 100%;
+}
+
+.service-item .service-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 20px;
+  background: var(--color-accent);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 26px;
+  color: var(--color-contrast);
+}
+
+.service-item h3 {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 15px 0;
+}
+
+.service-item p {
+  font-size: 14px;
+  line-height: 24px;
+  margin: 0;
+}
+
+.service-item:hover {
+  background: var(--color-accent);
+}
+
+.service-item:hover h3,
+.service-item:hover p {
+  color: var(--color-contrast);
+}
+
+.service-item:hover .service-icon {
+  background: var(--color-surface-2);
+  color: var(--color-accent);
+}
+
+/* --------------------------------------------------------------------------
+ * Resume timeline
+ * ------------------------------------------------------------------------ */
+.resume-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--color-heading);
+  margin: 20px 0;
+}
+
+.resume-item {
+  position: relative;
+  padding: 0 0 20px 20px;
+  margin-top: -2px;
+  border-left: 2px solid var(--color-accent);
+}
+
+.resume-item::before {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  left: -9px;
+  top: 0;
+  border-radius: 50%;
+  background: var(--color-page);
+  border: 2px solid var(--color-accent);
+}
+
+.resume-item h4 {
+  font-size: 18px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-fg), transparent 20%);
+  margin: 0 0 10px 0;
+}
+
+.resume-item h5 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 10px 0;
+}
+
+.resume-item p {
+  font-size: 15px;
+  margin: 0 0 10px 0;
+  color: color-mix(in srgb, var(--color-fg), transparent 20%);
+}
+
+.resume-item ul {
+  padding-left: 20px;
+}
+
+.resume-item ul li {
+  padding-bottom: 10px;
+  color: color-mix(in srgb, var(--color-fg), transparent 20%);
+}
+
+/* --------------------------------------------------------------------------
+ * Portfolio grid
+ * ------------------------------------------------------------------------ */
+.portfolio-filters {
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  padding: 0;
+  margin: 0 0 20px 0;
+}
+
+.portfolio-filters button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--color-fg);
+  transition: 0.3s;
+}
+
+.portfolio-filters button.filter-active,
+.portfolio-filters button:hover {
+  color: var(--color-accent);
+}
+
+.portfolio-item {
+  position: relative;
+  overflow: hidden;
+}
+
+.portfolio-thumb {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 28px;
+  color: var(--color-heading);
+  transition: 0.3s;
+}
+
+.portfolio-info {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  transition: all ease-in-out 0.3s;
+  padding: 15px;
+  text-align: center;
+}
+
+.portfolio-item:hover .portfolio-info {
+  opacity: 1;
+}
+
+.portfolio-item:hover .portfolio-thumb {
+  transform: scale(1.05);
+}
+
+.portfolio-info h4 {
+  font-size: 14px;
+  font-weight: 400;
+  color: #ffffff;
+  background-color: var(--color-accent);
+  padding: 5px 10px;
+  display: inline-block;
+}
+
+.portfolio-info p {
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0;
+}
+
+.portfolio-info .details-link {
+  color: #ffffff;
+  font-size: 24px;
+  transition: 0.3s;
+}
+
+.portfolio-info .details-link:hover {
+  color: var(--color-accent);
+}
+
+/* --------------------------------------------------------------------------
+ * Social links
+ * ------------------------------------------------------------------------ */
+.social-links {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.social-links a {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: color-mix(in srgb, var(--color-fg), transparent 90%);
+  color: var(--color-fg);
+  transition: 0.3s;
+}
+
+.social-links a:hover {
+  background-color: var(--color-accent);
+  color: var(--color-contrast);
+}
+
+.social-links svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+/* --------------------------------------------------------------------------
+ * Footer
+ * ------------------------------------------------------------------------ */
+.site-footer {
+  background-color: var(--color-surface);
+  color: var(--color-fg);
+  font-size: 14px;
+  text-align: center;
+  padding: 30px 0;
+}
+
+.site-footer .footer-copy {
+  padding-top: 25px;
+  margin-top: 20px;
+  border-top: 1px solid color-mix(in srgb, var(--color-fg), transparent 90%);
+}
+
+/* --------------------------------------------------------------------------
+ * Scroll-to-top button
+ * ------------------------------------------------------------------------ */
+.scroll-top {
+  position: fixed;
+  right: 15px;
+  bottom: -15px;
+  z-index: 99999;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: var(--color-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.4s;
+  opacity: 0;
+  visibility: hidden;
+  border: none;
+  cursor: pointer;
+}
+
+.scroll-top.is-visible {
+  bottom: 15px;
+  opacity: 1;
+  visibility: visible;
+}
+
+.scroll-top svg {
+  width: 24px;
+  height: 24px;
+  stroke: var(--color-contrast);
+}
+
+/* --------------------------------------------------------------------------
+ * Scroll reveal
+ * ------------------------------------------------------------------------ */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
 }
