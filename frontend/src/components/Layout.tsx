@@ -33,16 +33,17 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     <ChatProvider>
       <div className="flex flex-col min-h-screen bg-page text-fg font-sans">
         <header
-          className={`fixed top-0 inset-x-0 z-40 py-[15px] transition-all duration-500 ${
+          id="header"
+          className={`fixed top-0 inset-x-0 z-40 d-flex align-items-center justify-content-between py-[15px] transition-all duration-500 ${
             scrolled ? 'bg-black/80 shadow-[0_0_18px_rgba(0,0,0,0.1)]' : 'bg-transparent'
           }`}
         >
           <div className="relative mx-auto flex w-full max-w-[1140px] items-center justify-between px-4">
-            <Link href="/" className="flex items-center leading-none">
-              <span className="m-0 font-heading text-[30px] font-bold text-white">{SITE.title}</span>
+            <Link href="/" className="logo flex items-center leading-none">
+              <h1 className="sitename m-0 font-heading text-[30px] font-bold text-white">{SITE.title}</h1>
             </Link>
 
-            <nav aria-label="Main">
+            <nav id="navmenu" aria-label="Main">
               <ul
                 className={`${
                   menuOpen
@@ -88,14 +89,20 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
         <main className="flex-1">{children}</main>
 
-        <footer className="bg-hero py-[30px] text-center text-sm text-white">
-          <div className="mx-auto max-w-[1140px] px-4">
-            <div className="mt-12 mb-[30px] flex justify-center">
+        <footer id="footer" className="bg-footer py-[30px] text-center text-sm text-white">
+          <div className="container">
+            <div className="social-links d-flex justify-content-center mt-5">
               <SocialLinks variant="footer" />
             </div>
-            <div className="border-t border-white/10 pt-[25px]">
-              <span>Copyright {new Date().getFullYear()}</span>{' '}
-              <strong className="px-1">Personal</strong> <span>All Rights Reserved</span>
+            <div className="container">
+              <div className="copyright">
+                <span>Copyright {new Date().getFullYear()}</span>{' '}
+                <strong className="px-1 sitename">Personal</strong>{' '}
+                <span>All Rights Reserved</span>
+              </div>
+              <div className="credits">
+                Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
+              </div>
             </div>
           </div>
         </footer>
@@ -104,6 +111,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
         <a
           href="#top"
+          id="scroll-top"
           aria-label="Scroll to top"
           onClick={e => {
             e.preventDefault();

@@ -2,33 +2,53 @@ import React from 'react';
 import {
   AcademicCapIcon,
   BoltIcon,
-  ChartBarIcon,
-  CheckBadgeIcon,
-  CircleStackIcon,
   CloudIcon,
   CodeBracketIcon,
   CommandLineIcon,
   CpuChipIcon,
   LanguageIcon,
   LightBulbIcon,
-  PencilSquareIcon,
+  RectangleStackIcon,
   WrenchScrewdriverIcon,
+  ServerIcon,
+  GlobeAltIcon,
+  BuildingLibraryIcon,
 } from '@heroicons/react/24/outline';
 import type { SkillIcon } from '../data/content';
 
+// Map skill icons to Heroicons or custom SVGs
 const ICONS: Record<SkillIcon, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
-  code: CodeBracketIcon,
-  cpu: CpuChipIcon,
-  database: CircleStackIcon,
-  cloud: CloudIcon,
-  bolt: BoltIcon,
-  wrench: WrenchScrewdriverIcon,
-  badge: CheckBadgeIcon,
-  cap: AcademicCapIcon,
-  chart: ChartBarIcon,
-  bulb: LightBulbIcon,
-  language: LanguageIcon,
-  pencil: PencilSquareIcon,
+  // Frontend
+  bootstrap: CodeBracketIcon,
+  javascript: CodeBracketIcon,
+  react: CodeBracketIcon,
+  vue: CodeBracketIcon,
+  // Backend
+  node: ServerIcon,
+  express: ServerIcon,
+  // Database
+  mysql: RectangleStackIcon,
+  mongodb: RectangleStackIcon,
+  // Cloud
+  azure: CloudIcon,
+  gcp: CloudIcon,
+  // Machine Learning
+  python: CommandLineIcon,
+  genai: CpuChipIcon,
+  pyspark: BoltIcon,
+  // Tools
+  github: CommandLineIcon,
+  gitlab: CommandLineIcon,
+  jira: RectangleStackIcon,
+  figma: WrenchScrewdriverIcon,
+  balsamiq: WrenchScrewdriverIcon,
+  agentic: CpuChipIcon,
+  // Certifications
+  cspos: AcademicCapIcon,
+  'ml-course': LightBulbIcon,
+  'gcp-course': AcademicCapIcon,
+  // Languages
+  translate: LanguageIcon,
 };
 
 export function SkillGlyph({ icon, color }: { icon: SkillIcon; color: string }) {
