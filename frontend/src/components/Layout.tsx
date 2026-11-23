@@ -3,23 +3,31 @@
 import React from 'react';
 import { ChatProvider } from '../context/ChatContext';
 import { ChatButton } from './ChatButton';
+import { Preloader } from './Preloader';
+import { ScrollTop } from './ScrollTop';
+import { SiteFooter } from './SiteFooter';
+import { SiteHeader } from './SiteHeader';
 
-// The entire layout is wrapped with ChatProvider so that ChatButton and any page content share the same context
-export default function Layout({ children }: { children: React.ReactNode }) {
+interface LayoutProps {
+  /** Path of the current page, so the header can mark its nav item active. */
+  active?: string;
+  children: React.ReactNode;
+}
+
+/**
+ * Shared page chrome for every route: fixed header with the nav menu, the page
+ * content, the footer, the scroll-to-top button, the chat launcher and the
+ * loading spinner.
+ */
+export default function Layout({ active = '/', children }: LayoutProps) {
   return (
     <ChatProvider>
-      <div className="flex flex-col min-h-screen bg-background dark:bg-backgroundDark text-foreground dark:text-foregroundDark font-sans">
-        <header className="bg-foreground dark:bg-foregroundDark text-background dark:text-backgroundDark p-4">
-          <h1 className="text-xl font-bold">gach.work</h1>
-        </header>
-        <main className="flex-1 container mx-auto p-4">
-          {children}
-        </main>
-        <ChatButton />
-        <footer className="bg-foreground dark:bg-foregroundDark text-background dark:text-backgroundDark p-2 text-center text-sm">
-          © {new Date().getFullYear()} gach.work
-        </footer>
-      </div>
+      <SiteHeader active={active} />
+      <main className="main">{children}</main>
+      <SiteFooter />
+      <ScrollTop />
+      <ChatButton />
+      <Preloader />
     </ChatProvider>
   );
 }
