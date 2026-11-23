@@ -413,6 +413,12 @@
     animation-delay: 0.5s;
   }
 
+  @media (prefers-reduced-motion: reduce) {
+    .typed-cursor--blink {
+      animation: none;
+    }
+  }
+
   @keyframes typed-cursor-blink {
     0% {
       opacity: 1;
@@ -1020,5 +1026,16 @@
       opacity: 1;
       transform: none;
     }
+  }
+}
+
+/* Unlayered on purpose. The chat launcher carries Tailwind's `flex` utility, and
+   any layered rule loses to the utilities layer regardless of specificity, so a
+   `display: none` inside @layer components would never apply. The template's own
+   scroll-top floats above its open mobile panel, so it is left as it is; only
+   this repo's chat control steps aside. */
+@media (max-width: 1199px) {
+  body.nav-open .chat-launcher {
+    display: none;
   }
 }

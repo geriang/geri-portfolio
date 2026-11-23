@@ -16,7 +16,7 @@ export const ChatButton = () => {
     <>
       <button
         onClick={open}
-        className="fixed bottom-4 left-4 z-[99998] flex h-12 w-12 items-center justify-center rounded-full bg-accent text-contrast shadow-lg transition duration-300 hover:opacity-90"
+        className="chat-launcher fixed bottom-4 left-4 z-[99998] flex h-12 w-12 items-center justify-center rounded-full bg-accent text-contrast shadow-lg transition duration-300 hover:opacity-90"
         aria-label="Open chat"
       >
         💬
