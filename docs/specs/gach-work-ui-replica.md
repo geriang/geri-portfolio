@@ -92,7 +92,7 @@ menu. Unlike `Reveal`/`TypedText`, it stays lazy-loaded through `next/dynamic`.
 
 1. Per-route titles are `Technical Skill | Tech Portfolio` etc. The live site
    still ships the template's leftovers (`About - Personal Bootstrap Template`,
-   `Resume - Geri Ang`).
+   and a `Resume - …` title that names the real person, not reproduced here).
 2. The footer shows this repo's sitename instead of `Personal`; the template's
    empty `<h3 class="sitename">` is dropped.
 3. `Designed by BootstrapMade` is kept — the template license requires the credit.
