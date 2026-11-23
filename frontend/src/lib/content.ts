@@ -98,7 +98,7 @@ export const site = {
         href: 'https://github.com/',
         label: 'GitHub',
       },
-    ] as SocialLink[],
+    ] satisfies SocialLink[],
     footer: [
       {
         icon: 'github',
@@ -110,7 +110,7 @@ export const site = {
         href: 'https://www.linkedin.com/',
         label: 'LinkedIn',
       },
-    ] as SocialLink[],
+    ] satisfies SocialLink[],
   },
 };
 
@@ -223,7 +223,7 @@ export const skillPage = {
         },
       ],
     },
-  ] as CardGroup[],
+  ] satisfies CardGroup[],
 };
 
 /* Framework ------------------------------------------------------------------ */
@@ -286,7 +286,7 @@ export const frameworkPage = {
             'Separates problem and solution space into discover, define, develop and deliver phases to reduce premature commitment.',
         },
         {
-          icon: 'target',
+          icon: 'bullseye',
           title: 'Jobs To Be Done',
           description:
             'Frames requests around the progress a user is trying to make, revealing underserved moments worth building for.',
@@ -311,7 +311,7 @@ export const frameworkPage = {
         },
       ],
     },
-  ] as ServiceGroup[],
+  ] satisfies ServiceGroup[],
 };
 
 /* Resume --------------------------------------------------------------------- */
@@ -357,7 +357,7 @@ export const resumePage = {
         },
       ],
     },
-  ] as ResumeGroup[],
+  ] satisfies ResumeGroup[],
   right: [
     {
       title: 'Professional Experience',
@@ -393,7 +393,7 @@ export const resumePage = {
         },
       ],
     },
-  ] as ResumeGroup[],
+  ] satisfies ResumeGroup[],
 };
 
 /* Portfolio ------------------------------------------------------------------ */
@@ -406,7 +406,7 @@ export const portfolioPage = {
     { key: '*', label: 'All' },
     { key: 'application', label: 'Application' },
     { key: 'management', label: 'Management' },
-  ] as PortfolioFilter[],
+  ] satisfies PortfolioFilter[],
   items: [
     {
       filter: 'application',
@@ -456,5 +456,5 @@ export const portfolioPage = {
       href: 'https://example.com/automation-rollout',
       gradient: ['#122a2e', '#1f6370'],
     },
-  ] as PortfolioItem[],
+  ] satisfies PortfolioItem[],
 };
