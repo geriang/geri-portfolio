@@ -3,13 +3,13 @@
 exports[`ChatOverlay matches snapshot 1`] = `
 <DocumentFragment>
   <div
-    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    class="fixed inset-0 z-[99999] flex items-center justify-center bg-black/70 p-4"
   >
     <div
-      class="bg-white dark:bg-gray-800 p-6 rounded shadow-lg w-80 max-w-full"
+      class="w-80 max-w-full rounded border border-white/10 bg-surface p-6 shadow-lg"
     >
       <div
-        class="flex justify-between items-center mb-4"
+        class="mb-4 flex items-center justify-between"
       >
         <h2
           class="text-lg font-semibold"
@@ -18,27 +18,39 @@ exports[`ChatOverlay matches snapshot 1`] = `
         </h2>
         <button
           aria-label="Close chat"
-          class="text-gray-500 hover:text-gray-700"
+          class="text-foreground/60 transition duration-300 hover:text-accent"
         >
           ✕
         </button>
       </div>
       <p
-        class="text-sm text-gray-600 mb-2"
+        class="mb-2 text-sm text-foreground/60"
       >
         Position: 1
       </p>
+      <form
+        class="mb-2 flex"
+      >
+        <input
+          class="mr-2 flex-1 rounded border border-white/10 bg-background px-2 py-1 text-foreground outline-none focus:border-accent"
+          placeholder="Ask something..."
+          type="text"
+          value=""
+        />
+        <button
+          class="rounded bg-accent px-3 text-contrast transition duration-300 hover:opacity-90"
+          type="submit"
+        >
+          Send
+        </button>
+      </form>
       <div
         class="space-y-2"
       >
-        <p
-          class="text-gray-800 dark:text-gray-200"
-        >
+        <p>
           Welcome to the AI chat demo!
         </p>
-        <p
-          class="text-gray-800 dark:text-gray-200"
-        >
+        <p>
           This is a sample response from the AI.
         </p>
       </div>

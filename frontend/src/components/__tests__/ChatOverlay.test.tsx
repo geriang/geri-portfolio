@@ -20,9 +20,13 @@ describe('ChatOverlay', () => {
 
   test('renders tool payload as ProjectCard', async () => {
     const mockTool = { name: 'Test Project', description: 'A project' };
-    const mockFetch = jest.spyOn(global, 'fetch').mockResolvedValue({
-      json: async () => ({ message: 'Tool response', tool: mockTool })
-    } as unknown);
+    // jest-environment-jsdom does not provide fetch, so it is installed here
+    // rather than spied on.
+    const previousFetch = global.fetch;
+    const mockFetch = jest.fn().mockResolvedValue({
+      json: async () => ({ message: 'Tool response', tool: mockTool }),
+    });
+    global.fetch = mockFetch as unknown as typeof fetch;
 
     render(
       <ChatProvider>
@@ -37,7 +41,7 @@ describe('ChatOverlay', () => {
     // Wait for async fetch handling
     expect(await screen.findByTestId('project-card')).toBeInTheDocument();
     expect(screen.getByText(/test project/i)).toBeInTheDocument();
-    mockFetch.mockRestore();
+    global.fetch = previousFetch;
   });
 
   test('matches snapshot', () => {
