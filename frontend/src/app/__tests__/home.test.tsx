@@ -4,7 +4,7 @@ import Home from '../page';
 describe('Home Page', () => {
   it('renders the main heading', () => {
     render(<Home />);
-    expect(screen.getByRole('heading', { level: 2, name: 'Geri Ang' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'Geri Ang' })).toBeInTheDocument();
   });
 
   it('renders the hero subtitle', () => {

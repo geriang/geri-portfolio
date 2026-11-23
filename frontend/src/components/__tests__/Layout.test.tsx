@@ -7,6 +7,6 @@ test('renders layout with header and footer', () => {
       <div>Test content</div>
     </Layout>
   );
-  expect(screen.getByText('gach.work')).toBeInTheDocument();
+  expect(screen.getByText('Tech Portfolio')).toBeInTheDocument();
   expect(screen.getByText('Test content')).toBeInTheDocument();
 });

@@ -6,7 +6,7 @@ export default function Home() {
       {/* Hero Section */}
       <section className="hero section bg-gray-900 text-white py-20">
         <div className="max-w-7xl mx-auto px-4" data-aos="zoom-out" data-aos-delay="100">
-          <h2 className="text-4xl font-bold mb-4">Geri Ang</h2>
+          <h1 className="text-4xl font-bold mb-4">Geri Ang</h1>
           <p className="text-2xl font-poppins mb-2">
             AI/GenAI Product <span className="text-blue-400">Strategist, Manager, Owner, Builder</span>
           </p>
