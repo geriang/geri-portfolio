@@ -61,8 +61,18 @@ isotope filters via React state; `Icon` embeds 52 Bootstrap Icons path geometrie
 as inline SVG. All three honour `prefers-reduced-motion`, and `Reveal` degrades to
 the finished state where `IntersectionObserver` is absent (jsdom).
 
-**Grid.** Gutters match Bootstrap, not Tailwind defaults: `gap-6` (24px) for the
-`gy-4` card rows, `mt-12` (48px) for the `mt-5` gaps between section groups.
+**Grid.** Dimensions follow Bootstrap, not Tailwind defaults: `gap-6` (24px) for the
+`gy-4` card rows; `mt-10` (40px) between stacked rows inside the interests section,
+which the template sets with `.interests .container .row + .row { margin-top:
+2.5rem }`; `mt-12` (48px) where the template puts `mt-5` on a section title.
+
+**Icons.** `Icon` embeds the 55 Bootstrap Icons the design needs. Content asks for
+them by name, so `content.test.ts` walks every page's data and fails if a name is
+missing from the map — without it a typo renders an empty accent tile and stays
+green, which is exactly the bug the first review caught (`activity`, `broadcast`,
+`easel`, `target` were all absent; `target` became `bullseye`, the real Bootstrap
+Icons name). The content arrays use `satisfies`, not `as`, so `tsc` still checks
+the literal icon names.
 
 **Content** (`src/lib/content.ts`). One fictional persona, "Jordan Lee", with
 invented employers and institutions; portfolio thumbs are gradient placeholders.
@@ -74,7 +84,9 @@ export cannot mismatch.
 **Chat.** Kept. Launcher moves to the bottom-left, because the template's
 bottom-right circle now belongs to scroll-to-top; overlay restyled to the dark
 palette. Behaviour and all accessible names (`Open chat`, `Ask something...`,
-`Send`, `project-card`) are unchanged.
+`Send`, `project-card`) are unchanged. The launcher carries a `chat-launcher`
+class and is hidden while the mobile panel is open, so it cannot float over the
+menu. Unlike `Reveal`/`TypedText`, it stays lazy-loaded through `next/dynamic`.
 
 ## Deviations from the live site
 
@@ -85,9 +97,14 @@ palette. Behaviour and all accessible names (`Open chat`, `Ask something...`,
    empty `<h3 class="sitename">` is dropped.
 3. `Designed by BootstrapMade` is kept — the template license requires the credit.
 4. Icons are inline SVG at the same sizes; the mobile menu toggle is a real
-   `<button aria-expanded>` rather than the template's bare `<i>`.
+   `<button aria-expanded>` rather than the template's bare `<i>`. The template's
+   scroll-top floats above its own open mobile panel; the replica keeps that, and
+   only the chat launcher — this repo's own control — is hidden.
 5. Content is placeholder, so text length differs from the live site (the resume
    page is the shortest).
+6. The chat input is named only by its placeholder, as before. It is the one
+   control whose accessible name comes from a placeholder rather than a label;
+   this predates the work and was left alone to keep the chat feature untouched.
 
 ## Notes
 
@@ -99,7 +116,7 @@ conventions were used instead.
 
 ## Test plan
 
-Unit (`npx jest`, 19 tests / 9 suites — all were failing and 0 running before):
+Unit (`npx jest`, 21 tests / 10 suites — before this work all 9 suites errored and 0 tests ran):
 
 - Home: header sitename `h1`, hero name `h2`, role line, LinkedIn/GitHub links
   scoped to `.hero`, `.typed-cursor` present.
@@ -110,8 +127,10 @@ Unit (`npx jest`, 19 tests / 9 suites — all were failing and 0 running before)
 - Portfolio: default filter shows all items; clicking `Management` removes the
   application cards and sets `aria-pressed`.
 - Chat: existing overlay/button specs still pass; snapshot regenerated.
+- Content: every icon name referenced by the page data exists in the embedded SVG
+  map — the guard for the blank-tile bug described under **Icons**.
 
-E2E (`npx playwright test tests/e2e/replica.spec.ts`, 8 specs):
+E2E (`npx playwright test tests/e2e/replica.spec.ts`, 10 specs):
 
 - Chrome on all five routes: sitename, five nav links with the active one marked,
   footer credit, chat launcher.
@@ -121,6 +140,12 @@ E2E (`npx playwright test tests/e2e/replica.spec.ts`, 8 specs):
 - Skill has 3 section titles and >20 feature tiles; Framework ≥10 service cards;
   Resume ≥7 `.resume-item`; portfolio filter counts for `Management` plus
   `Application` equal the `All` count.
+- Every `.service-item .icon svg` and `.features-item svg` contains a shape element,
+  so a blank tile fails the run; at 390px the chat launcher is hidden while
+  `body.nav-open` is set.
+- The typewriter is awaited with `waitForFunction` rather than sampled on a timer,
+  because a completed word is held for 3s and two fixed samples can legitimately
+  match.
 
 Visual (manual, Playwright chromium against the running app):
 
@@ -128,7 +153,10 @@ Visual (manual, Playwright chromium against the running app):
   with gach.work captures.
 - Computed-style audit of 43 properties (header background, sitename size/family,
   section-title size/letter-spacing/transform/colour, tile and card backgrounds,
-  icon tile box, body colour and family) — target: identical to gach.work.
+  icon tile box, body colour and family), run against both sites: 43 identical, 0
+  differing. This compares the audited properties only and does not inspect icon
+  glyphs — which is why it passed while four tiles were blank. Glyph presence is
+  covered by the e2e spec above.
 - Interaction checks: typewriter advances, header/scroll-top scroll states,
   portfolio filtering and hover overlay opacity.
 
