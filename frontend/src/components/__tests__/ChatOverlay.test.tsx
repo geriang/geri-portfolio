@@ -20,6 +20,7 @@ describe('ChatOverlay', () => {
 
   test('renders tool payload as ProjectCard', async () => {
     const mockTool = { name: 'Test Project', description: 'A project' };
+    (global as any).fetch = jest.fn();
     const mockFetch = jest.spyOn(global, 'fetch').mockResolvedValue({
       json: async () => ({ message: 'Tool response', tool: mockTool })
     } as unknown);

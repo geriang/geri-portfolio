@@ -1,7 +1,14 @@
 import { render, screen } from '@testing-library/react';
-import FrameworkPage from '@/app/framework/page';
+import FrameworkPage from '../page';
 
-test('renders Framework page heading', () => {
-  render(<FrameworkPage />);
-  expect(screen.getByRole('heading', { name: /Framework Page/i })).toBeInTheDocument();
+describe('Framework Page', () => {
+  it('renders the main heading', () => {
+    render(<FrameworkPage />);
+    expect(screen.getByRole('heading', { level: 1, name: 'Framework' })).toBeInTheDocument();
+  });
+
+  it('renders the Business Framework section', () => {
+    render(<FrameworkPage />);
+    expect(screen.getByText('Business Framework')).toBeInTheDocument();
+  });
 });

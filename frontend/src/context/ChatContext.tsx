@@ -1,3 +1,5 @@
+'use client';
+
 import React, { createContext, useContext, ReactNode } from 'react';
 
 // Define the shape of the chat context
@@ -14,7 +16,7 @@ const defaultContext: ChatContextProps = {
   position: 1,
 };
 
-const ChatContext = createContext<ChatContextProps>(defaultContext);
+const ChatContext = createContext(defaultContext);
 
 export const ChatProvider = ({ children }: { children: ReactNode }) => {
   // For now we just provide the static default context

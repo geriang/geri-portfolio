@@ -9,8 +9,8 @@ interface ChatOverlayProps {
 
 const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose, queuePosition }) => {
   const { messages: initialMessages } = useChat();
-  const [messages, setMessages] = useState<string[]>(initialMessages);
-  const [toolData, setToolData] = useState<unknown>(null);
+  const [messages, setMessages] = useState(initialMessages);
+  const [toolData, setToolData] = useState(null);
   const [input, setInput] = useState('');
 
   const sendPrompt = async (prompt: string) => {

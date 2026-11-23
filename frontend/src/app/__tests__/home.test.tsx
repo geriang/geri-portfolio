@@ -1,7 +1,14 @@
 import { render, screen } from '@testing-library/react';
-import HomePage from '@/app/page';
+import Home from '../page';
 
-test('renders Home page heading', () => {
-  render(<HomePage />);
-  expect(screen.getByRole('heading', { name: /Home Page/i })).toBeInTheDocument();
+describe('Home Page', () => {
+  it('renders the main heading', () => {
+    render(<Home />);
+    expect(screen.getByRole('heading', { level: 2, name: 'Geri Ang' })).toBeInTheDocument();
+  });
+
+  it('renders the hero subtitle', () => {
+    render(<Home />);
+    expect(screen.getByText(/AI\/GenAI Product/)).toBeInTheDocument();
+  });
 });
