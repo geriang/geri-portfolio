@@ -45,10 +45,20 @@ test.describe('gach.work replica chrome', () => {
   test('typewriter keeps typing', async ({ page }) => {
     await page.goto(`${BASE}/`);
     const typed = page.locator('.typed');
+
+    // Wait for a change rather than sampling on a fixed timer: the loop holds a
+    // finished word for 3s, so two fixed samples can legitimately be equal.
     const first = (await typed.innerText()).replace('|', '');
-    await page.waitForTimeout(1500);
+    await page.waitForFunction(
+      (previous) =>
+        (document.querySelector('.typed')?.textContent ?? '').replace('|', '') !== previous,
+      first,
+      { timeout: 15000 },
+    );
+
     const later = (await typed.innerText()).replace('|', '');
-    expect(first).not.toEqual(later);
+    const words = ['Strategist', 'Manager', 'Owner', 'Builder'];
+    expect(words.some((word) => word.startsWith(later))).toBe(true);
   });
 
   test('header becomes translucent and the scroll-top appears after scrolling', async ({
@@ -60,6 +70,20 @@ test.describe('gach.work replica chrome', () => {
     await page.evaluate(() => window.scrollTo(0, 400));
     await expect(page.locator('.site-header')).toHaveClass(/is-scrolled/);
     await expect(page.locator('.scroll-top')).toHaveClass(/is-visible/);
+  });
+
+  test('the chat launcher steps aside while the mobile panel is open', async ({ browser }) => {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
+    const page = await context.newPage();
+    await page.goto(`${BASE}/`);
+
+    await expect(page.locator('.chat-launcher')).toBeVisible();
+    await page.getByRole('button', { name: /open navigation/i }).click();
+    await expect(page.locator('.nav-menu')).toBeVisible();
+    expect(await page.evaluate(() => document.body.classList.contains('nav-open'))).toBe(true);
+    await expect(page.locator('.chat-launcher')).toBeHidden();
+
+    await context.close();
   });
 });
 
@@ -81,6 +105,26 @@ test.describe('replica page sections', () => {
     await expect(page.getByRole('heading', { level: 1, name: 'Framework', exact: true })).toBeVisible();
     expect(await page.locator('.service-item').count()).toBeGreaterThanOrEqual(10);
     await expect(page.getByRole('heading', { level: 3, name: 'SWOT Analysis' })).toBeVisible();
+  });
+
+  test('every card renders a real icon glyph, not an empty tile', async ({ page }) => {
+    const selectors: Array<[string, string]> = [
+      ['/framework', '.service-item .icon svg'],
+      ['/skill', '.features-item svg'],
+    ];
+
+    for (const [route, selector] of selectors) {
+      await page.goto(`${BASE}${route}`);
+      const count = await page.locator(selector).count();
+      expect(count).toBeGreaterThan(0);
+
+      const empty = await page.locator(selector).evaluateAll((nodes) =>
+        nodes
+          .filter((node) => !node.querySelector('path,circle,rect,polygon,line,ellipse'))
+          .map((node) => node.getAttribute('class') ?? 'unknown'),
+      );
+      expect(empty, `${selector} on ${route} has glyph-less icons`).toEqual([]);
+    }
   });
 
   test('resume lists both timeline columns', async ({ page }) => {
