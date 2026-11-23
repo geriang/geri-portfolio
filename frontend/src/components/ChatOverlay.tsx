@@ -41,32 +41,37 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose, queuePosition }) => 
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-800 p-6 rounded shadow-lg w-80 max-w-full">
-        <div className="flex justify-between items-center mb-4">
+    <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/70 p-4">
+      <div className="w-80 max-w-full rounded border border-white/10 bg-surface p-6 shadow-lg">
+        <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold">Chat Demo</h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
+            className="text-foreground/60 transition duration-300 hover:text-accent"
             aria-label="Close chat"
           >
             ✕
           </button>
         </div>
-        <p className="text-sm text-gray-600 mb-2">Position: {queuePosition}</p>
+        <p className="mb-2 text-sm text-foreground/60">Position: {queuePosition}</p>
         <form onSubmit={handleSubmit} className="mb-2 flex">
           <input
             type="text"
             value={input}
             onChange={e => setInput(e.target.value)}
-            className="flex-1 border rounded px-2 py-1 mr-2"
+            className="mr-2 flex-1 rounded border border-white/10 bg-background px-2 py-1 text-foreground outline-none focus:border-accent"
             placeholder="Ask something..."
           />
-          <button type="submit" className="bg-blue-600 text-white px-3 rounded">Send</button>
+          <button
+            type="submit"
+            className="rounded bg-accent px-3 text-contrast transition duration-300 hover:opacity-90"
+          >
+            Send
+          </button>
         </form>
         <div className="space-y-2">
           {messages.map((msg, idx) => (
-            <p key={idx} className="text-gray-800 dark:text-gray-200">{msg}</p>
+            <p key={idx}>{msg}</p>
           ))}
           {toolData !== null && toolData !== undefined && <ProjectCard tool={toolData} /> }
         </div>
