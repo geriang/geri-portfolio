@@ -1,10 +1,42 @@
 import Layout from '@/components/Layout';
+import { PageTitle, SectionTitle } from '@/components/PageTitle';
+import { Reveal } from '@/components/Reveal';
+import { FRAMEWORK_SECTIONS } from '@/data/content';
 
 export default function FrameworkPage() {
   return (
     <Layout>
-      <h2 className="text-2xl font-bold mb-4">Framework Page</h2>
-      <p>Placeholder content for the Framework page.</p>
+      <PageTitle
+        title="Framework"
+        description="Business, product management and product development frameworks applied in coursework and professional work."
+      />
+      <section className="bg-page py-[60px]">
+        <div className="mx-auto max-w-[1140px] px-4">
+          {FRAMEWORK_SECTIONS.map(section => (
+            <div key={section.title} className="mb-12">
+              <Reveal>
+                <SectionTitle eyebrow={section.title} lead="I'm" emphasis="Familiar with" />
+              </Reveal>
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {section.items.map((item, i) => (
+                  <Reveal key={item.title} delay={(i % 3) * 100}>
+                    <div className="group h-full bg-surface px-5 py-20 text-center transition-all duration-300 hover:bg-accent">
+                      <div className="relative mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded bg-accent transition-colors duration-300 group-hover:bg-surface">
+                        <span className="absolute -left-2 -top-2 h-full w-full rounded-[5px] bg-accent/20 transition-all duration-300 group-hover:bg-black/30" />
+                        <span className="relative text-2xl font-bold text-black transition-colors duration-300 group-hover:text-accent">
+                          {item.title.charAt(0)}
+                        </span>
+                      </div>
+                      <h3 className="mb-[15px] mt-2.5 text-[22px] font-bold group-hover:text-black">{item.title}</h3>
+                      <p className="mb-0 text-sm leading-6 group-hover:text-black">{item.text}</p>
+                    </div>
+                  </Reveal>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
     </Layout>
   );
 }
