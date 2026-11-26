@@ -1,6 +1,6 @@
 # Backlog: AI Usage Activity Heatmap
 
-Status: draft
+Status: approved
 
 ## Release goal
 Deliver a public activity section on the portfolio home page that shows the site owner's AI usage as a GitHub-style heatmap — daily cells shaded by tokens or prompts, per-day details, totals, streaks, model and task-type splits — fed automatically once a day from the owner's tools, starting with opencode end to end, with no prompt or response content ever stored or shown.
