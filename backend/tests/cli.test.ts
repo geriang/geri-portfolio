@@ -3,6 +3,8 @@ import os from 'os';
 import path from 'path';
 import { spawnSync } from 'child_process';
 import { main } from '../src/import/cli';
+import { OpenCodeAdapter } from '../src/import/adapters/opencodeAdapter';
+import { computeWindow } from '../src/import/runImport';
 import { writeOpencodeFixture, type OpencodeFixtureInfo } from './fixtures/opencodeDb';
 
 /**
@@ -233,4 +235,49 @@ describe('spawned npm run --silent import:usage (AC-1 literal command, AC-6)', (
     expect(result.stdout).toBe('');
     expect(result.stderr).toContain('ACTIVITY_DB_PATH');
   }, 120_000);
+});
+
+describe('model_fallbacks suffix (US-23 task 6, AC-3 stdout half)', () => {
+  let variantFixture: OpencodeFixtureInfo;
+
+  beforeAll(() => {
+    variantFixture = writeOpencodeFixture({
+      dir: path.join(tmpRoot, 'cli-variants'),
+      marker: MARKER,
+      modelVariants: true,
+    });
+  });
+
+  test('base-fixture in-process run still prints exactly SUCCESS_LINE (no regression)', () => {
+    withActivityDb(freshActivityPath(), () => {
+      const cap = capture();
+      expect(main(['--tool', 'opencode', '--db', fixture.dbPath, '--now', NOW_ISO], cap.io)).toBe(0);
+      expect(cap.outLines).toEqual([SUCCESS_LINE]);
+      expect(cap.outLines[0]).not.toContain('model_fallbacks');
+      expect(cap.errLines).toEqual([]);
+    });
+  });
+
+  test('variant-fixture run appends the numeric suffix from the adapter counter; no marker in out or err', () => {
+    // Expected fallback count comes from the fixture facts (the reference
+    // adapter's modelFallbackCount over the very window main will use),
+    // never a magic number.
+    const window = computeWindow(new Date(NOW_ISO));
+    const reference = new OpenCodeAdapter({ sourceDbPath: variantFixture.dbPath });
+    reference.readEvents(window.sinceUtc, window.untilUtc);
+    const expectedFallbacks = reference.modelFallbackCount;
+    expect(expectedFallbacks).toBeGreaterThan(0);
+
+    withActivityDb(freshActivityPath(), () => {
+      const cap = capture();
+      expect(main(['--tool', 'opencode', '--db', variantFixture.dbPath, '--now', NOW_ISO], cap.io)).toBe(0);
+      expect(cap.outLines).toHaveLength(1); // still exactly ONE stdout line
+      expect(cap.outLines[0]).toMatch(/^import:success tools=opencode /);
+      expect(cap.outLines[0].endsWith(` model_fallbacks=${expectedFallbacks}`)).toBe(true);
+      // The summary line stays marker-free; so does stderr.
+      expect(cap.outLines[0]).not.toContain(MARKER);
+      expect(cap.errLines.join('\n')).not.toContain(MARKER);
+      expect(cap.errLines).toEqual([]);
+    });
+  });
 });

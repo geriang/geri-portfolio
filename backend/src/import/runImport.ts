@@ -78,6 +78,12 @@ export interface ImportRunSummary {
   /** Distinct day_local values touched by this run, ascending. */
   days: string[];
   /**
+   * US-23: total fallback rows across the run's adapters (sum of each
+   * adapter's modelFallbackCount) — a number-only signal, present on
+   * success runs only. Never carries any source value (NFR-5).
+   */
+  modelFallbacks?: number;
+  /**
    * Sanitized error text (sanitizeRunError), present only on failed runs —
    * the CLI's stderr line needs it because runImport never throws for
    * run-level errors. Never contains source content (NFR-5).
@@ -156,6 +162,13 @@ export function runImport(options: ImportRunOptions): ImportRunSummary {
       }
       // ONE transaction (US-2): an error above means nothing was inserted.
       const result = upsertUsageEvents(db, events);
+      // US-23: numeric-only fallback signal, read after the pull loop, on
+      // success runs only. Adapters without a counter contribute 0.
+      const modelFallbacks = options.adapters.reduce(
+        (total, adapter) =>
+          total + ((adapter as { modelFallbackCount?: number }).modelFallbackCount ?? 0),
+        0,
+      );
       const finishedAt = stamp().toISOString();
       db.prepare(
         'UPDATE import_run SET finished_at = ?, status = ?, events_seen = ?, events_written = ? WHERE id = ?',
@@ -169,6 +182,7 @@ export function runImport(options: ImportRunOptions): ImportRunSummary {
         eventsSeen,
         eventsWritten: result.written,
         days: [...new Set(events.map((event) => event.dayLocal))].sort(),
+        modelFallbacks,
       };
     } catch (err) {
       const finishedAt = stamp().toISOString();

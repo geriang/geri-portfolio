@@ -137,13 +137,18 @@ function summaryLine(summary: {
   eventsSeen: number;
   eventsWritten: number;
   days: string[];
+  modelFallbacks?: number;
 }): string {
-  return (
+  const line =
     `import:${summary.status} tools=${summary.tools.join(',')} ` +
     `window=${summary.sinceUtc}/${summary.untilUtc} ` +
     `events_seen=${summary.eventsSeen} events_written=${summary.eventsWritten} ` +
-    `days=${summary.days.join(',')}`
-  );
+    `days=${summary.days.join(',')}`;
+  // US-23: optional numeric suffix, only when a SUCCESSFUL run had fallback
+  // rows; with none the line stays byte-identical to the pre-US-23 contract.
+  return summary.status === 'success' && (summary.modelFallbacks ?? 0) > 0
+    ? `${line} model_fallbacks=${summary.modelFallbacks}`
+    : line;
 }
 
 /**

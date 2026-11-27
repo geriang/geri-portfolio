@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import Database from 'better-sqlite3';
 import { RawUsageRecord } from '../types';
 import { ToolAdapter } from '../adapter';
+import { MODEL_FALLBACK, normaliseModel } from '../modelNormalise';
 import { copySourceDatabase } from '../sourceCopy';
 
 /**
@@ -9,6 +10,19 @@ import { copySourceDatabase } from '../sourceCopy';
  * rows (type user/assistant) from a read-only copy of opencode.db, drops all
  * prompt/response text inside the adapter (BR-1, AC-2) and emits
  * RawUsageRecords. Adding a tool = one file like this (NFR-10).
+ *
+ * Model handling (US-23): the real opencode database stores the model as a
+ * JSON descriptor — an object with `id` and `providerID`, as a JSON string
+ * or an already-parsed object. normaliseModel turns it into a short stable
+ * name (`<providerID>/<id>`, or the `id` alone), while any other plain
+ * string is stored unchanged and only present-but-unusable values (bad
+ * parse, no usable `id`, ...) get the fixed MODEL_FALLBACK. Fallback rather
+ * than fail-fast on those, because one bad row must not stop a whole
+ * import; only a model missing/empty on BOTH the message and its session_v2
+ * row still fails fast (unchanged US-3 behaviour). Conflation note: a
+ * source model literally named `unknown` is stored unchanged and counts as
+ * a fallback in modelFallbackCount — an informational conflation, observed
+ * never. modelFallbackCount (a number only) is the sole signal.
  *
  * Column contract (fixed by docs/design/US-3-opencode-adapter-import.md
  * §"opencode source schema"); drift against a real opencode.db fails loudly
@@ -181,6 +195,18 @@ export function deriveSourceId(row: JoinRow): string {
 }
 
 /**
+ * C1 candidate presence: a non-null object that is not an array counts as
+ * present (the real opencode descriptor may arrive already parsed); any
+ * other value is present only when it is a string with non-empty trim.
+ */
+function presentModelValue(value: unknown): boolean {
+  if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+    return true;
+  }
+  return typeof value === 'string' && value.trim() !== '';
+}
+
+/**
  * Map a joined source row to a RawUsageRecord. Prompt/response `text` is read
  * only to be discarded — it is never assigned to any field (BR-1, AC-2).
  * metadata is exactly { agent, directory } (classifier input; never stored).
@@ -200,14 +226,25 @@ export function mapRow(row: JoinRow): RawUsageRecord {
 
   const tokens = isAssistant ? assistantTokens(row, data) : { input: 0, output: 0 };
 
-  // data.model ?? session_v2.model — first non-empty wins (BR-5); empty
-  // everywhere fails fast (a silent 'unknown' model would hide source drift).
-  const model = nonEmpty(data.model) ?? nonEmpty(row.sessionModel);
-  if (!model) {
+  // data.model ?? session_v2.model — first present candidate wins (BR-5).
+  // A candidate is present when it is a non-null object (not an array) or a
+  // string with non-empty trim: parsed-object descriptors count as present
+  // (US-23 defect 1 fix). Nothing present fails fast, exactly as in US-3 (a
+  // silent 'unknown' model would hide source drift); the message is the
+  // existing unchanged one, naming the row id only. normaliseModel then maps
+  // the candidate to the stored value; a present-but-unusable one becomes
+  // MODEL_FALLBACK instead of stopping the import (US-23).
+  const candidate = presentModelValue(data.model)
+    ? data.model
+    : presentModelValue(row.sessionModel)
+      ? row.sessionModel
+      : undefined;
+  if (candidate === undefined) {
     throw new OpenCodeAdapterError(
       `message ${describeRow(row)}: no model on the message or its session_v2 row`,
     );
   }
+  const model = normaliseModel(candidate).model;
 
   const agent = nonEmpty(data.agent) ?? nonEmpty(row.sessionAgent) ?? '';
   const directory = nonEmpty(row.directory) ?? '';
@@ -226,6 +263,14 @@ export function mapRow(row: JoinRow): RawUsageRecord {
 export class OpenCodeAdapter implements ToolAdapter {
   readonly tool = OPENCODE_TOOL;
 
+  /**
+   * Number of records the most recent readEvents call stored as
+   * MODEL_FALLBACK; reset to 0 at the start of every call. The number is the
+   * only allowed signal for fallback rows (US-23); a source model literally
+   * named `unknown` would be counted here too (informational conflation).
+   */
+  modelFallbackCount = 0;
+
   private readonly options: OpenCodeAdapterOptions;
 
   constructor(options: OpenCodeAdapterOptions) {
@@ -241,6 +286,7 @@ export class OpenCodeAdapter implements ToolAdapter {
    * SQL BETWEEN).
    */
   readEvents(sinceUtc: string, untilUtc: string): RawUsageRecord[] {
+    this.modelFallbackCount = 0;
     const copy = copySourceDatabase(this.options.sourceDbPath, {
       tempRootHint: this.options.tempRootHint,
     });
@@ -270,6 +316,9 @@ export class OpenCodeAdapter implements ToolAdapter {
         }
         const record = mapRow(row);
         if (!bySourceId.has(record.sourceId)) {
+          if (record.model === MODEL_FALLBACK) {
+            this.modelFallbackCount += 1;
+          }
           bySourceId.set(record.sourceId, record);
         }
       }
