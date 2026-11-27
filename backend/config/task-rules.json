@@ -16,6 +16,12 @@
     { "taskType": "Writing/documentation",  "match": { "command": ["doc", "write"], "title": ["readme", "docs"] } },
     { "taskType": "Planning/design",        "match": { "command": ["plan", "design"], "agent": ["plan"] } },
     { "taskType": "Research/questions",     "match": { "agent": ["ask", "research"], "title": ["how to", "what is"] } },
-    { "taskType": "Coding/implementation",  "match": { "directory": ["src", "app"], "agent": ["build", "code"] } }
+    { "taskType": "Coding/implementation",  "match": { "directory": ["src", "app"], "agent": ["build", "code"] } },
+    { "taskType": "Debugging/fixing",       "match": { "agent": ["debug", "fix"] } },
+    { "taskType": "Review/testing",         "match": { "agent": ["review", "qa"] } },
+    { "taskType": "Writing/documentation",  "match": { "agent": ["write", "doc"] } },
+    { "taskType": "Planning/design",        "match": { "agent": ["plan", "architect"] } },
+    { "taskType": "Research/questions",     "match": { "agent": ["ask", "research"] } },
+    { "taskType": "Coding/implementation",  "match": { "agent": ["build", "code"] } }
   ]
 }
