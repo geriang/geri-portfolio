@@ -8,9 +8,9 @@ Deliver a public activity section on the portfolio home page that shows the site
 ## Backlog
 | ID | Title | Description (one line) | Priority | Size | Requirements | NFR / ADR | Depends on | Design needed | Type | UX needed | Sprint | Status |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| US-1 | Inspect Hermes agent and Open WebUI logs | Run `docker inspect` and read the schema of both tools' databases to learn what tokens, models and metadata they record, and settle the task type list. | Must | S | BR-6, FR-13, FR-14 | NFR-10; ADR-4, ADR-6 | none | no | enabler | no | — | backlog |
-| US-2 | Usage database and importer core | Create `activity.db` (`usage_event`, `import_run`), the adapter interface and the rule-based classifier with an "Uncategorised" fallback. | Must | M | FR-12, FR-13, FR-14 | BR-1, BR-4, BR-5; NFR-5, NFR-7, NFR-10, NFR-11; ADR-3, ADR-4 | none | yes | backend | no | — | backlog |
-| US-3 | opencode adapter and import run | Read opencode's message rows, drop prompt text, convert to `Asia/Singapore` days and upsert them idempotently with an `import_run` record. | Must | M | FR-12, FR-15, FR-17 | BR-1, BR-3, BR-4; NFR-3, NFR-7, NFR-11, NFR-12, NFR-14; ADR-3, ADR-6 | US-2 | yes | backend | no | — | backlog |
+| US-1 | Inspect Hermes agent and Open WebUI logs | Run `docker inspect` and read the schema of both tools' databases to learn what tokens, models and metadata they record, and settle the task type list. | Must | S | BR-1, BR-6, FR-13, FR-14 | ADR-4, ADR-6 | none | no | enabler | no | sprint-1 | ready |
+| US-2 | Usage database and importer core | Create `activity.db` (`usage_event`, `import_run`), the adapter interface and the rule-based classifier with an "Uncategorised" fallback. | Must | M | FR-12, FR-13, FR-14 | BR-1, BR-4, BR-5, BR-6; NFR-5, NFR-10, NFR-11; ADR-3, ADR-4 | none | yes | backend | no | sprint-1 | ready |
+| US-3 | opencode adapter and import run | Read opencode's message rows, drop prompt text, convert to `Asia/Singapore` days and upsert them idempotently with an `import_run` record. | Must | M | FR-12, FR-15, FR-17 | BR-1, BR-4; NFR-3, NFR-5, NFR-7, NFR-10, NFR-11, NFR-12, NFR-14; ADR-3, ADR-6 | US-2 | yes | backend | no | sprint-1 | ready |
 | US-4 | Read-only `GET /activity` API | Serve the pre-grouped daily dataset for a range with metadata (time zone, as-of date, last updated) from `activity.db` opened read-only. | Must | M | FR-2, FR-18, FR-20 | BR-1; NFR-2, NFR-5; ADR-1, ADR-3, ADR-5 | US-2 | yes | backend | no | — | backlog |
 | US-5 | Public surface hardening | Lock the activity route to `GET`/`OPTIONS` with a CORS allowlist, `helmet`, `trust proxy`, a 60/min rate limit and a tunnel rule that forwards only `/activity`. | Must | M | BR-2, BR-7 | NFR-6; ADR-2 | US-4 | yes | backend | no | — | backlog |
 | US-6 | Activity section with heatmap below the hero | Add the client-side section under the hero that fetches after render and draws one shaded cell per day, filling empty days, at a reserved height. | Must | M | FR-1, FR-2, FR-3, FR-20 | NFR-1, NFR-8, NFR-9; ADR-1, ADR-5 | US-4 | yes | frontend | yes | — | backlog |
@@ -56,24 +56,24 @@ Deliver a public activity section on the portfolio home page that shows the site
 | FR-20 | US-4, US-6 | |
 | FR-21 | US-19 | Could; owner deferred it past the Must set |
 | FR-22 | US-20 | Could; owner deferred it past the Must set |
-| BR-1 | US-2, US-3, US-4, US-17, US-18 | Allow-list tests in US-2/US-3 |
+| BR-1 | US-1, US-2, US-3, US-4, US-17, US-18 | Allow-list tests in US-2/US-3 |
 | BR-2 | US-5, US-16 | |
-| BR-3 | US-3, US-17, US-18 | |
+| BR-3 | US-17, US-18 | Only the owner's tools are read, by construction of the adapters; US-3 likewise reads only the owner's opencode data |
 | BR-4 | US-2, US-3, US-7, US-19 | `Asia/Singapore` |
 | BR-5 | US-2, US-9 | |
-| BR-6 | US-1, US-9 | Final list confirmed by US-1 |
+| BR-6 | US-1, US-2, US-9 | Final list confirmed by US-1; candidate list carried in US-2 config |
 | BR-7 | US-5, US-13, US-14, US-16 | |
 | BR-8 | US-14 | |
 | NFR-1 | US-6, US-9, US-10, US-16, US-19 | Size report and Lighthouse delta |
 | NFR-2 | US-4 | |
 | NFR-3 | US-3, US-14, US-15 | |
 | NFR-4 | US-11 | |
-| NFR-5 | US-2, US-3, US-4, US-17, US-18 | |
+| NFR-5 | US-2, US-3, US-4, US-17, US-18 | US-3 marker-text test |
 | NFR-6 | US-5, US-13, US-16 | |
 | NFR-7 | US-3, US-17, US-18 | |
 | NFR-8 | US-6, US-7 | |
 | NFR-9 | US-6, US-7, US-8, US-9, US-10, US-12, US-19, US-20, US-22 | |
-| NFR-10 | US-1, US-2, US-15, US-17, US-18 | |
+| NFR-10 | US-2, US-3, US-15, US-17, US-18 | US-1 informs the module design but verifies no quality target itself |
 | NFR-11 | US-2, US-3, US-8, US-17, US-18 | |
 | NFR-12 | US-3, US-14 | |
 | NFR-13 | US-21 | Destination still open (architecture open question) |
@@ -113,3 +113,5 @@ No Must requirement, business rule or NFR is uncovered.
 | Initial version | Created from approved requirements, approved architecture, ADR-1 to ADR-6 and a five-question planning interview |
 | Review round 1 | Doc review: raised US-12 to Must (NFR-9 carrier); split backup out of US-14 into new US-21 and raised US-14 (daily trigger, FR-16) to Must; renamed US-3 (no daily claim); added US-22 for the approved red-accent direction (flows OQ-2); fixed coverage rows FR-14, FR-16, FR-19, FR-12, FR-20, NFR-1, NFR-9, NFR-13; set US-1 design-needed to no |
 | Review round 2 | Doc review: dropped FR-20 from US-15 citations, dropped US-11 from the BR-2 coverage row, anchored US-22 on flows A-3 and ADR-5 |
+| Sprint-1 planning | Owner-confirmed selection: US-1, US-2 and US-3 set to sprint-1 / ready; story files and docs/product/sprints/sprint-1.md written |
+| Sprint-1 review fixes | Doc review round 2 (PASS): removed untraced NFR-7/NFR-10/BR-3 citations from US-1/US-2/US-3, added US-3 AC-8 (FR-15) and AC-9 (NFR-10), aligned coverage gate with built modules, reworded daily-automation claims, completed BR-1/BR-6/NFR-5 citation rows |
