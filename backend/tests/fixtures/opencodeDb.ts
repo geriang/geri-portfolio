@@ -24,14 +24,23 @@ export interface OpencodeFixtureOptions {
   messageCount?: number;
   /** Unique marker embedded in every text field (AC-2 bait). */
   marker?: string;
+  /**
+   * US-23: also write the model-shape variant session + messages (descriptor
+   * strings, nested object, no-provider, bad-parse and no-id descriptors,
+   * session-column descriptor). Default false = writes exactly what the
+   * builder wrote before US-23, so every pre-US-23 count stays valid.
+   */
+  modelVariants?: boolean;
 }
 
 export interface OpencodeFixtureInfo {
   dbPath: string;
-  /** Total user session_message rows written (handcrafted + bulk). */
+  /** Total user session_message rows written (handcrafted + bulk + variants). */
   userMessages: number;
-  /** Total assistant session_message rows written (handcrafted + bulk, pre-merge). */
+  /** Total assistant session_message rows written (pre-merge). */
   assistantMessages: number;
+  /** US-23 model-shape variant messages written (0 when modelVariants is off). */
+  modelVariantMessages: number;
 }
 
 /** The generated project directory handed to the classifier (never stored). */
@@ -48,6 +57,138 @@ export const CANONICAL_WINDOW = {
   sinceUtc: '2026-11-24T00:00:00Z',
   untilUtc: '2026-11-28T00:00:00Z',
 };
+
+/* ------------------------------------------------------------------ *
+ * US-23 model-descriptor variants (invented values only — NFR-5).
+ * Single source of truth: tests import these and never retype literals.
+ * ------------------------------------------------------------------ */
+
+export const EXAMPLE_PROVIDER = 'example-provider';
+export const EXAMPLE_MODEL_A = 'example-model-a';
+export const EXAMPLE_MODEL_B = 'example-model-b';
+
+/** Normalised stored value for the provider+id pair (AC-1 expectation). */
+export const NORMALISED_DESCRIPTOR_A = `${EXAMPLE_PROVIDER}/${EXAMPLE_MODEL_A}`;
+/** Normalised stored value for a descriptor without providerID (id alone). */
+export const NORMALISED_B_ONLY_ID = EXAMPLE_MODEL_B;
+
+/**
+ * A well-formed descriptor for (providerID, id) = (EXAMPLE_PROVIDER,
+ * EXAMPLE_MODEL_A) as a JSON string; keyOrder pins the physical key order,
+ * extra adds extra fields (both must not change the normalised value).
+ */
+export function descriptorStringA(
+  keyOrder: 'idFirst' | 'providerFirst',
+  extra?: Record<string, unknown>,
+): string {
+  const core: Record<string, unknown> =
+    keyOrder === 'idFirst'
+      ? { id: EXAMPLE_MODEL_A, providerID: EXAMPLE_PROVIDER }
+      : { providerID: EXAMPLE_PROVIDER, id: EXAMPLE_MODEL_A };
+  return JSON.stringify({ ...core, ...extra });
+}
+
+/**
+ * Starts with `{` but is unterminated → JSON.parse must throw. The marker is
+ * embedded INSIDE the descriptor text (AC-3 bait): the fallback path must
+ * keep it out of activity.db, import_run.error, errors and logs.
+ */
+export function badParseDescriptor(marker: string): string {
+  return `{"id":"${EXAMPLE_MODEL_A}","providerID":"${EXAMPLE_PROVIDER}","note":"${marker}"`;
+}
+
+/** Valid JSON with an empty `id` (no usable id); the marker rides inside. */
+export function badNoIdDescriptor(marker: string): string {
+  return JSON.stringify({ id: '', providerID: EXAMPLE_PROVIDER, note: marker });
+}
+
+/** The variant session: session_v2.model is itself a JSON-string descriptor. */
+const DESC_SESSION: HandcraftedSession = {
+  id: 'ses_desc',
+  directory: FIXTURE_DIRECTORY,
+  agent: 'build',
+  model: descriptorStringA('providerFirst'),
+  timeCreated: '2026-11-27T05:59:00Z',
+};
+
+/**
+ * The seven US-23 variant messages (spec fixture-plan table). Explicit ids,
+ * distinct instants/tokens (no derived-id collisions), all inside
+ * CANONICAL_WINDOW; data.text is composed from the marker like the base
+ * rows, so every variant carries the AC-2/AC-3 marker bait.
+ */
+function modelVariantRows(marker: string): HandcraftedRow[] {
+  return [
+    {
+      id: 'desc-str-a1',
+      sessionId: 'ses_desc',
+      type: 'assistant',
+      time: '2026-11-27T06:00:00Z',
+      timeKind: 'text',
+      data: {
+        agent: 'build',
+        model: descriptorStringA('idFirst', { extra: 'x1', tier: 'free' }),
+        tokens: { input: 11, output: 61 },
+      },
+    },
+    {
+      id: 'desc-str-a2',
+      sessionId: 'ses_desc',
+      type: 'assistant',
+      time: '2026-11-27T06:01:00Z',
+      timeKind: 'text',
+      data: { agent: 'build', model: descriptorStringA('providerFirst'), tokens: { input: 12, output: 62 } },
+    },
+    {
+      id: 'desc-obj-a3',
+      sessionId: 'ses_desc',
+      type: 'assistant',
+      time: ms(2026, 10, 27, 6, 2, 0),
+      timeKind: 'integer',
+      data: {
+        agent: 'build',
+        model: { providerID: EXAMPLE_PROVIDER, id: EXAMPLE_MODEL_A },
+        tokens: { input: 13, output: 63 },
+      },
+    },
+    {
+      id: 'desc-b-no-provider',
+      sessionId: 'ses_desc',
+      type: 'assistant',
+      time: '2026-11-27T06:03:00Z',
+      timeKind: 'text',
+      data: { agent: 'build', model: JSON.stringify({ id: EXAMPLE_MODEL_B }), tokens: { input: 14, output: 64 } },
+    },
+    {
+      id: 'desc-bad-parse',
+      sessionId: 'ses_desc',
+      type: 'assistant',
+      time: ms(2026, 10, 27, 6, 4, 0),
+      timeKind: 'integer',
+      data: { agent: 'build', model: badParseDescriptor(marker), tokens: { input: 15, output: 65 } },
+    },
+    {
+      id: 'desc-bad-noid',
+      sessionId: 'ses_desc',
+      type: 'assistant',
+      time: '2026-11-27T06:05:00Z',
+      timeKind: 'text',
+      data: { agent: 'build', model: badNoIdDescriptor(marker), tokens: { input: 16, output: 66 } },
+    },
+    {
+      // No data.model: falls back to ses_desc.model, the session-column descriptor.
+      id: 'desc-user-1',
+      sessionId: 'ses_desc',
+      type: 'user',
+      time: ms(2026, 10, 27, 6, 6, 0),
+      timeKind: 'integer',
+      data: { agent: 'build' },
+    },
+  ];
+}
+
+/** Row counts of the variant set (all in-window, no twins; tests assert against these). */
+export const MODEL_VARIANT_COUNTS = { sessions: 1, messages: 7, events: 7 };
 
 const BULK_SESSION_ID = 'ses_bulk';
 const BULK_BASE_UTC = '2026-11-27T00:00:00Z';
@@ -72,8 +213,11 @@ interface HandcraftedRow {
   /** Value physically written to session_message.time_created. */
   time: string | number;
   timeKind: 'text' | 'integer';
-  /** data JSON payload (without text, which the builder composes from the marker). */
-  data: { agent?: string; model?: string; tokens?: { input: number; output: number } };
+  /**
+   * data JSON payload (without text, which the builder composes from the
+   * marker). US-23 widens model to cover the parsed-object descriptor shape.
+   */
+  data: { agent?: string; model?: string | Record<string, unknown>; tokens?: { input: number; output: number } };
 }
 
 interface HandcraftedSession {
@@ -259,6 +403,8 @@ function composeText(marker: string, variant: string): string {
  */
 export function writeOpencodeFixture(options: OpencodeFixtureOptions): OpencodeFixtureInfo {
   const marker = options.marker ?? DEFAULT_FIXTURE_MARKER;
+  const variantsOn = options.modelVariants === true;
+  const variantRows = variantsOn ? modelVariantRows(marker) : [];
   fs.mkdirSync(options.dir, { recursive: true });
   const dbPath = path.join(options.dir, 'opencode.db');
   fs.rmSync(dbPath, { force: true });
@@ -294,11 +440,22 @@ export function writeOpencodeFixture(options: OpencodeFixtureOptions): OpencodeF
         insertSession.run(session.id, session.directory, session.agent, session.model, session.timeCreated);
       }
       insertSession.run(BULK_SESSION_ID, FIXTURE_DIRECTORY, 'build', 'glm-4.6', BULK_BASE_UTC);
+      if (variantsOn) {
+        insertSession.run(DESC_SESSION.id, DESC_SESSION.directory, DESC_SESSION.agent, DESC_SESSION.model, DESC_SESSION.timeCreated);
+      }
 
       let variant = 0;
       for (const row of ROWS) {
         const data = { ...row.data, text: composeText(marker, `hc-${variant++}`) };
         // BigInt binds as SQLite INTEGER; a JS number would bind as REAL.
+        const timeBinding = typeof row.time === 'number' ? BigInt(row.time) : row.time;
+        insertMessage.run(row.id, row.sessionId, row.type, timeBinding, JSON.stringify(data));
+      }
+
+      // US-23 model-shape variants (only when opted in): composed from the
+      // same marker so every variant data JSON carries the AC-2/AC-3 bait.
+      for (const row of variantRows) {
+        const data = { ...row.data, text: composeText(marker, `desc-${row.id}`) };
         const timeBinding = typeof row.time === 'number' ? BigInt(row.time) : row.time;
         insertMessage.run(row.id, row.sessionId, row.type, timeBinding, JSON.stringify(data));
       }
@@ -321,10 +478,13 @@ export function writeOpencodeFixture(options: OpencodeFixtureOptions): OpencodeF
     writeAll();
 
     const bulk = options.messageCount ?? 0;
+    const variantUsers = variantRows.filter((r) => r.type === 'user').length;
+    const variantAssistants = variantRows.filter((r) => r.type === 'assistant').length;
     return {
       dbPath,
-      userMessages: HANDCRAFTED_COUNTS.userMessages + Math.ceil(bulk / 2),
-      assistantMessages: HANDCRAFTED_COUNTS.assistantMessages + Math.floor(bulk / 2),
+      userMessages: HANDCRAFTED_COUNTS.userMessages + Math.ceil(bulk / 2) + variantUsers,
+      assistantMessages: HANDCRAFTED_COUNTS.assistantMessages + Math.floor(bulk / 2) + variantAssistants,
+      modelVariantMessages: variantRows.length,
     };
   } finally {
     db.close();

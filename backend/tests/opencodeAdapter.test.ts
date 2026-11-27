@@ -15,8 +15,15 @@ import {
 import { MODEL_FALLBACK } from '../src/import/modelNormalise';
 import {
   CANONICAL_WINDOW,
+  EXAMPLE_MODEL_A,
+  EXAMPLE_MODEL_B,
+  EXAMPLE_PROVIDER,
   HANDCRAFTED_COUNTS,
   IN_WINDOW_COUNTS,
+  MODEL_VARIANT_COUNTS,
+  NORMALISED_B_ONLY_ID,
+  NORMALISED_DESCRIPTOR_A,
+  descriptorStringA,
   writeOpencodeFixture,
   type OpencodeFixtureInfo,
 } from './fixtures/opencodeDb';
@@ -375,18 +382,13 @@ describe('OpenCodeAdapter.readEvents window-before-map (R3)', () => {
 });
 
 describe('mapRow model normalisation (US-23 AC-1/AC-2/AC-3 adapter half)', () => {
-  // Invented descriptor vocabulary (the same constants the fixture exports;
-  // pure mapRow units — the modelVariants fixture stays OFF in this describe).
-  const PROVIDER = 'example-provider';
-  const MODEL_A = 'example-model-a';
-  const MODEL_B = 'example-model-b';
+  // Pure mapRow units — the modelVariants fixture stays OFF in this describe.
+  // Vocabulary: the fixture's invented constants (single source of truth).
+  const PROVIDER = EXAMPLE_PROVIDER;
+  const MODEL_A = EXAMPLE_MODEL_A;
+  const MODEL_B = EXAMPLE_MODEL_B;
   const DESC_MARKER = 'MK-adapter-desc-5e70b2d9';
-  const descA = (keyOrder: 'idFirst' | 'providerFirst', extra?: Record<string, unknown>) =>
-    JSON.stringify(
-      keyOrder === 'idFirst'
-        ? { id: MODEL_A, providerID: PROVIDER, ...extra }
-        : { providerID: PROVIDER, id: MODEL_A, ...extra },
-    );
+  const descA = descriptorStringA;
 
   const assistantRow = (id: string, model: unknown, sessionModel: string | null = null): JoinRow =>
     joinRow({
@@ -396,26 +398,26 @@ describe('mapRow model normalisation (US-23 AC-1/AC-2/AC-3 adapter half)', () =>
     });
 
   test('descriptor string → example-provider/example-model-a', () => {
-    expect(mapRow(assistantRow('u-desc-str', descA('idFirst'))).model).toBe(`${PROVIDER}/${MODEL_A}`);
+    expect(mapRow(assistantRow('u-desc-str', descA('idFirst'))).model).toBe(NORMALISED_DESCRIPTOR_A);
   });
 
   test('nested parsed object → same normalised name (R1 / defect 1 shape)', () => {
     expect(
       mapRow(assistantRow('u-desc-obj', { providerID: PROVIDER, id: MODEL_A })).model,
-    ).toBe(`${PROVIDER}/${MODEL_A}`);
+    ).toBe(NORMALISED_DESCRIPTOR_A);
   });
 
   test('descriptors differing only in key order or extra fields store the same value', () => {
     const withExtras = mapRow(assistantRow('u-desc-x1', descA('idFirst', { extra: 'x1', tier: 'free' })));
     const plainPair = mapRow(assistantRow('u-desc-x2', descA('providerFirst')));
     expect(withExtras.model).toBe(plainPair.model);
-    expect(withExtras.model).toBe(`${PROVIDER}/${MODEL_A}`);
+    expect(withExtras.model).toBe(NORMALISED_DESCRIPTOR_A);
   });
 
   test('descriptor without providerID → id alone', () => {
     expect(
       mapRow(assistantRow('u-desc-nop', JSON.stringify({ id: MODEL_B }))).model,
-    ).toBe(MODEL_B);
+    ).toBe(NORMALISED_B_ONLY_ID);
   });
 
   test('session-column path: data without model + sessionModel descriptor → normalised', () => {
@@ -424,7 +426,7 @@ describe('mapRow model normalisation (US-23 AC-1/AC-2/AC-3 adapter half)', () =>
       data: JSON.stringify({ tokens: { input: 1, output: 2 } }),
       sessionModel: descA('providerFirst'),
     });
-    expect(mapRow(row).model).toBe(`${PROVIDER}/${MODEL_A}`);
+    expect(mapRow(row).model).toBe(NORMALISED_DESCRIPTOR_A);
   });
 
   test('object data.model is NOT shadowed by a plain sessionModel (defect 1 regression)', () => {
@@ -433,7 +435,7 @@ describe('mapRow model normalisation (US-23 AC-1/AC-2/AC-3 adapter half)', () =>
       data: JSON.stringify({ model: { providerID: PROVIDER, id: MODEL_A }, tokens: { input: 1, output: 2 } }),
       sessionModel: 'plain-session-model',
     });
-    expect(mapRow(row).model).toBe(`${PROVIDER}/${MODEL_A}`);
+    expect(mapRow(row).model).toBe(NORMALISED_DESCRIPTOR_A);
   });
 
   test('plain string model is stored unchanged (AC-2)', () => {
@@ -479,5 +481,52 @@ describe('mapRow model normalisation (US-23 AC-1/AC-2/AC-3 adapter half)', () =>
     }
     expect(message).toContain('u-no-model');
     expect(message).toContain('no model on the message or its session_v2 row');
+  });
+});
+
+describe('fixture modelVariants inclusion (US-23 task 3, AC-5 fixture half)', () => {
+  test('default (off) writes exactly the base rows — no descriptor text anywhere', () => {
+    const off = writeOpencodeFixture({ dir: path.join(tmpRoot, 'variants-off'), marker: MARKER });
+    expect(off.modelVariantMessages).toBe(0);
+    const db = new Database(off.dbPath, { readonly: true });
+    try {
+      const n = (sql: string) => (db.prepare(sql).get() as { n: number }).n;
+      expect(n('SELECT COUNT(*) AS n FROM session_message')).toBe(
+        HANDCRAFTED_COUNTS.userMessages + HANDCRAFTED_COUNTS.assistantMessages,
+      );
+      expect(n('SELECT COUNT(*) AS n FROM session_v2')).toBe(HANDCRAFTED_COUNTS.sessions + 1);
+      expect(n(`SELECT COUNT(*) AS n FROM session_v2 WHERE id = 'ses_desc'`)).toBe(0);
+      expect(n(`SELECT COUNT(*) AS n FROM session_message WHERE data LIKE '%${EXAMPLE_PROVIDER}%'`)).toBe(0);
+    } finally {
+      db.close();
+    }
+  });
+
+  test('modelVariants: true adds exactly MODEL_VARIANT_COUNTS sessions/messages', () => {
+    const on = writeOpencodeFixture({ dir: path.join(tmpRoot, 'variants-on'), marker: MARKER, modelVariants: true });
+    expect(on.modelVariantMessages).toBe(MODEL_VARIANT_COUNTS.messages);
+    const db = new Database(on.dbPath, { readonly: true });
+    try {
+      const n = (sql: string) => (db.prepare(sql).get() as { n: number }).n;
+      expect(n('SELECT COUNT(*) AS n FROM session_v2')).toBe(
+        HANDCRAFTED_COUNTS.sessions + 1 + MODEL_VARIANT_COUNTS.sessions,
+      );
+      expect(n('SELECT COUNT(*) AS n FROM session_message')).toBe(
+        HANDCRAFTED_COUNTS.userMessages + HANDCRAFTED_COUNTS.assistantMessages + MODEL_VARIANT_COUNTS.messages,
+      );
+      // Every variant data JSON carries the marker bait (AC-2/AC-3 pattern).
+      expect(
+        n(`SELECT COUNT(*) AS n FROM session_message WHERE id LIKE 'desc-%' AND data NOT LIKE '%${MARKER}%'`),
+      ).toBe(0);
+      // The raw descriptor strings are physically present in the source rows
+      // (and only in the five rows that carry a providerID).
+      expect(n(`SELECT COUNT(*) AS n FROM session_message WHERE data LIKE '%${EXAMPLE_PROVIDER}%'`)).toBe(5);
+      // The session column itself is a JSON-string descriptor.
+      expect(
+        n(`SELECT COUNT(*) AS n FROM session_v2 WHERE id = 'ses_desc' AND model LIKE '%${EXAMPLE_PROVIDER}%'`),
+      ).toBe(1);
+    } finally {
+      db.close();
+    }
   });
 });
