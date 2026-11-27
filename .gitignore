@@ -14,3 +14,7 @@ backend/src/routes/*.js
 .env*
 frontend/tests/**/output.txt
 frontend/test-results/**
+
+# Local-only US-1 findings notes and real-value mapping (never commit; repository is public)
+docs/product/findings/*.local.md
+docs/product/findings/local-private.md
