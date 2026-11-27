@@ -1,6 +1,6 @@
 # US-4: Read-only GET /activity API
 
-Status: draft
+Status: approved
 
 ## Story
 As a visitor to the portfolio, I want a public read-only endpoint that serves the owner's usage dataset for a date range, so that the activity section on the home page can draw the heatmap without the browser ever touching the owner's databases.

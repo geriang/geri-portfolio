@@ -1,6 +1,6 @@
 # US-5: Public surface hardening
 
-Status: draft
+Status: approved
 
 ## Story
 As a site owner, I want the public side of the API locked to exactly the activity endpoint and nothing else, so that exposing the heatmap data to the internet never exposes write access, other routes, my origin or an unthrottled endpoint.

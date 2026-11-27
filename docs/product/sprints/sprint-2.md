@@ -1,6 +1,6 @@
 # sprint-2
 
-Status: draft
+Status: approved
 
 ## Goal
 Put the activity data on the wire safely: model names are normalised, `GET /activity` serves the grouped dataset with metadata from a read-only `activity.db`, and the public surface is locked to that one endpoint.
