@@ -1,6 +1,6 @@
 # US-1: Inspect Hermes agent and Open WebUI logs
 
-Status: draft
+Status: approved
 
 ## Story
 As a product owner, I want the real log formats of the Hermes agent and Open WebUI documented, so that the adapters (US-17/US-18) and the final task type list can be planned without guessing.

@@ -1,6 +1,6 @@
 # US-2: Usage database and importer core
 
-Status: draft
+Status: approved
 
 ## Story
 As a site owner, I want a dedicated usage database with a shared adapter interface and a rules-based task classifier, so that every AI tool's usage is recorded the same way and a new tool needs only an adapter.

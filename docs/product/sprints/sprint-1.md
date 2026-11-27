@@ -1,6 +1,6 @@
 # sprint-1
 
-Status: draft
+Status: approved
 
 ## Goal
 Stand up the ingestion pipeline: the two unchecked tools' log formats are documented, and opencode usage is imported on demand into `activity.db` with idempotent, prompt-free runs — automatically daily once US-14's schedule lands.

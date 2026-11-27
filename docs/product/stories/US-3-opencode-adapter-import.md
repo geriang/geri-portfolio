@@ -1,6 +1,6 @@
 # US-3: opencode adapter and import run
 
-Status: draft
+Status: approved
 
 ## Story
 As a site owner, I want an importer that reads opencode's message-level rows and upserts them into the usage database, so that my real AI activity is recorded on demand today — and daily once US-14's schedule lands — without ever storing prompt content.
