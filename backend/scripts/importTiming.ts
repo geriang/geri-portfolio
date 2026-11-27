@@ -60,8 +60,9 @@ try {
   const elapsedMs = Date.now() - started;
 
   // Total temporary bytes: everything this script created in its temp root
-  // (fixture dir + the source copy dir it would produce + activity db).
-  const tempBytes = dirBytes(tmpRoot);
+  // (fixture dir + activity db) plus the source copy measured before it was
+  // cleaned up (the copy-before-read temp usage, ADR-6).
+  const tempBytes = dirBytes(tmpRoot) + copyBytes;
   const ok = summary.status === 'success' && elapsedMs < LIMIT_MS && tempBytes < LIMIT_BYTES;
 
   process.stdout.write(
@@ -76,7 +77,8 @@ try {
         `temp_bytes=${tempBytes} (limit ${LIMIT_BYTES}) error=${summary.error ?? 'none'}\n`,
     );
   }
-  process.exit(ok ? 0 : 1);
+  // Not process.exit(): that would skip the finally cleanup below.
+  process.exitCode = ok ? 0 : 1;
 } finally {
   fs.rmSync(tmpRoot, { recursive: true, force: true });
 }
