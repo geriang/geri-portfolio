@@ -530,3 +530,73 @@ describe('fixture modelVariants inclusion (US-23 task 3, AC-5 fixture half)', ()
     }
   });
 });
+
+describe('OpenCodeAdapter.readEvents model variants (US-23 task 4, AC-1/AC-3/AC-5)', () => {
+  let variantFixture: OpencodeFixtureInfo;
+  let variantAdapter: OpenCodeAdapter;
+
+  beforeAll(() => {
+    variantFixture = writeOpencodeFixture({
+      dir: path.join(tmpRoot, 'adapter-variants'),
+      marker: MARKER,
+      modelVariants: true,
+    });
+    variantAdapter = new OpenCodeAdapter({ sourceDbPath: variantFixture.dbPath });
+  });
+
+  const variantRecords = () =>
+    variantAdapter.readEvents(CANONICAL_WINDOW.sinceUtc, CANONICAL_WINDOW.untilUtc);
+
+  const byVariantId = (sourceId: string) => {
+    const found = variantRecords().find((r) => r.sourceId === sourceId);
+    if (!found) throw new Error(`no variant record with sourceId ${sourceId}`);
+    return found;
+  };
+
+  test('the three A descriptors are distinct records all storing NORMALISED_DESCRIPTOR_A', () => {
+    const a1 = byVariantId('desc-str-a1');
+    const a2 = byVariantId('desc-str-a2');
+    const a3 = byVariantId('desc-obj-a3');
+    expect(a1.model).toBe(NORMALISED_DESCRIPTOR_A);
+    expect(a2.model).toBe(NORMALISED_DESCRIPTOR_A);
+    expect(a3.model).toBe(NORMALISED_DESCRIPTOR_A);
+    // distinct records: key order and extra fields do not merge or alter them
+    expect(new Set([a1.sourceId, a2.sourceId, a3.sourceId]).size).toBe(3);
+    expect(a1.occurredAtUtc).not.toBe(a2.occurredAtUtc);
+  });
+
+  test('descriptor without providerID → id alone', () => {
+    expect(byVariantId('desc-b-no-provider').model).toBe(NORMALISED_B_ONLY_ID);
+  });
+
+  test('session-column descriptor (user message without data.model) → normalised', () => {
+    expect(byVariantId('desc-user-1').model).toBe(NORMALISED_DESCRIPTOR_A);
+  });
+
+  test('bad descriptors → MODEL_FALLBACK without stopping the read', () => {
+    expect(byVariantId('desc-bad-parse').model).toBe(MODEL_FALLBACK);
+    expect(byVariantId('desc-bad-noid').model).toBe(MODEL_FALLBACK);
+  });
+
+  test('no record stores braces or quotes; the whole read does not throw (AC-1/AC-3)', () => {
+    let records: ReturnType<typeof variantRecords>;
+    expect(() => {
+      records = variantRecords();
+    }).not.toThrow();
+    expect(records!).toHaveLength(IN_WINDOW_COUNTS.events + MODEL_VARIANT_COUNTS.events);
+    for (const record of records!) {
+      expect(record.model).not.toContain('{');
+      expect(record.model).not.toContain('}');
+      expect(record.model).not.toContain('"');
+      // AC-2 (adapter-output half, variants): the marker never rides along.
+      expect(JSON.stringify(record)).not.toContain(MARKER);
+    }
+  });
+
+  test('modelFallbackCount is 2 after a run and resets on re-run (not accumulates)', () => {
+    variantAdapter.readEvents(CANONICAL_WINDOW.sinceUtc, CANONICAL_WINDOW.untilUtc);
+    expect(variantAdapter.modelFallbackCount).toBe(2);
+    variantAdapter.readEvents(CANONICAL_WINDOW.sinceUtc, CANONICAL_WINDOW.untilUtc);
+    expect(variantAdapter.modelFallbackCount).toBe(2);
+  });
+});
