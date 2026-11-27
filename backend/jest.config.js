@@ -7,4 +7,9 @@ module.exports = {
       isolatedModules: true,
     },
   },
+  collectCoverageFrom: ['src/import/**/*.ts'],
+  coverageThreshold: {
+    './src/import/classifier.ts': { lines: 80 },
+    './src/import/dayLocal.ts': { lines: 80 },
+  },
 };

@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "timezone": "Asia/Singapore",
+  "taskTypes": [
+    "Coding/implementation",
+    "Bugfixing",
+    "Planning/design",
+    "Research/questions",
+    "Writing/documentation",
+    "Review/testing",
+    "Uncategorised"
+  ],
+  "rules": [
+    { "taskType": "Review/testing",         "match": { "command": ["review", "test"], "agent": ["review"] } },
+    { "taskType": "Bugfixing",              "match": { "command": ["fix", "debug"], "agent": ["debug"] } },
+    { "taskType": "Writing/documentation",  "match": { "command": ["doc", "write"], "title": ["readme", "docs"] } },
+    { "taskType": "Planning/design",        "match": { "command": ["plan", "design"], "agent": ["plan"] } },
+    { "taskType": "Research/questions",     "match": { "agent": ["ask", "research"], "title": ["how to", "what is"] } },
+    { "taskType": "Coding/implementation",  "match": { "directory": ["src", "app"], "agent": ["build", "code"] } }
+  ]
+}
