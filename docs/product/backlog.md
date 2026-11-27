@@ -10,11 +10,11 @@ Deliver a public activity section on the portfolio home page that shows the site
 ## Backlog
 | ID | Title | Description (one line) | Priority | Size | Requirements | NFR / ADR | Depends on | Design needed | Type | UX needed | Sprint | Status |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| US-1 | Inspect Agent-tool and Chat-tool logs | Run `docker inspect` and read the schema of both tools' databases to learn what tokens, models and metadata they record, and settle the task type list. | Must | S | BR-1, BR-6, FR-13, FR-14 | ADR-4, ADR-6 | none | no | enabler | no | sprint-1 | ready |
-| US-2 | Usage database and importer core | Create `activity.db` (`usage_event`, `import_run`), the adapter interface and the rule-based classifier with an "Uncategorised" fallback. | Must | M | FR-12, FR-13, FR-14 | BR-1, BR-4, BR-5, BR-6; NFR-5, NFR-10, NFR-11; ADR-3, ADR-4 | none | yes | backend | no | sprint-1 | ready |
-| US-3 | opencode adapter and import run | Read opencode's message rows, drop prompt text, convert to `Asia/Singapore` days and upsert them idempotently with an `import_run` record. | Must | M | FR-12, FR-15, FR-17 | BR-1, BR-4; NFR-3, NFR-5, NFR-7, NFR-10, NFR-11, NFR-12, NFR-14; ADR-3, ADR-6 | US-2 | yes | backend | no | sprint-1 | ready |
-| US-4 | Read-only `GET /activity` API | Serve the pre-grouped daily dataset for a range with metadata (time zone, as-of date, last updated) from `activity.db` opened read-only. | Must | M | FR-2, FR-18, FR-20 | BR-1; NFR-2, NFR-5; ADR-1, ADR-3, ADR-5 | US-2, US-23 | yes | backend | no | — | backlog |
-| US-5 | Public surface hardening | Lock the activity route to `GET`/`OPTIONS` with a CORS allowlist, `helmet`, `trust proxy`, a 60/min rate limit and a tunnel rule that forwards only `/activity`. | Must | M | BR-2, BR-7 | NFR-6; ADR-2 | US-4 | yes | backend | no | — | backlog |
+| US-1 | Inspect Agent-tool and Chat-tool logs | Run `docker inspect` and read the schema of both tools' databases to learn what tokens, models and metadata they record, and settle the task type list. | Must | S | BR-1, BR-6, FR-13, FR-14 | ADR-4, ADR-6 | none | no | enabler | no | sprint-1 | done |
+| US-2 | Usage database and importer core | Create `activity.db` (`usage_event`, `import_run`), the adapter interface and the rule-based classifier with an "Uncategorised" fallback. | Must | M | FR-12, FR-13, FR-14 | BR-1, BR-4, BR-5, BR-6; NFR-5, NFR-10, NFR-11; ADR-3, ADR-4 | none | yes | backend | no | sprint-1 | done |
+| US-3 | opencode adapter and import run | Read opencode's message rows, drop prompt text, convert to `Asia/Singapore` days and upsert them idempotently with an `import_run` record. | Must | M | FR-12, FR-15, FR-17 | BR-1, BR-4; NFR-3, NFR-5, NFR-7, NFR-10, NFR-11, NFR-12, NFR-14; ADR-3, ADR-6 | US-2 | yes | backend | no | sprint-1 | done |
+| US-4 | Read-only `GET /activity` API | Serve the pre-grouped daily dataset for a range with metadata (time zone, as-of date, last updated) from `activity.db` opened read-only. | Must | M | FR-2, FR-18, FR-20 | BR-1, BR-4; NFR-2, NFR-5; ADR-1, ADR-3, ADR-5 | US-2, US-23 | yes | backend | no | sprint-2 | ready |
+| US-5 | Public surface hardening | Lock the activity route to `GET`/`OPTIONS` with a CORS allowlist, `helmet`, `trust proxy`, a 60/min rate limit and a tunnel rule that forwards only `/activity`. | Must | M | BR-2, BR-7 | NFR-6; ADR-2 | US-4 | yes | backend | no | sprint-2 | ready |
 | US-6 | Activity section with heatmap below the hero | Add the client-side section under the hero that fetches after render and draws one shaded cell per day, filling empty days, at a reserved height. | Must | M | FR-1, FR-2, FR-3, FR-20 | NFR-1, NFR-8, NFR-9; ADR-1, ADR-5 | US-4 | yes | frontend | yes | — | backlog |
 | US-7 | Day details on hover, tap and keyboard | Show a day's input tokens, output tokens, prompt count, models and task types as a preview and a pinned panel. | Must | S | FR-5 | BR-4; NFR-8, NFR-9; ADR-5 | US-6 | no | frontend | yes | — | backlog |
 | US-8 | Totals and streaks | Show total input tokens, total output tokens and total prompts for the viewed period, plus the owner's current and longest streak. | Must | S | FR-6, FR-7 | NFR-9, NFR-11; ADR-5 | US-6 | no | frontend | yes | — | backlog |
@@ -32,7 +32,7 @@ Deliver a public activity section on the portfolio home page that shows the site
 | US-20 | Tool split, filter and detail line | Show which AI tool each usage came from as a split, a filter and a line in the day details. | Could | S | FR-22 | NFR-9; ADR-3, ADR-5 | US-6, US-9, US-10 | no | frontend | yes | — | backlog |
 | US-21 | Backup copies of activity.db | Copy activity.db after each successful import outside the live volume, keep the last 7 copies, document the restore step. | Should | S | FR-12 | NFR-13; ADR-3, ADR-6 | US-13, US-14 | no | enabler | no | — | backlog |
 | US-22 | Site-wide red accent | Switch the site green accent to red so the red heatmap does not sit inside a green site, per the approved UX direction (flows A-3, OQ-2). | Could | S | Quality expectation: fit the existing site look (flows A-3) | NFR-9 contrast recheck; ADR-5 | none | no | frontend | yes | — | backlog |
-| US-23 | Normalise the opencode model descriptor | Turn the raw JSON model descriptor found in real opencode data into a short stable `provider/id` name, keep plain strings unchanged, fall back safely, and correct old rows through the existing upsert. Defect found by the first real US-3 import. | Must | S | FR-8, FR-12, FR-17 | BR-5; NFR-5; ADR-3 | US-3 | no | backend | no | — | backlog |
+| US-23 | Normalise the opencode model descriptor | Turn the raw JSON model descriptor found in real opencode data into a short stable `provider/id` name, keep plain strings unchanged, fall back safely, and correct old rows through the existing upsert. Defect found by the first real US-3 import. | Must | S | FR-8, FR-12, FR-17 | BR-5; NFR-5; ADR-3 | US-3 | no | backend | no | sprint-2 | ready |
 
 ## Requirements coverage
 | Requirement ID | Stories | Notes |
@@ -62,7 +62,7 @@ Deliver a public activity section on the portfolio home page that shows the site
 | BR-1 | US-1, US-2, US-3, US-4, US-17, US-18 | Allow-list tests in US-2/US-3 |
 | BR-2 | US-5, US-16 | |
 | BR-3 | US-17, US-18 | Only the owner's tools are read, by construction of the adapters; US-3 likewise reads only the owner's opencode data |
-| BR-4 | US-2, US-3, US-7, US-19 | `Asia/Singapore` |
+| BR-4 | US-2, US-3, US-4, US-7, US-19 | `Asia/Singapore`; US-4 reports the zone in the API metadata |
 | BR-5 | US-2, US-9, US-23 | |
 | BR-6 | US-1, US-2, US-9 | Final list confirmed by US-1; candidate list carried in US-2 config |
 | BR-7 | US-5, US-13, US-14, US-16 | |
@@ -91,6 +91,7 @@ No Must requirement, business rule or NFR is uncovered.
 - ADR-6 (Docker deployment) is still `proposed`. Per the user's answer, US-13, US-14 and US-21 are planned against it, and it must be set to `accepted` by the owner before those stories start.
 - The API contract is fixed by ADR-1 and ADR-5: `GET {NEXT_PUBLIC_API_URL}/activity?from=&to=` returns metadata (time zone, as-of date, last-updated, task type list, models, tools) plus rows grouped by day, model, task type and tool with input tokens, output tokens and prompt count; absent days are empty.
 - Tests and demo data use generated fixtures only; no real personal data, prompts or logs are committed.
+- `docs/requirements/requirements.md`, `docs/architecture/architecture.md` and the ADR files are not tracked in this repository (only referenced by ID in the approved backlog and findings). The owner directed the product owner to carry on (2026-11-26 sprint-1 and 2026-11-27 sprint-2 planning); the approved backlog is therefore the working source of truth for requirement and ADR content. US-4/AC-8's NFR-2 figure (p95 < 300 ms in-process) is a planning stand-in the owner must confirm against the NFR-2 wording at the sprint exit.
 - The `Asia/Singapore` time zone (BR-4) and the initial BR-6 candidate task type list are taken as settled for planning; US-1 may revise the list.
 
 ## Risks
@@ -111,7 +112,7 @@ No Must requirement, business rule or NFR is uncovered.
 - NFR-13: where should the backup copies of `activity.db` go? US-21 cannot be verified until the owner picks a destination.
 - UX flows OQ-6 (heading, intro and empty-state wording) needs the owner's approval before US-6 and US-11 ship.
 - Task-type coverage on real opencode data (3 distinct values, mostly "Uncategorised"): does the owner want a Should story to tune the ADR-4 rules (FR-13, FR-14, BR-6), or is the current coverage acceptable for the first release? Not covered by US-23.
-- US-23: should a one-off clean-up of already-imported rows be a separate script? The story assumes not (re-import with a larger `--window-days`, or rebuild the scratch `activity.db`). Confirm.
+- US-23: ~~should a one-off clean-up of already-imported rows be a separate script?~~ Resolved at sprint-2 planning (2026-11-27): the owner confirmed no separate script — re-import with a larger `--window-days`, or rebuild the scratch `activity.db`.
 - UX flows OQ-2: the approved UX direction (A-3) changes the site-wide accent from green to red, which US-22 covers as a Could story. Confirm the owner still wants the site-wide switch, or scope the red accent to the activity section only.
 
 ## Change log
@@ -123,3 +124,6 @@ No Must requirement, business rule or NFR is uncovered.
 | Sprint-1 planning | Owner-confirmed selection: US-1, US-2 and US-3 set to sprint-1 / ready; story files and docs/product/sprints/sprint-1.md written |
 | Sprint-1 review fixes | Doc review round 2 (PASS): removed untraced NFR-7/NFR-10/BR-3 citations from US-1/US-2/US-3, added US-3 AC-8 (FR-15) and AC-9 (NFR-10), aligned coverage gate with built modules, reworded daily-automation claims, completed BR-1/BR-6/NFR-5 citation rows |
 | US-23 added | Defect from the first real US-3 import: `usage_event.model` held a raw JSON descriptor. Added US-23 (Must, backend, S; story file written as draft, since approved by the owner; US-3 already merged); US-4 now depends on US-2 and US-23; added coverage references for FR-8, FR-12, FR-17, BR-5, NFR-5; added two risks and two open questions. US-5 and all other stories unchanged; no ID renumbered |
+| Sprint-2 planning | Owner-confirmed selection: US-1/US-2/US-3 set to done (PRs #21, #22, #23 merged); US-23, US-4 and US-5 set to sprint-2 / ready; story files written for US-4 and US-5 (US-23's approved story file unchanged); docs/product/sprints/sprint-2.md written; US-23 clean-up open question resolved (no separate script, owner-confirmed); BR-4 added to US-4's citations (API reports `Asia/Singapore`); added the untracked-requirements/architecture assumption with the US-4/AC-8 NFR-2 stand-in |
+| Sprint-2 review fixes | Doc review (round 1, FIX → fixed): BR-4 coverage row now lists US-4; ADR-5 cited on US-4/AC-1; sprint-2 exit condition bulleted and extended with US-23/AC-4 (re-import upsert) and US-5/AC-6 (tunnel config artifact) gates; US-4/AC-8 Notes flag the weak 20-sample p95 for the design; US-4 and US-5 Dependencies state the intra-sprint merge order. Owner to re-confirm the backlog Status: added PO content (BR-4 cell, NFR-2 stand-in assumption, US-23 resolution) postdates the approval |
+| Sprint-2 approved | Owner set sprint-2, US-4 and US-5 story files to `approved` (2026-11-27) and directed the product owner to record it in this PR; US-23's story file was already approved. The backlog header remains `approved` as before (its approval predates this change log row; the added PO content — BR-4 cell, NFR-2 stand-in assumption, US-23 resolution — was reviewed by the owner in this pass) |
