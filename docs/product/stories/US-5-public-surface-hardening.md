@@ -25,7 +25,7 @@ BR: BR-2, BR-7. NFR: NFR-6. ADR: ADR-2.
 - Compression, caching or CDN headers.
 
 ## Dependencies
-US-4 (merged). US-16 depends on this story.
+US-4 (scheduled in this sprint — its PR must merge before US-5's is taken). US-16 depends on this story.
 
 ## Design needed
 yes: new middleware composition and a new tunnel configuration artifact; the tech lead must decide how the hardened activity surface coexists with the legacy wildcard `cors()` in `backend/src/index.ts` (per-route middleware vs a separate app or port).

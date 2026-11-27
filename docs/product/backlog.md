@@ -62,7 +62,7 @@ Deliver a public activity section on the portfolio home page that shows the site
 | BR-1 | US-1, US-2, US-3, US-4, US-17, US-18 | Allow-list tests in US-2/US-3 |
 | BR-2 | US-5, US-16 | |
 | BR-3 | US-17, US-18 | Only the owner's tools are read, by construction of the adapters; US-3 likewise reads only the owner's opencode data |
-| BR-4 | US-2, US-3, US-7, US-19 | `Asia/Singapore` |
+| BR-4 | US-2, US-3, US-4, US-7, US-19 | `Asia/Singapore`; US-4 reports the zone in the API metadata |
 | BR-5 | US-2, US-9, US-23 | |
 | BR-6 | US-1, US-2, US-9 | Final list confirmed by US-1; candidate list carried in US-2 config |
 | BR-7 | US-5, US-13, US-14, US-16 | |
@@ -125,3 +125,4 @@ No Must requirement, business rule or NFR is uncovered.
 | Sprint-1 review fixes | Doc review round 2 (PASS): removed untraced NFR-7/NFR-10/BR-3 citations from US-1/US-2/US-3, added US-3 AC-8 (FR-15) and AC-9 (NFR-10), aligned coverage gate with built modules, reworded daily-automation claims, completed BR-1/BR-6/NFR-5 citation rows |
 | US-23 added | Defect from the first real US-3 import: `usage_event.model` held a raw JSON descriptor. Added US-23 (Must, backend, S; story file written as draft, since approved by the owner; US-3 already merged); US-4 now depends on US-2 and US-23; added coverage references for FR-8, FR-12, FR-17, BR-5, NFR-5; added two risks and two open questions. US-5 and all other stories unchanged; no ID renumbered |
 | Sprint-2 planning | Owner-confirmed selection: US-1/US-2/US-3 set to done (PRs #21, #22, #23 merged); US-23, US-4 and US-5 set to sprint-2 / ready; story files written for US-4 and US-5 (US-23's approved story file unchanged); docs/product/sprints/sprint-2.md written; US-23 clean-up open question resolved (no separate script, owner-confirmed); BR-4 added to US-4's citations (API reports `Asia/Singapore`); added the untracked-requirements/architecture assumption with the US-4/AC-8 NFR-2 stand-in |
+| Sprint-2 review fixes | Doc review (round 1, FIX → fixed): BR-4 coverage row now lists US-4; ADR-5 cited on US-4/AC-1; sprint-2 exit condition bulleted and extended with US-23/AC-4 (re-import upsert) and US-5/AC-6 (tunnel config artifact) gates; US-4/AC-8 Notes flag the weak 20-sample p95 for the design; US-4 and US-5 Dependencies state the intra-sprint merge order. Owner to re-confirm the backlog Status: added PO content (BR-4 cell, NFR-2 stand-in assumption, US-23 resolution) postdates the approval |

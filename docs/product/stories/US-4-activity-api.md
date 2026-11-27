@@ -9,7 +9,7 @@ As a visitor to the portfolio, I want a public read-only endpoint that serves th
 FR: FR-2, FR-18, FR-20. BR: BR-1, BR-4. NFR: NFR-2, NFR-5. ADR: ADR-1, ADR-3, ADR-5.
 
 ## Acceptance criteria
-- AC-1: Given `activity.db` seeded from the generated fixture, when a client sends `GET /activity` with no parameters, then the response is `200` with `application/json` and a metadata block containing at least: `timeZone` (the literal `Asia/Singapore`, BR-4), `asOfDate`, `lastUpdated` (the `finished_at` of the most recent successful `import_run`, FR-18), `taskTypes`, `models` and `tools` (distinct values present in the served range), plus a `rows` array. (Verified by: Jest + supertest contract test against the composed route; FR-2, FR-18, FR-20, BR-4.)
+- AC-1: Given `activity.db` seeded from the generated fixture, when a client sends `GET /activity` with no parameters, then the response is `200` with `application/json` and a metadata block containing at least: `timeZone` (the literal `Asia/Singapore`, BR-4), `asOfDate`, `lastUpdated` (the `finished_at` of the most recent successful `import_run`, FR-18), `taskTypes`, `models` and `tools` (distinct values present in the served range), plus a `rows` array. (Verified by: Jest + supertest contract test against the composed route; FR-2, FR-18, FR-20, BR-4, ADR-5.)
 - AC-2: Given `?from=YYYY-MM-DD&to=YYYY-MM-DD` (inclusive, `Asia/Singapore` calendar days), when the request is served, then `rows` contains only `day_local` values inside the range, and each row is one group of `(day_local, tool, model, task_type)` with summed `input_tokens`, `output_tokens` and `prompt_count`, matching the seeded fixture values exactly. (Verified by: Jest + supertest test comparing against fixture totals computed in the test; FR-2, FR-20, ADR-3.)
 - AC-3: Given a range with no usage at all, or an `activity.db` with no successful import yet, when the request is served, then the response is still `200` with the full metadata block and an empty `rows` array — never a 500 and never a missing metadata key. (Verified by: Jest + supertest test over an empty and an unimported database; FR-18, FR-20.)
 - AC-4: Given `from` or `to` that is not a `YYYY-MM-DD` date, or `from` later than `to`, when the request is served, then the response is `400` with a fixed machine-readable error shape (a constant code and message), and no SQLite or driver error text, file path or source value appears in the body, captured logs or stdout. (Verified by: Jest + supertest tests for each invalid input, plus a marker-text check inside the invalid value; FR-2, NFR-5, BR-1.)
@@ -27,7 +27,7 @@ FR: FR-2, FR-18, FR-20. BR: BR-1, BR-4. NFR: NFR-2, NFR-5. ADR: ADR-1, ADR-3, AD
 - Compression, pagination or caching headers tuning.
 
 ## Dependencies
-US-2 and US-23, both merged into main. US-6, US-5 and US-13 depend on this story.
+US-2 (merged) and US-23 (scheduled in this sprint — its PR must merge before US-4's is taken). US-6, US-5 and US-13 depend on this story.
 
 ## Design needed
 yes: new API component — the read-model query layer, response shapes and route composition do not exist yet and must follow ADR-1 and ADR-5 without disturbing the legacy portfolio routes.
@@ -40,7 +40,7 @@ agent/us-4-activity-api
 - Where it lives: new route module under `backend/src/` served by the express app in `backend/src/index.ts`; query code reads `activity.db` through the existing open helper in `backend/src/import/activityDb.ts` (`readonly: true` option already exists). The implementer must not reuse the legacy portfolio-database `__dirname` pattern from `backend/src/db.ts`.
 - `models` in the metadata must contain the US-23-normalised names; if any value contains `{` or `}`, treat that as a defect of US-23 and report it, do not paper over it here.
 - `asOfDate` and `lastUpdated` derive from `import_run` (most recent successful run), not wall-clock time, so repeat responses are stable; exact derivation is the tech lead's call within AC-1 and AC-3.
-- NFR-2 numeric target: the requirements document is not tracked in this repository (see backlog Assumptions), so AC-8's 300 ms p95 is a planning stand-in chosen for the exit gate. The owner must confirm or replace it against the NFR-2 wording; the sprint exit condition treats confirmation, not the number, as the gate.
+- NFR-2 numeric target: the requirements document is not tracked in this repository (see backlog Assumptions), so AC-8's 300 ms p95 is a planning stand-in chosen for the exit gate. The owner must confirm or replace it against the NFR-2 wording; the sprint exit condition treats confirmation, not the number, as the gate. A 20-sample p95 is statistically weak; the design should raise the sample size while keeping the assertion non-flaky (or gate on a fixed-sample median plus max) — the tech lead decides within AC-8's intent.
 - Test data: generated fixtures only (`backend/tests/fixtures/` pattern); no real names, paths or content in fixtures, tests, logs or commits.
 
 ## Type
