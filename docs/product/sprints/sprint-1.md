@@ -6,7 +6,7 @@ Status: approved
 Stand up the ingestion pipeline: the two unchecked tools' log formats are documented, and opencode usage is imported on demand into `activity.db` with idempotent, prompt-free runs — automatically daily once US-14's schedule lands.
 
 ## Stories
-1. US-1 Inspect Hermes agent and Open WebUI logs
+1. US-1 Inspect Agent-tool and Chat-tool logs
 2. US-2 Usage database and importer core
 3. US-3 opencode adapter and import run
 
@@ -17,10 +17,10 @@ All three stories are merged into main and: `docs/product/findings/us-1-tool-log
 - The `GET /activity` API (US-4) and hardening (US-5) — sprint-2 candidates.
 - Any front-end/heatmap work (US-6 onward).
 - Docker packaging (US-13), cron schedule (US-14) — these gate on ADR-6 acceptance.
-- Hermes agent and Open WebUI adapters (US-17/US-18) and backfill/reclassify (US-15).
+- Agent-tool and Chat-tool adapters (US-17/US-18) and backfill/reclassify (US-15).
 
 ## Risks
-- US-1 may find Hermes or Open WebUI data lives in the containers' writable layers with no tokens or task metadata; US-17/US-18 sizing and the BR-6 list may then change — the findings file must record this explicitly.
+- US-1 may find Agent-tool or Chat-tool data lives in the containers' writable layers with no tokens or task metadata; US-17/US-18 sizing and the BR-6 list may then change — the findings file must record this explicitly.
 - Adapter id could be unstable for opencode rows without a natural key; duplicated or merged records are possible (ADR-3) — AC-3 is the guard.
 - ADR-6 is still `proposed`; US-3's copy-before-read follows it. If ADR-6 is rejected, US-3's CLI stays valid but US-13/US-14 replan.
 - Marker-text tests only cover fixture content; a real-log leak stays possible until the owner runs a first import and checks (NFR-5 residual risk).

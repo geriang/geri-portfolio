@@ -14,3 +14,7 @@ backend/src/routes/*.js
 .env*
 frontend/tests/**/output.txt
 frontend/test-results/**
+
+# Local-only findings and private name mapping (never commit)
+docs/product/findings/*.local.md
+docs/product/findings/local-private.md
