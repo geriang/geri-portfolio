@@ -12,6 +12,7 @@ import {
   toInstantIso,
   type JoinRow,
 } from '../src/import/adapters/opencodeAdapter';
+import { MODEL_FALLBACK } from '../src/import/modelNormalise';
 import {
   CANONICAL_WINDOW,
   HANDCRAFTED_COUNTS,
@@ -370,5 +371,113 @@ describe('OpenCodeAdapter.readEvents window-before-map (R3)', () => {
       new OpenCodeAdapter({ sourceDbPath: dbPath }).readEvents(CANONICAL_WINDOW.sinceUtc, CANONICAL_WINDOW.untilUtc);
     expect(run).toThrow(OpenCodeAdapterError);
     expect(run).toThrow(/mid-bad/);
+  });
+});
+
+describe('mapRow model normalisation (US-23 AC-1/AC-2/AC-3 adapter half)', () => {
+  // Invented descriptor vocabulary (the same constants the fixture exports;
+  // pure mapRow units — the modelVariants fixture stays OFF in this describe).
+  const PROVIDER = 'example-provider';
+  const MODEL_A = 'example-model-a';
+  const MODEL_B = 'example-model-b';
+  const DESC_MARKER = 'MK-adapter-desc-5e70b2d9';
+  const descA = (keyOrder: 'idFirst' | 'providerFirst', extra?: Record<string, unknown>) =>
+    JSON.stringify(
+      keyOrder === 'idFirst'
+        ? { id: MODEL_A, providerID: PROVIDER, ...extra }
+        : { providerID: PROVIDER, id: MODEL_A, ...extra },
+    );
+
+  const assistantRow = (id: string, model: unknown, sessionModel: string | null = null): JoinRow =>
+    joinRow({
+      id,
+      data: JSON.stringify({ model, tokens: { input: 1, output: 2 } }),
+      sessionModel,
+    });
+
+  test('descriptor string → example-provider/example-model-a', () => {
+    expect(mapRow(assistantRow('u-desc-str', descA('idFirst'))).model).toBe(`${PROVIDER}/${MODEL_A}`);
+  });
+
+  test('nested parsed object → same normalised name (R1 / defect 1 shape)', () => {
+    expect(
+      mapRow(assistantRow('u-desc-obj', { providerID: PROVIDER, id: MODEL_A })).model,
+    ).toBe(`${PROVIDER}/${MODEL_A}`);
+  });
+
+  test('descriptors differing only in key order or extra fields store the same value', () => {
+    const withExtras = mapRow(assistantRow('u-desc-x1', descA('idFirst', { extra: 'x1', tier: 'free' })));
+    const plainPair = mapRow(assistantRow('u-desc-x2', descA('providerFirst')));
+    expect(withExtras.model).toBe(plainPair.model);
+    expect(withExtras.model).toBe(`${PROVIDER}/${MODEL_A}`);
+  });
+
+  test('descriptor without providerID → id alone', () => {
+    expect(
+      mapRow(assistantRow('u-desc-nop', JSON.stringify({ id: MODEL_B }))).model,
+    ).toBe(MODEL_B);
+  });
+
+  test('session-column path: data without model + sessionModel descriptor → normalised', () => {
+    const row = joinRow({
+      id: 'u-desc-session',
+      data: JSON.stringify({ tokens: { input: 1, output: 2 } }),
+      sessionModel: descA('providerFirst'),
+    });
+    expect(mapRow(row).model).toBe(`${PROVIDER}/${MODEL_A}`);
+  });
+
+  test('object data.model is NOT shadowed by a plain sessionModel (defect 1 regression)', () => {
+    const row = joinRow({
+      id: 'u-desc-shadow',
+      data: JSON.stringify({ model: { providerID: PROVIDER, id: MODEL_A }, tokens: { input: 1, output: 2 } }),
+      sessionModel: 'plain-session-model',
+    });
+    expect(mapRow(row).model).toBe(`${PROVIDER}/${MODEL_A}`);
+  });
+
+  test('plain string model is stored unchanged (AC-2)', () => {
+    expect(mapRow(assistantRow('u-plain', 'a-plain-model-name')).model).toBe('a-plain-model-name');
+  });
+
+  test('bad descriptor → MODEL_FALLBACK and no throw; marker stays out of sibling errors (AC-3)', () => {
+    const bad = `{"id":"${MODEL_A}","providerID":"${PROVIDER}","note":"${DESC_MARKER}"`;
+    expect(mapRow(assistantRow('u-bad', bad))).toBeDefined();
+    expect(mapRow(assistantRow('u-bad', bad)).model).toBe(MODEL_FALLBACK);
+    // A still-thrown sibling error (bad tokens on a marker-bearing model row)
+    // describes values by type/length only — never echoes the marker.
+    const doomed = joinRow({
+      id: 'u-bad-sibling',
+      data: JSON.stringify({ model: bad, tokens: { input: 'many', output: 2 } }),
+      sessionModel: null,
+    });
+    let message = '';
+    try {
+      mapRow(doomed);
+    } catch (err) {
+      message = (err as Error).message;
+    }
+    expect(message).toContain('u-bad-sibling');
+    expect(message).toContain('tokens.input');
+    expect(message).toContain('string(len ');
+    expect(message).not.toContain(DESC_MARKER);
+    expect(message).not.toContain('many');
+  });
+
+  test('missing/empty model everywhere still fails fast with the unchanged message', () => {
+    let message = '';
+    try {
+      mapRow(
+        joinRow({
+          id: 'u-no-model',
+          data: JSON.stringify({ model: '   ', tokens: { input: 1, output: 2 } }),
+          sessionModel: '',
+        }),
+      );
+    } catch (err) {
+      message = (err as Error).message;
+    }
+    expect(message).toContain('u-no-model');
+    expect(message).toContain('no model on the message or its session_v2 row');
   });
 });
