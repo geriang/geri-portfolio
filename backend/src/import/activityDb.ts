@@ -3,8 +3,8 @@ import { UsageEvent } from './types';
 
 /**
  * Own activity.db: file lifecycle (path from ACTIVITY_DB_PATH only — the
- * portfolio.db __dirname pattern is deliberately not reused), WAL, schema
- * DDL and the idempotent upsert on the unique key (FR-17 primitive).
+ * legacy portfolio-database __dirname pattern is deliberately not reused),
+ * WAL, schema DDL and the idempotent upsert on the unique key (FR-17 primitive).
  */
 export interface ActivityDbOptions {
   path?: string;
@@ -55,7 +55,7 @@ export function openActivityDb(options: ActivityDbOptions = {}): Database.Databa
   if (!dbPath) {
     throw new Error(
       'ACTIVITY_DB_PATH is not set and no path option was given; ' +
-        'activity.db has no default location (the portfolio.db __dirname pattern is not reused)',
+        'activity.db has no default location (no __dirname fallback)',
     );
   }
   const db = new Database(dbPath, options.readonly ? { readonly: true } : {});
