@@ -252,6 +252,30 @@ describe('mapRow / deriveSourceId failure fast-paths (fail fast, ids only)', () 
     ).toThrow(/nan-1/);
   });
 
+  test('bad values are described by type/length only, never echoed (NFR-5)', () => {
+    const messageOf = (fn: () => unknown): string => {
+      try {
+        fn();
+      } catch (err) {
+        return (err as Error).message;
+      }
+      return '';
+    };
+    const badTime = messageOf(() => toInstantIso(`${MARKER} not a time`));
+    expect(badTime).toContain('time_created');
+    expect(badTime).toContain('string(len ');
+    expect(badTime).not.toContain(MARKER);
+
+    const badToken = messageOf(() =>
+      mapRow(joinRow({ id: 'nan-2', data: JSON.stringify({ model: 'm', tokens: { input: MARKER, output: 1 } }) })),
+    );
+    expect(badToken).toContain('nan-2');
+    expect(badToken).toContain('tokens.input');
+    expect(badToken).toContain('string(len ');
+    expect(badToken).not.toContain(MARKER);
+    expect(badToken).not.toContain('many');
+  });
+
   test('deriveSourceId: twins hash equal, token/time/type differences differ, ADR-3 basis pinned', () => {
     const twin = (text: string) =>
       joinRow({
@@ -300,5 +324,51 @@ describe('mapRow / deriveSourceId failure fast-paths (fail fast, ids only)', () 
     );
     expect(JSON.stringify(record)).not.toContain(MARKER);
     expect(record.promptCount).toBe(0);
+  });
+});
+
+describe('OpenCodeAdapter.readEvents window-before-map (R3)', () => {
+  const buildDb = (name: string, rows: Array<{ id: string; time: string; data: string }>) => {
+    const dir = path.join(tmpRoot, name);
+    fs.mkdirSync(dir, { recursive: true });
+    const dbPath = path.join(dir, 'opencode.db');
+    const db = new Database(dbPath);
+    try {
+      db.exec(`
+        CREATE TABLE session_v2 (id TEXT PRIMARY KEY, directory TEXT, agent TEXT, model TEXT, time_created);
+        CREATE TABLE session_message (id TEXT, session_id TEXT NOT NULL, type TEXT NOT NULL, time_created, data TEXT NOT NULL);
+      `);
+      db.prepare('INSERT INTO session_v2 VALUES (?,?,?,?,?)').run('ses_w', '/d', 'build', 'm', '2026-11-01T00:00:00Z');
+      const insert = db.prepare('INSERT INTO session_message VALUES (?,?,?,?,?)');
+      for (const row of rows) {
+        insert.run(row.id, 'ses_w', 'user', row.time, row.data);
+      }
+    } finally {
+      db.close();
+    }
+    return dbPath;
+  };
+  const good = JSON.stringify({ model: 'm' });
+  const OLD = '2026-11-01T00:00:00Z'; // before CANONICAL_WINDOW
+  const MID = '2026-11-26T16:30:00Z'; // inside CANONICAL_WINDOW
+
+  test('an out-of-window row with invalid data JSON does not fail the import', () => {
+    const dbPath = buildDb('window-old-bad', [
+      { id: 'old-bad', time: OLD, data: `{not json ${MARKER}` },
+      { id: 'mid-ok', time: MID, data: good },
+    ]);
+    const records = new OpenCodeAdapter({ sourceDbPath: dbPath }).readEvents(
+      CANONICAL_WINDOW.sinceUtc,
+      CANONICAL_WINDOW.untilUtc,
+    );
+    expect(records.map((r) => r.sourceId)).toEqual(['mid-ok']);
+  });
+
+  test('the same defect in an in-window row still fails, naming the id', () => {
+    const dbPath = buildDb('window-mid-bad', [{ id: 'mid-bad', time: MID, data: `{not json ${MARKER}` }]);
+    const run = () =>
+      new OpenCodeAdapter({ sourceDbPath: dbPath }).readEvents(CANONICAL_WINDOW.sinceUtc, CANONICAL_WINDOW.untilUtc);
+    expect(run).toThrow(OpenCodeAdapterError);
+    expect(run).toThrow(/mid-bad/);
   });
 });

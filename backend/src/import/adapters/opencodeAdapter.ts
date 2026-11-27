@@ -62,6 +62,17 @@ WHERE m.type IN ('user','assistant')
 /** An ISO-8601 instant with an explicit UTC designator (Z or +/-HH:MM) after a time. */
 const UTC_DESIGNATOR = /\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})$/;
 
+/** Describe a value by type (and string length) only — never echo source text (NFR-5). */
+function describeValue(value: unknown): string {
+  if (typeof value === 'string') {
+    return `string(len ${value.length})`;
+  }
+  if (value === null) {
+    return 'null';
+  }
+  return typeof value;
+}
+
 /**
  * Normalise a source instant to an ISO-8601 UTC string.
  *   number (epoch millis)  -> new Date(ms).toISOString()
@@ -71,26 +82,26 @@ const UTC_DESIGNATOR = /\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})$/;
 export function toInstantIso(value: unknown): string {
   if (typeof value === 'number') {
     if (!Number.isInteger(value)) {
-      throw new OpenCodeAdapterError(`time_created: expected integer epoch millis, got ${String(value)}`);
+      throw new OpenCodeAdapterError(`time_created: expected integer epoch millis, got ${describeValue(value)}`);
     }
     let iso: string;
     try {
       iso = new Date(value).toISOString();
     } catch {
-      throw new OpenCodeAdapterError(`time_created: epoch millis out of range: ${String(value)}`);
+      throw new OpenCodeAdapterError(`time_created: epoch millis out of range (${describeValue(value)})`);
     }
     return iso;
   }
   if (typeof value === 'string') {
     if (!UTC_DESIGNATOR.test(value) || Number.isNaN(Date.parse(value))) {
       throw new OpenCodeAdapterError(
-        `time_created: expected an ISO-8601 instant with a UTC designator (Z or ±HH:MM), got "${value}"`,
+        `time_created: expected an ISO-8601 instant with a UTC designator (Z or ±HH:MM), got ${describeValue(value)}`,
       );
     }
     return value;
   }
   throw new OpenCodeAdapterError(
-    `time_created: expected ISO-8601 string or integer epoch millis, got ${typeof value}`,
+    `time_created: expected ISO-8601 string or integer epoch millis, got ${describeValue(value)}`,
   );
 }
 
@@ -127,7 +138,7 @@ function readToken(raw: unknown, row: JoinRow, field: string): number {
   }
   if (typeof raw !== 'number' || !Number.isInteger(raw) || raw < 0) {
     throw new OpenCodeAdapterError(
-      `message ${describeRow(row)}: tokens.${field} must be an integer >= 0, got ${String(raw)}`,
+      `message ${describeRow(row)}: tokens.${field} must be an integer >= 0, got ${describeValue(raw)}`,
     );
   }
   return raw;
@@ -238,15 +249,27 @@ export class OpenCodeAdapter implements ToolAdapter {
     let db: Database.Database | undefined;
     try {
       db = new Database(copy.copyPath, { readonly: true });
-      const rows = db.prepare(SOURCE_QUERY).all() as unknown[];
+      // Stream rows (.iterate) rather than loading the whole history, with full
+      // `data` JSON text, into memory.
       // Dedup by sourceId so id-less twins that hash identically collapse to
       // one record, mirroring UNIQUE(tool, source_id) downstream.
       const bySourceId = new Map<string, RawUsageRecord>();
-      for (const raw of rows) {
+      for (const raw of db.prepare(SOURCE_QUERY).iterate()) {
         const row = raw as JoinRow;
+        // Window check first: only in-window rows are mapped, so a malformed
+        // out-of-window row cannot fail every future run. The instant is still
+        // validated for every row (a bad time fails loudly, naming the row).
+        let at: number;
+        try {
+          at = Date.parse(toInstantIso(row.timeCreated));
+        } catch (err) {
+          throw new OpenCodeAdapterError(`message ${describeRow(row)}: ${(err as Error).message}`);
+        }
+        if (at < since || at >= until) {
+          continue;
+        }
         const record = mapRow(row);
-        const at = Date.parse(record.occurredAtUtc);
-        if (at >= since && at < until && !bySourceId.has(record.sourceId)) {
+        if (!bySourceId.has(record.sourceId)) {
           bySourceId.set(record.sourceId, record);
         }
       }
