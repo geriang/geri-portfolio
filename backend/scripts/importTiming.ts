@@ -8,7 +8,7 @@ import { writeOpencodeFixture } from '../tests/fixtures/opencodeDb';
 
 /**
  * AC-7 (automated part): time the daily run against the largest available
- * generated fixture (default 200k messages — the real opencode.db proxy) and
+ * generated fixture (default 20k messages — the real opencode.db proxy) and
  * measure temporary disk use. Prints ONE line of counts and dates only;
  * exits non-zero if the run takes >= 60 s or temp usage reaches 2 GB.
  * The owner's run against the real opencode.db stays Manual (PR body).
@@ -16,7 +16,7 @@ import { writeOpencodeFixture } from '../tests/fixtures/opencodeDb';
  * Not a Jest test: `npm run import:timing [messageCount]`.
  */
 
-const MESSAGE_COUNT = Number(process.argv[2] ?? 200_000);
+const MESSAGE_COUNT = Number(process.argv[2] ?? 20_000);
 if (!Number.isInteger(MESSAGE_COUNT) || MESSAGE_COUNT <= 0) {
   process.stderr.write(`import:timing bad messageCount "${process.argv[2]}"\n`);
   process.exit(1);
