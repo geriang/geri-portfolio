@@ -21,7 +21,7 @@ FR: FR-12, FR-15, FR-17. NFR: NFR-3, NFR-5, NFR-7, NFR-10, NFR-11, NFR-12, NFR-1
 
 ## Out of scope
 - The `GET /activity` API (US-4), Docker packaging (US-13) and the cron schedule (US-14).
-- Hermes agent and Open WebUI adapters (US-17/US-18).
+- Agent-tool and Chat-tool adapters (US-17/US-18).
 - Backfill beyond the sliding window and the explicit reclassify command (US-15).
 - Real imports from the owner's live `opencode.db` (owner runs the command after merge; verified via AC-7 manual step).
 
