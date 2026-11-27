@@ -11,5 +11,9 @@ module.exports = {
   coverageThreshold: {
     './src/import/classifier.ts': { lines: 80 },
     './src/import/dayLocal.ts': { lines: 80 },
+    './src/import/runImport.ts': { lines: 80 },
+    './src/import/cli.ts': { lines: 80 },
+    './src/import/sourceCopy.ts': { lines: 80 },
+    './src/import/adapters/opencodeAdapter.ts': { lines: 80 },
   },
 };
