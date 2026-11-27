@@ -41,6 +41,13 @@ describe('toDayLocal — Asia/Singapore boundary table (AC-5)', () => {
     ['garbage string', () => toDayLocal('not a timestamp')],
     ['no UTC designator', () => toDayLocal('2026-11-26 23:59:59')],
     ['bare local datetime', () => toDayLocal('2026-11-26T23:59:59')],
+    // A trailing "-26" must not pass as a UTC offset: date-only has no time
+    // component, so it is not an instant and must throw.
+    ['date-only ISO string', () => toDayLocal('2026-11-26')],
+    ['date-only month precision', () => toDayLocal('2026-11')],
+    ['offset without minutes (+08)', () => toDayLocal('2026-11-26T20:00:00+08')],
+    ['offset without colon (+0800)', () => toDayLocal('2026-11-26T20:00:00+0800')],
+    ['lowercase designator (z)', () => toDayLocal('2026-11-26T20:00:00z')],
     ['empty string', () => toDayLocal('')],
     ['unsupported zone name', () => toDayLocal('2026-11-26T15:59:59Z', 'Mars/Phobos')],
   ])('throws DayConversionError on %s', (_name, fn) => {

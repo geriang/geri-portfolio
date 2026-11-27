@@ -19,8 +19,13 @@ export class DayConversionError extends Error {
   }
 }
 
-/** ISO-8601 instant with an explicit UTC designator: trailing Z or +/-HH:MM (+/-HH, +/-HHMM accepted). */
-const UTC_DESIGNATOR = /(?:Z|[+-]\d{2}(?::?[0-5]\d)?)$/;
+/**
+ * ISO-8601 instant with an explicit UTC designator: Z or +/-HH:MM, anchored
+ * to a time component (\d{2}:\d{2} with optional seconds/fraction) so that
+ * date-only strings like "2026-11-26" are not mistaken for "-26" being an
+ * offset — per the design, toDayLocal throws on those.
+ */
+const UTC_DESIGNATOR = /\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})$/;
 
 function formatterFor(timeZone: string): Intl.DateTimeFormat {
   try {
