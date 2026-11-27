@@ -7,6 +7,8 @@
     "dev": "ts-node-dev --respawn src/index.ts",
     "test": "jest",
     "scrape": "ts-node src/scraper.ts",
+    "import:usage": "ts-node src/import/cli.ts",
+    "import:timing": "ts-node scripts/importTiming.ts",
     "lint": "eslint .",
     "build": "tsc",
     "start": "node dist/index.js"
