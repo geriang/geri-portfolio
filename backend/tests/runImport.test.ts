@@ -11,11 +11,17 @@ import {
   sanitizeRunError,
 } from '../src/import/runImport';
 import { OPENCODE_TOOL, OpenCodeAdapter } from '../src/import/adapters/opencodeAdapter';
+import { MODEL_FALLBACK } from '../src/import/modelNormalise';
 import { clearToolAdapters, getToolAdapter, registerToolAdapter } from '../src/import/adapter';
 import { initActivitySchema, openActivityDb } from '../src/import/activityDb';
 import { dummyAdapter } from './fixtures/DummyAdapter';
 import { DUMMY_TOOL_NAME } from './fixtures/events';
 import { CANONICAL_WINDOW, writeOpencodeFixture, type OpencodeFixtureInfo } from './fixtures/opencodeDb';
+import {
+  NORMALISED_B_ONLY_ID,
+  NORMALISED_DESCRIPTOR_A,
+  descriptorStringA,
+} from './fixtures/opencodeDb';
 
 /**
  * Integration tests for the import run over the generated opencode fixture
@@ -532,4 +538,212 @@ describe('perf sanity (AC-7 support)', () => {
     },
     120_000,
   );
+});
+
+describe('US-23 model normalisation over the variant fixture (AC-1..AC-5 db halves)', () => {
+  // AC-3 marker bait: rides inside the bad-descriptor fixture text and must
+  // never reach activity.db (bytes incl. -wal/-shm), import_run.error,
+  // thrown errors, or captured console/stdout output.
+  const US23_MARKER = 'MK-us23-import-6d94a1c7';
+  let variantFixture: OpencodeFixtureInfo;
+
+  beforeAll(() => {
+    variantFixture = writeOpencodeFixture({
+      dir: path.join(tmpRoot, 'us23-fixture'),
+      marker: US23_MARKER,
+      modelVariants: true,
+    });
+  });
+
+  const newVariantAdapter = () => new OpenCodeAdapter({ sourceDbPath: variantFixture.dbPath });
+
+  const rowModel = (db: Database.Database, sourceId: string): string => {
+    const found = db
+      .prepare('SELECT model FROM usage_event WHERE source_id = ?')
+      .get(sourceId) as { model: string } | undefined;
+    if (!found) throw new Error(`no usage_event row for ${sourceId}`);
+    return found.model;
+  };
+
+  const bracedModelRows = (db: Database.Database): number =>
+    (
+      db
+        .prepare(`SELECT COUNT(*) AS n FROM usage_event WHERE model LIKE '%{%' OR model LIKE '%}%' OR model LIKE '%"%'`)
+        .get() as { n: number }
+    ).n;
+
+  test('AC-1 db half: every variant row stores the normalised model; no braces or quotes anywhere', () => {
+    const dbPath = freshActivityDbPath();
+    const summary = runImport({ adapters: [newVariantAdapter()], activityDbPath: dbPath, window: W });
+    expect(summary.status).toBe('success');
+    const db = inspect(dbPath);
+    try {
+      expect(rowModel(db, 'desc-str-a1')).toBe(NORMALISED_DESCRIPTOR_A);
+      expect(rowModel(db, 'desc-str-a2')).toBe(NORMALISED_DESCRIPTOR_A); // key order differs
+      expect(rowModel(db, 'desc-obj-a3')).toBe(NORMALISED_DESCRIPTOR_A); // nested object
+      expect(rowModel(db, 'desc-user-1')).toBe(NORMALISED_DESCRIPTOR_A); // session-column descriptor
+      expect(rowModel(db, 'desc-b-no-provider')).toBe(NORMALISED_B_ONLY_ID);
+      expect(rowModel(db, 'desc-bad-parse')).toBe(MODEL_FALLBACK);
+      expect(rowModel(db, 'desc-bad-noid')).toBe(MODEL_FALLBACK);
+      expect(bracedModelRows(db)).toBe(0);
+    } finally {
+      db.close();
+    }
+  });
+
+  test('AC-2 db half: plain-string models from the base fixture are stored unchanged in the variant run', () => {
+    const dbPath = freshActivityDbPath();
+    runImport({ adapters: [newVariantAdapter()], activityDbPath: dbPath, window: W });
+    const db = inspect(dbPath);
+    try {
+      expect(rowModel(db, 'mid-assistant')).toBe('glm-4.6');
+      expect(rowModel(db, 'mid-user')).toBe('glm-4.6'); // session-column plain string
+    } finally {
+      db.close();
+    }
+  });
+
+  test('AC-3 db half: bad descriptors fall back silently — marker absent from db bytes, import_run.error and console output', () => {
+    const dbPath = freshActivityDbPath();
+    const adapter = newVariantAdapter();
+    const spies = (['log', 'warn', 'error', 'info', 'debug'] as const).map((level) =>
+      jest.spyOn(console, level).mockImplementation(() => undefined),
+    );
+    let summary;
+    try {
+      expect(() => {
+        summary = runImport({ adapters: [adapter], activityDbPath: dbPath, window: W });
+      }).not.toThrow(); // runImport throws nothing for run-level errors
+    } finally {
+      for (const spy of spies) spy.mockRestore();
+    }
+    expect(summary!.status).toBe('success');
+    expect(adapter.modelFallbackCount).toBe(2);
+    const db = inspect(dbPath);
+    try {
+      // The two bad rows exist with the fixed safe fallback value.
+      expect(rowModel(db, 'desc-bad-parse')).toBe(MODEL_FALLBACK);
+      expect(rowModel(db, 'desc-bad-noid')).toBe(MODEL_FALLBACK);
+      // import_run.error values are all null on the successful run.
+      const errors = db.prepare('SELECT error FROM import_run').all() as Array<{ error: string | null }>;
+      expect(errors.length).toBeGreaterThan(0);
+      for (const run of errors) {
+        expect(run.error).toBeNull();
+      }
+      expect(bracedModelRows(db)).toBe(0);
+    } finally {
+      db.close();
+    }
+    // Raw-byte scan (existing AC-2 pattern): the AC-3 marker — which rides
+    // inside the bad-descriptor fixture text — stays out of activity.db and
+    // its WAL sidecars. (The bad rows' other vocabulary coincides with the
+    // legitimate invented descriptors, so the marker is the unique bait.)
+    const files = [dbPath, `${dbPath}-wal`, `${dbPath}-shm`].filter((f) => fs.existsSync(f));
+    expect(files.length).toBeGreaterThanOrEqual(1);
+    for (const file of files) {
+      const bytes = fs.readFileSync(file).toString('latin1');
+      expect(bytes).not.toContain(US23_MARKER);
+    }
+    // Nothing was printed about the model values either.
+    const printed = spies
+      .flatMap((spy) => spy.mock.calls.map((call) => call.map(String).join(' ')))
+      .join('\n');
+    expect(printed).not.toContain(US23_MARKER);
+  });
+
+  test('AC-4: raw-JSON model rows are corrected in place by the re-import; only model changes', () => {
+    const dbPath = freshActivityDbPath();
+    runImport({ adapters: [newVariantAdapter()], activityDbPath: dbPath, window: W });
+
+    // Simulate the pre-US-23 state: raw JSON stored verbatim in model — the
+    // descriptor string for desc-str-a1 and a raw JSON bait for two plain rows.
+    const seed = inspect(dbPath);
+    try {
+      seed
+        .prepare('UPDATE usage_event SET model = ? WHERE source_id = ?')
+        .run(descriptorStringA('idFirst', { extra: 'x1', tier: 'free' }), 'desc-str-a1');
+      seed
+        .prepare('UPDATE usage_event SET model = ? WHERE source_id IN (?, ?)')
+        .run(descriptorStringA('providerFirst'), 'mid-assistant', 'ask-assistant-1');
+      expect(bracedModelRows(seed)).toBe(3); // bait is really in place
+    } finally {
+      seed.close();
+    }
+
+    // Snapshot ALL rows with their id PK + count + per-day token/prompt totals.
+    const snapshotAll = (db: Database.Database) => ({
+      rows: db
+        .prepare(
+          `SELECT id, tool, source_id, occurred_at_utc, day_local,
+                  input_tokens, output_tokens, prompt_count, model, task_type
+           FROM usage_event ORDER BY id`,
+        )
+        .all() as Array<Record<string, string | number>>,
+      count: (db.prepare('SELECT COUNT(*) AS n FROM usage_event').get() as { n: number }).n,
+      totals: dailyTotals(db),
+    });
+    let before;
+    {
+      const db = inspect(dbPath);
+      try {
+        before = snapshotAll(db);
+      } finally {
+        db.close();
+      }
+    }
+
+    // Re-import over the same window: the upsert on (tool, source_id) rewrites model.
+    const again = runImport({ adapters: [newVariantAdapter()], activityDbPath: dbPath, window: W });
+    expect(again.status).toBe('success');
+
+    const db = inspect(dbPath);
+    try {
+      const after = snapshotAll(db);
+      expect(after.count).toBe(before.count); // count changed by 0
+      expect(after.totals).toEqual(before.totals); // every per-day total changed by 0
+      // Only model differs; id PKs identical => in-place DO UPDATE, no delete/insert.
+      const withoutModel = (rows: Array<Record<string, string | number>>) =>
+        rows.map((row) => ({ ...row, model: undefined }));
+      expect(withoutModel(after.rows)).toEqual(withoutModel(before.rows));
+      expect(after.rows.map((r) => r.id)).toEqual(before.rows.map((r) => r.id));
+      expect(after.rows.some((r, i) => r.model !== before.rows[i].model)).toBe(true);
+      // The corrected values.
+      expect(rowModel(db, 'desc-str-a1')).toBe(NORMALISED_DESCRIPTOR_A);
+      expect(rowModel(db, 'mid-assistant')).toBe('glm-4.6'); // plain path self-corrects
+      expect(rowModel(db, 'ask-assistant-1')).toBe('research-model-x');
+      expect(bracedModelRows(db)).toBe(0);
+    } finally {
+      db.close();
+    }
+  });
+
+  test('AC-5 guard: every stored opencode model in the variant run is an invented allow-list value', () => {
+    const dbPath = freshActivityDbPath();
+    runImport({ adapters: [newVariantAdapter()], activityDbPath: dbPath, window: W });
+    const db = inspect(dbPath);
+    try {
+      const models = (
+        db.prepare("SELECT DISTINCT model FROM usage_event WHERE tool = 'opencode'").all() as Array<{
+          model: string;
+        }>
+      ).map((r) => r.model);
+      const allowList = [
+        'glm-4.6', // pre-existing invented base-fixture names
+        'research-model-x',
+        'chat-model-y',
+        NORMALISED_DESCRIPTOR_A,
+        NORMALISED_B_ONLY_ID,
+        MODEL_FALLBACK,
+      ];
+      for (const model of models) {
+        expect(allowList).toContain(model);
+      }
+      // The descriptor variants really contributed their normalised values.
+      expect(models).toContain(NORMALISED_DESCRIPTOR_A);
+      expect(models).toContain(NORMALISED_B_ONLY_ID);
+      expect(models).toContain(MODEL_FALLBACK);
+    } finally {
+      db.close();
+    }
+  });
 });
