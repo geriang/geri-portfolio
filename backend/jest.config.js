@@ -7,7 +7,7 @@ module.exports = {
       isolatedModules: true,
     },
   },
-  collectCoverageFrom: ['src/import/**/*.ts', 'src/activity/**/*.ts'],
+  collectCoverageFrom: ['src/import/**/*.ts', 'src/activity/**/*.ts', 'src/hardening/**/*.ts'],
   coverageThreshold: {
     './src/import/classifier.ts': { lines: 80 },
     './src/import/dayLocal.ts': { lines: 80 },
@@ -17,5 +17,7 @@ module.exports = {
     './src/import/adapters/opencodeAdapter.ts': { lines: 80 },
     './src/activity/timeRange.ts': { lines: 80 },
     './src/activity/activityService.ts': { lines: 80 },
+    './src/hardening/activityHardening.ts': { lines: 80 },
+    './src/hardening/activitySurface.ts': { lines: 80 },
   },
 };
