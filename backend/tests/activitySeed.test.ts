@@ -7,6 +7,7 @@ import {
   SEED_FROM_DAY,
   SEED_MARKER,
   SEED_MODELS,
+  SEED_STARTED_AT,
   SEED_TASK_TYPES,
   SEED_TO_DAY,
   SEED_TOOLS,
@@ -15,6 +16,7 @@ import {
 } from './fixtures/activitySeed';
 import { NORMALISED_DESCRIPTOR_A } from './fixtures/opencodeDb';
 import { MODEL_FALLBACK } from '../src/import/modelNormalise';
+import { toDayLocal } from '../src/import/dayLocal';
 
 const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'us4-seed-'));
 let dbCounter = 0;
@@ -69,6 +71,36 @@ describe('seedActivityDb facts', () => {
     } finally {
       db.close();
     }
+  });
+
+  it('honours the UTC-instant rule: every seeded import_run instant converts to SEED_TO_DAY', () => {
+    // toDayLocal (the very function rule 3 uses) must map every non-null
+    // import_run instant to SEED_TO_DAY — anything at or after 16:00Z would
+    // silently shift asOfDate and every default-range pin by one day.
+    for (const runs of ['success', 'failed-only', 'running-only', 'none'] as const) {
+      const dbPath = freshDbPath();
+      seedActivityDb({ dbPath, days: 4, runs });
+      const db = openReadOnly(dbPath);
+      try {
+        const instants = db
+          .prepare('SELECT started_at, finished_at FROM import_run')
+          .all() as Array<{ started_at: string; finished_at: string | null }>;
+        expect(instants.length).toBeGreaterThan(0);
+        for (const row of instants) {
+          expect(toDayLocal(row.started_at, 'Asia/Singapore')).toBe(SEED_TO_DAY);
+          if (row.finished_at !== null) {
+            expect(toDayLocal(row.finished_at, 'Asia/Singapore')).toBe(SEED_TO_DAY);
+          }
+        }
+      } finally {
+        db.close();
+      }
+    }
+    // the pinned constants themselves satisfy the rule
+    expect(toDayLocal(SEED_STARTED_AT, 'Asia/Singapore')).toBe(SEED_TO_DAY);
+    expect(toDayLocal(SEED_FINISHED_AT, 'Asia/Singapore')).toBe(SEED_TO_DAY);
+    expect(SEED_STARTED_AT < SEED_FINISHED_AT).toBe(true);
+    expect(SEED_FINISHED_AT < '2026-11-27T16:00:00.000Z').toBe(true);
   });
 
   it('runs:"success" writes exactly one successful import_run with the seeded finished_at', () => {

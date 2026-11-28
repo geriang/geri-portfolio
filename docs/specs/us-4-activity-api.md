@@ -82,7 +82,7 @@ Also out of scope here: any schema change or migration, any change to the import
   "metadata": {
     "timeZone": "Asia/Singapore",              // literal, always (BR-4)
     "asOfDate": "2026-11-27" | null,           // Singapore day of lastUpdated's finished_at
-    "lastUpdated": "2026-11-27T16:30:00.000Z" | null, // verbatim import_run.finished_at (FR-18)
+    "lastUpdated": "2026-11-27T15:30:00.000Z" | null, // verbatim import_run.finished_at (FR-18)
     "from": "2025-11-27" | null,               // applied range echo (AC-6)
     "to": "2026-11-27" | null,
     "taskTypes": ["Coding/implementation", "Debugging/fixing", "Uncategorised"],
@@ -134,7 +134,8 @@ the schema with the importer's own `initActivitySchema` and writes rows through 
 
 ```ts
 export const SEED_TO_DAY = '2026-11-27';                       // asOfDate / default `to`
-export const SEED_FINISHED_AT = '2026-11-27T16:30:00.000Z';    // importer-shaped ISO Z
+export const SEED_STARTED_AT = '2026-11-27T15:00:00.000Z';     // 23:00 SGT on SEED_TO_DAY
+export const SEED_FINISHED_AT = '2026-11-27T15:30:00.000Z';    // 23:30 SGT on SEED_TO_DAY (see UTC rule)
 export const SEED_FROM_DAY = '2025-11-27';                     // addMonths(SEED_TO_DAY, -12)
 export const SEED_TOOLS = ['fixture-tool-a', 'fixture-tool-b'] as const;
 export const SEED_MODELS = ['fixture-model-a',                  // plain US-23-style names, NO braces
@@ -171,6 +172,14 @@ by one calendar day) and row index `j` in `0 .. rowsPerDay-1`:
 `occurred_at_utc = day_local + "T04:00:00Z"` — local noon in `Asia/Singapore`, so the seeded `day_local`
 is unambiguous against the importer's conversion.
 
+**UTC-instant rule for the seeded `import_run` (amended 2026-11-28 — do not regress):** `asOfDate` comes
+from rule 3, `toDayLocal(finished_at, 'Asia/Singapore')` = fixed UTC+8 with no DST, so any `finished_at` at
+or after `16:00Z` lands on the **next** Singapore day and breaks every `asOfDate`/default-range pin. Both
+`SEED_STARTED_AT` and `SEED_FINISHED_AT` therefore sit late on `SEED_TO_DAY` in UTC (23:00 / 23:30 SGT, i.e.
+`15:00Z` / `15:30Z`), `started_at < finished_at`, and both convert to `2026-11-27`. Any new seeded instant
+must satisfy `toDayLocal(instant) === SEED_TO_DAY` — assert that in `tests/activitySeed.test.ts` rather
+than trusting the literal.
+
 Notes for the implementer: rows go in through `upsertUsageEvents(db, events)` with camelCase `UsageEvent`
 objects (import `UsageEvent` from `../../src/import/types`); `import_run` rows are **not** written by that
 helper, so the seeder inserts them with its own `INSERT INTO import_run (started_at, finished_at, status,
@@ -178,7 +187,7 @@ events_seen, events_written, error)` statement. `runs: 'success'` writes the suc
 `'failed-only'` / `'running-only'` / `'none'` write no successful run. `withMarker` (default true) adds the
 `-MK-activity-content-7c41d9e3` suffix to every `source_id`, **plus** one `status='failed'` `import_run`
 row whose `error` column contains the marker (it must never surface — AC-7), and for `'running-only'` also
-one `status='running'` row with a newer `started_at` and `finished_at = NULL` (must be ignored by the
+one `status='running'` row with a `started_at` **newer than `SEED_STARTED_AT`** and `finished_at = NULL` (must be ignored by the
 freshness query). Reuse `NORMALISED_DESCRIPTOR_A` and `MODEL_FALLBACK` from the existing
 `fixtures/opencodeDb.ts` / `src/import/modelNormalise.ts` instead of retyping their strings, so the
 normalised-name and fallback values stay single-sourced.
@@ -285,7 +294,7 @@ Ordered; every task ends green before the next starts. Commands run from `backen
        `from 'better-sqlite3'` value import (type-only import allowed), and `SELECT` appears only inside
        the two exported SQL constants.
    Verify: `npx jest activityReadOnly` green. → AC-5 (all of it), AC-3 (no-writes half)
-6. [ ] `backend/src/activity/activityService.ts` + `backend/src/activity/activityService.test.ts`:
+6. [x] `backend/src/activity/activityService.ts` + `backend/src/activity/activityService.test.ts`:
    `getActivity(query, {dbPath})` returns `{status:200}` with the eight metadata keys and sorted
    `taskTypes`/`models`/`tools` derived from the served rows only; `{status:400,
    body: INVALID_ACTIVITY_RANGE_BODY}` (same object identity, `toBe`) for each invalid input;
@@ -562,3 +571,28 @@ belongs to US-13's volume/run-ordering decision.
   `'2026-11-27T15:00:00.000Z'` (currently 16:00Z, which would post-date the finished_at).
   `tests/activityService.test.ts` is written to the spec's stated expectations and left
   uncommitted (red) pending the ruling.
+
+- 2026-11-28 **RULING on the task 6 / Fixture-plan block (tech lead): finding ACCEPTED, constant amended.**
+  Independently verified with `Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Singapore' })` — the same
+  formatter `src/import/dayLocal.ts` uses: `2026-11-27T16:30:00.000Z` → **`2026-11-28`** (00:30 SGT), while
+  `2026-11-27T15:30:00.000Z` → **`2026-11-27`** (23:30 SGT). The pinned constant contradicted rule 3 / AC-1 and
+  the Normative-shape example, and cascaded into task 7's AC-6 pins (`to`, `from`, the boundary row).
+  `SEED_FINISHED_AT` is now `'2026-11-27T15:30:00.000Z'`; the implementer's chosen success-run `started_at` is
+  pinned as `SEED_STARTED_AT = '2026-11-27T15:00:00.000Z'` (precedes `finished_at`, same Singapore day; the
+  `'running-only'` row's `started_at` is now specified as newer than it), and a **UTC-instant rule** plus an
+  `activitySeed.test.ts` assertion stop the drift returning. **Sweep of the other pinned constants: clean** —
+  `SEED_TO_DAY`/`SEED_FROM_DAY` (`addMonths('2026-11-27', -12)` = `2025-11-27` ✓), the seeded
+  `occurred_at_utc = day_local + "T04:00:00Z"` (= 12:00 SGT the same day ✓), tasks 3/4/7 which reference the
+  constants rather than literals, the AC-4 invalid value `'2026-11-05T00:00:00Z'` (rejected as a string, never
+  converted), and the design document, which pairs no literal instant with an `asOfDate`. No requirement, ADR,
+  NFR or architecture item is affected; nothing else in either file changed. Resume from task 6.
+- 2026-11-28 **RULING #2 applied + Task 6 (service tests) complete**: seeder now uses the
+  spec-pinned `SEED_STARTED_AT = '2026-11-27T15:00:00.000Z'` /
+  `SEED_FINISHED_AT = '2026-11-27T15:30:00.000Z'`; the marker failed-run and the extra
+  `running-only` row were pulled onto the same Singapore day (`15:10Z` finished, extra running
+  `started_at` = `SEED_RUNNING_STARTED_AT` = `2026-11-27T15:45:00.000Z`, newer than
+  `SEED_STARTED_AT`); `tests/activitySeed.test.ts` asserts the UTC-instant rule via the real
+  `toDayLocal` for every seeded `import_run` instant in all four run modes.
+  `npx jest activitySeed` → 13 passed; `activityRepository` → 8 passed;
+  `npx jest activityService` → **19 passed**; `activityReadOnly` → 23 passed;
+  `npx tsc --noEmit` → exit 0.

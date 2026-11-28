@@ -18,8 +18,19 @@ import { NORMALISED_DESCRIPTOR_A } from './opencodeDb';
 
 /** asOfDate / default `to` for every seeded database. */
 export const SEED_TO_DAY = '2026-11-27';
+/**
+ * Spec-pinned import_run instants (UTC-instant rule): both sit late on
+ * SEED_TO_DAY in UTC (23:00 / 23:30 SGT) and satisfy
+ * toDayLocal(instant, 'Asia/Singapore') === SEED_TO_DAY — any import_run
+ * instant at or after 16:00Z would land on the NEXT Singapore day and
+ * break every asOfDate / default-range pin. Asserted in
+ * activitySeed.test.ts, never trusted from the literal.
+ */
+export const SEED_STARTED_AT = '2026-11-27T15:00:00.000Z';
 /** importer-shaped ISO Z finished_at of the seeded successful run. */
-export const SEED_FINISHED_AT = '2026-11-27T16:30:00.000Z';
+export const SEED_FINISHED_AT = '2026-11-27T15:30:00.000Z';
+/** started_at for the extra 'running-only' row: newer than SEED_STARTED_AT. */
+export const SEED_RUNNING_STARTED_AT = '2026-11-27T15:45:00.000Z';
 /** addMonths(SEED_TO_DAY, -12): the default-range `from`. */
 export const SEED_FROM_DAY = '2025-11-27';
 
@@ -144,27 +155,21 @@ export function seedActivityDb(options: SeedOptions): SeedFacts {
         'VALUES (?, ?, ?, ?, ?, ?)',
     );
     if (runs === 'success') {
-      insertRun.run(
-        '2026-11-27T16:00:00.000Z',
-        SEED_FINISHED_AT,
-        'success',
-        events.length,
-        events.length,
-        null,
-      );
+      insertRun.run(SEED_STARTED_AT, SEED_FINISHED_AT, 'success', events.length, events.length, null);
     } else if (runs === 'failed-only') {
-      insertRun.run('2026-11-27T15:00:00.000Z', '2026-11-27T15:05:00.000Z', 'failed', 0, 0, 'generated failure');
+      insertRun.run(SEED_STARTED_AT, '2026-11-27T15:05:00.000Z', 'failed', 0, 0, 'generated failure');
     } else if (runs === 'running-only') {
-      insertRun.run('2026-11-27T15:00:00.000Z', null, 'running', 0, 0, null);
+      insertRun.run(SEED_STARTED_AT, null, 'running', 0, 0, null);
     }
     if (withMarker) {
       // Bait for AC-7: the marker sits in import_run.error (and in every
-      // source_id) — neither column is ever read by the API.
-      insertRun.run('2026-11-26T14:00:00.000Z', '2026-11-26T14:05:00.000Z', 'failed', 0, 0, `import failed: ${SEED_MARKER}`);
+      // source_id) — neither column is ever read by the API. Kept late on
+      // SEED_TO_DAY in UTC like every other seeded import_run instant.
+      insertRun.run(SEED_STARTED_AT, '2026-11-27T15:10:00.000Z', 'failed', 0, 0, `import failed: ${SEED_MARKER}`);
       if (runs === 'running-only') {
-        // A newer running row with finished_at NULL: must be ignored by the
-        // freshness query.
-        insertRun.run('2026-11-27T18:00:00.000Z', null, 'running', 0, 0, null);
+        // A running row with started_at newer than SEED_STARTED_AT and
+        // finished_at NULL: must be ignored by the freshness query.
+        insertRun.run(SEED_RUNNING_STARTED_AT, null, 'running', 0, 0, null);
       }
     }
     db.pragma('wal_checkpoint(TRUNCATE)');
