@@ -273,7 +273,7 @@ Ordered; every task ends green before the next starts. Commands run from `backen
      `'activity.db'`, `'node_modules'`, `'/root'`, `'/home'`, `'/workspace'`, `'/tmp'`.
    Verify: `npx jest activitySurface.api` green (all `it`s incl. the database-unchanged assertion);
    `npx tsc --noEmit` exit 0. → AC-1, AC-2, AC-3
-6. [ ] `backend/tests/activitySurface.rateLimit.test.ts` — AC-4, `jest.setTimeout(120_000)`:
+6. [x] `backend/tests/activitySurface.rateLimit.test.ts` — AC-4, `jest.setTimeout(120_000)`:
    (a) `RATE_LIMIT_WINDOW_MS === 60_000`, `RATE_LIMIT_MAX_REQUESTS_PER_MINUTE === 60`;
    (b) fresh `createHardenedActivityApp({ dbPath })` (defaults): 62 sequential awaited
    `GET /activity` with `X-Forwarded-For: CLIENT_IP_A` — capture statuses in order: the first 60 are
@@ -464,3 +464,15 @@ artifact (mandated by AC-6; no component or deployment diagram is drawn or chang
   `legacyCorsGuard` supertest table: `/health`+`/entity` spy-called with `ACAO: *`; `/activity` and
   `/activity/x` spy-not-called; `/activityfoo` spy-called); `npx tsc --noEmit` exit 0;
   `npm run lint` exit 0.
+- **Task 4 (test vehicle):** `createHardenedActivityApp` added; `npx tsc --noEmit` exit 0 (behaviour
+  proven by the task-5 suite, per the spec).
+- **Task 5 (contract suite):** `npx jest activitySurface.api` green — 14 tests (AC-1 per-method 405 +
+  byte-identical frozen body + database-unchanged incl. `-wal`/`-shm` sidecars; AC-2 three origins +
+  deny-by-default + case-variant + no-wildcard sweep over 200/204/404/405/429 on both compositions;
+  AC-3 helmet set + no `x-powered-by` + no path/db-name in headers or body);
+  `npx tsc --noEmit` exit 0; `npm run lint` exit 0.
+- **Task 6 (AC-4 burst):** `npx jest activitySurface.rateLimit` green **twice** (run 1: 5/5 in 1.733 s;
+  run 2: 5/5 in 1.657 s) — 62-request spoofed-XFF burst (60×200, #61/#62 frozen 429 with integer
+  `Retry-After` and draft-7 `RateLimit`), key independence (IP B, no-XFF peer, two-hop chain keys on
+  leftmost IP), window pass via `Retry-After × 1000 + 200 ms` sleep, env override `=3`;
+  `npx tsc --noEmit` exit 0.
