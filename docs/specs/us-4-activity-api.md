@@ -370,7 +370,7 @@ Ordered; every task ends green before the next starts. Commands run from `backen
    source the story Notes warn about). Then run the file **twice**: `npx jest activityApi.timing` twice,
    both runs green; paste both outputs into the Progress log (sprint-2 exit gate).
    Verify: two consecutive green runs of `npx jest activityApi.timing`, then `npm test` green. → AC-8
-10. [ ] `backend/jest.config.js`: add `'src/activity/**/*.ts'` to `collectCoverageFrom` and thresholds
+10. [x] `backend/jest.config.js`: add `'src/activity/**/*.ts'` to `collectCoverageFrom` and thresholds
     `{ lines: 80 }` for `./src/activity/timeRange.ts` and `./src/activity/activityService.ts`.
     Verify: `npm test` green (thresholds only bite under `npm test -- --coverage`; run that once and paste
     the two percentages into the Progress log). → supporting (NFR-2 guard coverage)
