@@ -511,3 +511,6 @@ belongs to US-13's volume/run-ordering decision.
   left uncommitted; tasks 6-13 not started. Proposed fix for the tech lead: assert (i) main-db
   bytes identical, (ii) `-wal` absent-or-zero-bytes and (iii) `-shm` absent-or-exactly-32-KiB
   wal-index (numbers only), plus keep the task-5(g) source scan as the no-schema-touch proof.
+  Branch-state note: task 2's two files were initially left out of the tasks-3-4 commit and were
+  added in a follow-up commit; the pushed branch is verified green without the task-5 file:
+  `npx jest --testPathIgnorePatterns activityReadOnly` → **21 suites / 239 tests passed**.
