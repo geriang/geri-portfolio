@@ -545,3 +545,20 @@ belongs to US-13's volume/run-ordering decision.
   called with `readonly: true` on every request, (e) writer coexistence via `BEGIN IMMEDIATE` +
   ROLLBACK, (f) amended numbers-only sidecar assertions, (g) source scan of `src/activity/*.ts`.
   `npx jest activityReadOnly` → **23 passed**.
+- 2026-11-28 **Task 6 (service tests) — BLOCKED on a second spec-internal contradiction.**
+  The Fixture plan pins `SEED_FINISHED_AT = '2026-11-27T16:30:00.000Z'`, but rule 3 (and AC-1's
+  own wording) derive `asOfDate = toDayLocal(finished_at, 'Asia/Singapore')` via
+  `src/import/dayLocal.ts`, and 16:30Z is **2026-11-28 00:30** in Singapore (verified with
+  Node's Intl, and by `npx jest activityService` → 17 passed / 2 failed: `asOfDate` served as
+  `2026-11-28`). The spec's Normative-shape example pairs `asOfDate: "2026-11-27"` with
+  `lastUpdated: "2026-11-27T16:30:00.000Z"` — unsatisfiable together. It cascades into task 7:
+  AC-6 asserts `metadata.to === facts.asOfDate` (`SEED_TO_DAY = 2026-11-27`) and
+  `metadata.from === SEED_FROM_DAY` with a boundary row exactly on `from`, but under 16:30Z the
+  applied default range becomes `[2025-11-28, 2026-11-28]` and every one of those assertions
+  fails. No compliant implementation can pass both the freshness rule and these constants.
+  **Not deviating.** Proposed fix (one line in the Fixture plan):
+  `SEED_FINISHED_AT = '2026-11-27T15:30:00.000Z'` (= 23:30 SGT on `SEED_TO_DAY`;
+  `toDayLocal` verified → `2026-11-27`), plus the seeder's success-run `started_at` moved to
+  `'2026-11-27T15:00:00.000Z'` (currently 16:00Z, which would post-date the finished_at).
+  `tests/activityService.test.ts` is written to the spec's stated expectations and left
+  uncommitted (red) pending the ruling.
