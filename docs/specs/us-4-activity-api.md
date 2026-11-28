@@ -627,3 +627,18 @@ belongs to US-13's volume/run-ordering decision.
   `ACTIVITY_DB_PATH=$HOME/scratch-activity.db PORT=3101 npm --prefix backend run start` then
   `curl -s -o /dev/null -w '%{http_code} %{time_total}s %{size_download}B\n' "http://127.0.0.1:3101/activity"`
   (status, seconds and bytes only).
+- 2026-11-28 **Acceptance criteria evidence table** (post-review, full suite `npm test` →
+  26 suites / 313 tests passed; `npx tsc --noEmit` exit 0; `git diff origin/main...HEAD --
+  backend/tests | grep -c '^-[^-]'` → 0):
+
+  | criterion | status | evidence |
+  |---|---|---|
+  | AC-1 | Met | `npx jest activityApi` → 18 passed (AC-1 case: 200, `application/json`, `timeZone` literal, `asOfDate` shape, `lastUpdated === SEED_FINISHED_AT`, distinct sets == fixture, `rows` array) + `activityService` 19 passed |
+  | AC-2 | Met | `activityApi` AC-2: `rows` deep-equals `facts.expectedRows(from,to)`, all `day_local` in range, no duplicate group keys, sums == `facts.totalsForDays`; `activityRepository` 8 passed |
+  | AC-3 | Met | `activityApi` AC-3 (i) empty range echo + complete key set, (ii) `createEmptyActivityDb` 200 nulls, (iii) `ACTIVITY_DB_PATH` unset + missing file → 200 never 500; no-write half in `activityReadOnly` |
+  | AC-4 | Met | `activityApi` AC-4: 8 invalid inputs → byte-identical frozen 400 (single `res.text`), marker-in-value absent from body/console/stdout, `?from[0]=x` → 200 defaults; `activityTimeRange` 44 passed |
+  | AC-5 | Met | `npx jest activityReadOnly` → 23 passed (a–g incl. ruled numbers-only (f): main bytes identical, `-wal` absent-or-0, `-shm` absent-or-32768) |
+  | AC-6 | Met | `activityApi` AC-6: default `to === asOfDate`, `from === addMonths(asOfDate,-12) == SEED_FROM_DAY`, boundary row on `from` present, `2025-11-26` absent, nothing outside range |
+  | AC-7 | Met | `activityApi` AC-7: real fixture→import→serve; marker absent from body/text/logs/stdout; key allow-list (2/8/7) + `source_id`/`occurred_at_utc`/`events_seen`/`events_written`/`"error"` leak scan; task-12 sweep 0 vendor-vocab hits |
+  | AC-8 | Met | `npx jest activityApi.timing` green in consecutive runs (sprint gate): p95_ms=2.342 then 2.407; re-confirmed post-config p95_ms=1.894 then 2.092 (< 300); 120 sequential requests all 200; rows=640 ≥ 300 |
+  | AC-9 | Manual (user) | Not attempted in the container (owner's host); task-13 recipe listed verbatim in the PR body; owner reports numbers at the sprint-2 exit |
