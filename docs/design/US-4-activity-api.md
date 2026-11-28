@@ -454,8 +454,11 @@ real 12-month range exceeds ~50k `usage_event` rows and AC-8's p95 loses its hea
   `initActivitySchema` and `PRAGMA journal_mode = WAL` **silently no-op** (every DDL statement is
   `IF NOT EXISTS` on existing objects), so "never creates or migrates schema" is proved by the source scan,
   not by a thrown error; a reader opened *after* a writer has `BEGIN IMMEDIATE` returns the last committed
-  rows without blocking; and a read-only open of a checkpointed DB leaves the directory with no
-  `-wal`/`-shm` files.
+  rows without blocking; and a read-only open of a WAL DB in a writable directory creates `<db>-wal`
+  (0 bytes) and `<db>-shm` (32768 bytes) and keeps them after `close()` — a read-only connection cannot
+  checkpoint or delete them — so the honest postcondition is "main db bytes identical, `-wal`
+  absent-or-zero-bytes (no WAL growth), `-shm` absent-or-32768-bytes", never absence of the sidecar files
+  (see spec task 5(f)).
 - NFR-5/BR-1 surface: the response key allow-list is exactly `metadata` (8 keys), `rows` (7 keys).
   `import_run.error`, `usage_event.source_id` and `occurred_at_utc` are never read into the response, and
   the marker test proves it end to end (marker text in the source opencode fixture → import drops it →

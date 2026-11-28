@@ -41,7 +41,9 @@ the fixture plan, the ordered task list and the AC-to-test mapping.
 - Probe-verified runtime facts (design basis, do not re-litigate): a read-only `better-sqlite3` open of a
   checkpointed WAL DB works; `db.readonly === true`; `INSERT`/`CREATE TABLE` through it throw
   `SQLITE_READONLY` ("attempt to write a readonly database"); a missing file throws `SQLITE_CANTOPEN`;
-  the grouped query over 620 rows costs ~0.27 ms and ~100 read-only opens cost ~1.8 ms total.
+  the grouped query over 620 rows costs ~0.27 ms and ~100 read-only opens cost ~1.8 ms total; and a
+  read-only open of a WAL database leaves `<db>-wal` (0 bytes) plus a 32768-byte `<db>-shm` behind after
+  `close()` — it cannot checkpoint or delete them (this is what task 5(f) asserts instead of absence).
 
 ## Scope
 
@@ -247,7 +249,7 @@ Ordered; every task ends green before the next starts. Commands run from `backen
    `facts.expectedRows(...)` deep-equal **including order** (`day_local, tool, model, task_type`
    ascending); a range with no data returns `[]`. Verify: `npx jest activityRepository` green;
    `npx tsc --noEmit` exit 0. → AC-2 (query half)
-5. [ ] AC-5 enforcement — `backend/tests/activityReadOnly.test.ts`:
+5. [x] AC-5 enforcement — `backend/tests/activityReadOnly.test.ts`:
    (a) `ACTIVITY_READ_OPTIONS` deep-equals `{ readonly: true }`;
    (b) `const db = openActivityView(path)` → `expect(db.readonly).toBe(true)`;
    (c) through that same connection `INSERT INTO usage_event ...`, `UPDATE usage_event ...`,
@@ -266,8 +268,18 @@ Ordered; every task ends green before the next starts. Commands run from `backen
        uncommitted, then `ROLLBACK`), and while it is open serve `GET /activity` → `200` with the
        pre-transaction rows (open the read-only view *after* the writer, so SQLite has already created
        `-shm`);
-   (f) file bytes: `fs.readFileSync(dbPath)` identical before and after 20 requests (and no `-wal`/`-shm`
-       created by the reader);
+   (f) file bytes, **numbers only**: `fs.readFileSync(dbPath)` byte-identical before and after the 20
+       served requests; `activity.db-wal` **absent or 0 bytes**; `activity.db-shm` **absent or exactly
+       32768 bytes**. Do **not** assert that a read-only open creates no `-wal`/`-shm`: probe-confirmed on
+       better-sqlite3 13.1.1 / SQLite 3.54.1 that a `{ readonly: true }` open of a WAL database in a
+       writable directory creates `<db>-wal` (0 bytes) and `<db>-shm` (32 KiB wal-index) and leaves them
+       there after `close()`, because a read-only connection can neither checkpoint nor delete them — and
+       every seeded/production `activity.db` is WAL, since the importer's writable `openActivityDb` always
+       sets `journal_mode = WAL` (a side effect the API must not undo, and must not "fix" by opening
+       read-write). The load-bearing assertions are therefore (i) the main db file is byte-identical,
+       (ii) `-wal` is absent-or-zero-bytes (no WAL growth), (iii) `-shm` is absent-or-exactly-32768 bytes,
+       and (iv) every write attempt in (c) is rejected. Assert sizes with `fs.statSync(...).size` and skip
+       the check for a file that does not exist.
    (g) source scan (US-23's pattern-grep precedent): every `backend/src/activity/*.ts` contains no
        `INSERT|UPDATE|DELETE|CREATE TABLE|DROP |ALTER |PRAGMA|initActivitySchema|__dirname` and no
        `from 'better-sqlite3'` value import (type-only import allowed), and `SELECT` appears only inside
@@ -514,3 +526,22 @@ belongs to US-13's volume/run-ordering decision.
   Branch-state note: task 2's two files were initially left out of the tasks-3-4 commit and were
   added in a follow-up commit; the pushed branch is verified green without the task-5 file:
   `npx jest --testPathIgnorePatterns activityReadOnly` → **21 suites / 239 tests passed**.
+- 2026-11-28 **RULING on the task 5(f) block (tech lead): finding ACCEPTED, assertion amended.**
+  Independently reproduced on better-sqlite3 13.1.1 / SQLite 3.54.1 with `-wal`/`-shm` removed first: a
+  `{ readonly: true }` open plus `close()` leaves `<db>-wal` = 0 bytes and `<db>-shm` = 32768 bytes behind,
+  because a read-only connection can neither checkpoint nor delete the WAL sidecar files, and the importer's
+  writable `openActivityDb` always sets WAL — so "no `-wal`/`-shm` created by the reader" is unsatisfiable by
+  any compliant implementation. Task 5(f) now asserts numbers only: main db bytes byte-identical, `-wal`
+  absent-or-0-bytes (no WAL growth), `-shm` absent-or-exactly-32768 bytes; the load-bearing no-write proof
+  stays task 5(c)'s rejected write/DDL attempts plus the 5(g) source scan. The spec's own
+  "Probe-verified runtime facts" bullet and the design's Security bullet (which claimed a read-only open
+  leaves no `-wal`/`-shm`) are corrected to match; the Use-case Postconditions wording ("byte-identical …
+  no WAL growth") already held and is unchanged. No requirement, ADR, NFR or architecture item is affected
+  and nothing else in the spec changes. Resume from task 5 with the amended assertion.
+- 2026-11-28 **Task 5 (read-only enforcement) — resumed under the ruling**: committed
+  `src/activity/activityErrors.ts`, `activityService.ts`, `activityRouter.ts` and
+  `tests/activityReadOnly.test.ts` — (a) open-mode constant, (b) `db.readonly`, (c) rejected
+  INSERT/UPDATE/DELETE/CREATE + `initActivitySchema` byte-identity, (d) `openActivityDb` spy
+  called with `readonly: true` on every request, (e) writer coexistence via `BEGIN IMMEDIATE` +
+  ROLLBACK, (f) amended numbers-only sidecar assertions, (g) source scan of `src/activity/*.ts`.
+  `npx jest activityReadOnly` → **23 passed**.
