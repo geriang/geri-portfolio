@@ -374,7 +374,7 @@ Ordered; every task ends green before the next starts. Commands run from `backen
     `{ lines: 80 }` for `./src/activity/timeRange.ts` and `./src/activity/activityService.ts`.
     Verify: `npm test` green (thresholds only bite under `npm test -- --coverage`; run that once and paste
     the two percentages into the Progress log). → supporting (NFR-2 guard coverage)
-11. [ ] Payload/resource measurement (numbers only) inside the timing test or a sibling check: assert the
+11. [x] Payload/resource measurement (numbers only) inside the timing test or a sibling check: assert the
     full-range response JSON is < 512 KiB for the 640-row seed
     (`Buffer.byteLength(res.text)`) and log `rows` + `bytes`. Then the **host-side** measurement the
     container cannot make — **Manual (user)**, owner runs on the host after merge:
@@ -384,7 +384,7 @@ Ordered; every task ends green before the next starts. Commands run from `backen
     Assumptions), so nothing is asserted against a numeric budget beyond AC-8's stand-in.
     Verify: automated byte assertion green; host command listed verbatim in the PR body → AC-8 (support),
     AC-9 (support)
-12. [ ] Privacy/safety sweep before PR: `git diff --name-only origin/main...HEAD` lists exactly the files
+12. [x] Privacy/safety sweep before PR: `git diff --name-only origin/main...HEAD` lists exactly the files
     in "Files likely touched"; for each added line grep the vendor/model vocabulary
     (`anthropic|openai|claude|gpt|gemini|llama|deepseek|kimi|moonshot|qwen|mistral`) and any brace-bearing
     model string, and grep every test/fixture/source file for the markers to confirm they appear only as
@@ -608,3 +608,22 @@ belongs to US-13's volume/run-ordering decision.
   run 2: `activity:timing rows=640 requests=120 median_ms=1.309 p95_ms=2.407 max_ms=3.666`,
   `activity:payload rows=640 bytes=107030`, Tests: 2 passed.
   The host-side half of task 11 is **Manual (user)** (owner's host, command listed in the PR body).
+- 2026-11-28 **Task 12 (privacy/safety sweep)**: `git diff --name-only origin/main...HEAD`
+  lists exactly the "Files likely touched" (5 new `src/activity` modules, `src/index.ts`,
+  `jest.config.js`, 8 new test files + the new seeder, plus the spec/design docs).
+  Vendor/model vocabulary (`anthropic|openai|claude|gpt|gemini|llama|deepseek|kimi|moonshot|qwen|mistral`)
+  on added backend lines → **0 matches**; brace-bearing model strings on added lines → **0**;
+  emails/tokens/home paths on added lines → **0**. Marker scan of added lines → only `MK-activity-*`
+  bait: `MK-activity-content-7c41d9e3` x1 (single definition site `tests/fixtures/activitySeed.ts`,
+  served nowhere — proven by the AC-4/AC-7 marker tests) and `MK-activity-invalid-probe` x2
+  (invalid-value probes in `activityService.test.ts`). Manual (review): diff read against the alias
+  note at the top of `docs/product/backlog.md` — no real names, hostnames, accounts or content.
+- 2026-11-28 **Task 13 (AC-9 handoff)**: the owner's-host recipe is listed verbatim in the PR body
+  (import into `$HOME/scratch-activity.db`, `npm --prefix backend run build`,
+  `ACTIVITY_DB_PATH=$HOME/scratch-activity.db PORT=3101 npm --prefix backend run start`, the
+  7-day curl sum + the no-parameter `%{http_code}` check). **Manual (user)** — not attempted in the
+  container; ticked only when the owner reports the numbers back at the sprint-2 exit. Task 11's
+  host-side half is likewise **Manual (user)**:
+  `ACTIVITY_DB_PATH=$HOME/scratch-activity.db PORT=3101 npm --prefix backend run start` then
+  `curl -s -o /dev/null -w '%{http_code} %{time_total}s %{size_download}B\n' "http://127.0.0.1:3101/activity"`
+  (status, seconds and bytes only).
