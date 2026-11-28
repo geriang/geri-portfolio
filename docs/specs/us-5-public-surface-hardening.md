@@ -328,7 +328,7 @@ Ordered; every task ends green before the next starts. Commands run from `backen
    (`/\b(token|secret|passwor[dt]|api[_-]?key|bearer)\b\s*[:=]\s*[^\s$]/i`, `/BEGIN [A-Z ]*PRIVATE KEY/`,
    `/[A-Za-z0-9+/]{40,}={0,2}/`); README names all five env vars. Verify: `npx jest tunnelConfig`
    green; Manual (review): read both artifacts against AC-6's wording. → AC-6 (all), AC-5 (artifact half)
-9. [x] **AC-5 handoff (owner's host — the container cannot see the tunnel).** Put this recipe verbatim
+9. [ ] **AC-5 handoff (owner's host — the container cannot see the tunnel).** Put this recipe verbatim
    in the PR body and tick only when the owner reports status codes back at the sprint exit:
    ```sh
    # on the owner's host (env-var names; values stay on the host, never in this repo):
@@ -500,9 +500,10 @@ artifact (mandated by AC-6; no component or deployment diagram is drawn or chang
   hostname tokens, pure-placeholder credentials-file, no env assignments, no credential-shaped
   matches, README names the five env vars); `npx tsc --noEmit` exit 0; `npm run lint` exit 0.
   Manual (review): both artifacts read against AC-6's wording — satisfied.
-- **Task 9 (AC-5 handoff):** recipe (spec wording) placed in the PR body and in the artifact README.
-  **Manual (user)** — owner reports per-path status codes at the sprint-2 exit; the container cannot
-  see the tunnel. **Not tested** here by design.
+- **Task 9 (AC-5 handoff):** the recipe (spec wording) is committed in the artifact README and **will
+  be included verbatim in the PR body** when the PR is opened (the PR does not exist yet).
+  **Manual (user)** — the tick stays off until the owner reports per-path status codes back at the
+  sprint-2 exit; the container cannot see the tunnel. **Not tested** here by design.
 - **Task 10 (AC-6 diff scan + privacy sweep):** the literal task-10 command matches only
   (a) the two `sha512-…` `integrity` hashes `npm install` writes into `backend/package-lock.json`
   (the sanctioned dependency artifact) and (b) git diff header lines plus spec/design prose paths
@@ -531,12 +532,18 @@ artifact (mandated by AC-6; no component or deployment diagram is drawn or chang
 
 ## Acceptance criteria evidence (final gate)
 
+> **Provenance (reviewer finding R2):** every test-run figure cited below and in the Progress log
+> (full-suite counts, the two rate-limit runs, `npx jest --coverage`, `npx tsc --noEmit`,
+> `npm run lint` and the diff-hygiene counts) was **performed by the implementer on this branch**;
+> the round-1 reviewer did not independently re-execute them, so these claims are **pending
+> reviewer confirmation** of the pasted outputs.
+
 | Criterion | Status | Evidence |
 |---|---|---|
 | AC-1 | Met | `npx jest activitySurface.api` — 405 + `Allow: GET, OPTIONS` + byte-identical frozen body per `post/put/patch/delete`; database-unchanged (row count, main-file bytes, `-wal`/`-shm` sidecars); `GET` 200; `OPTIONS` 204 in CORS policy. Full `npm test` green. |
 | AC-2 | Met | Same suite: ACAO exactly the allowed origin (A and B); absent for denied/missing/case-variant/unset allowlist; no-wildcard sweep over 200/204/404/405/429 on both compositions; unit truth table in `activityHardening.test.ts`. |
 | AC-3 | Met | Same suite + mount suite: `nosniff` on 200/405/429/404, `x-powered-by` undefined on `/activity`, helmet set present, CSP off by design; header/body scan for `dbPath`/`activity.db`/`node_modules`/`/root`/`/home`/`/workspace`/`/tmp` → none. |
 | AC-4 | Met | `npx jest activitySurface.rateLimit` green twice (5/5): 60×200 then #61/#62 frozen 429 with integer `Retry-After` + draft-7 `RateLimit`; independent keys for IP B, no-XFF peer; two-hop XFF keys leftmost IP; window pass via `Retry-After × 1000 + 200`; env override `=3`. |
-| AC-5 | Manual (user) | Recipe in `deploy/cloudflared/README.md` and the PR body; owner runs it on their host with the real tunnel and reports per-path status codes at the sprint-2 exit. **Not tested** in the container (cannot see the tunnel). |
+| AC-5 | Manual (user) | Recipe committed in `deploy/cloudflared/README.md`; it will be included verbatim in the PR body when the PR is opened. Owner runs it on their host with the real tunnel and reports per-path status codes at the sprint-2 exit — **pending**. **Not tested** in the container (cannot see the tunnel). |
 | AC-6 | Met | `deploy/cloudflared/activity-tunnel.example.yml` + `README.md` committed (placeholders + env-var names only); `npx jest tunnelConfig` green (12); triaged secrets-pattern scan of the diff → zero real hits (see task-10 log entry); hostname/IP/vendor sweeps clean (only the spec's own scan-vocabulary line). Reviewer additionally inspects the artifacts. |
 | AC-7 | Met | `npm test` in `backend/` on the branch → 31 suites / 370 tests green, all pre-existing US-4 contract + legacy portfolio suites untouched (`git diff origin/main...HEAD -- backend/tests | grep -c '^-[^-]'` → 0); legacy `/health` keeps `ACAO: *` + `X-Powered-By: Express` (mount suite (d)). |
