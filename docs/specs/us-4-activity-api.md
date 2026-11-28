@@ -220,7 +220,7 @@ Ordered; every task ends green before the next starts. Commands run from `backen
    `npm install --no-audit --no-fund` if `node_modules` is missing; `npm test` and `npx tsc --noEmit`.
    Record the pass counts in the Progress log. Verify: suite green at baseline, `git status --short` empty.
    → (setup for all ACs)
-2. [ ] `backend/src/activity/timeRange.ts` — `ACTIVITY_TIME_ZONE`, `DEFAULT_RANGE_MONTHS = 12`, `Ymd`,
+2. [x] `backend/src/activity/timeRange.ts` — `ACTIVITY_TIME_ZONE`, `DEFAULT_RANGE_MONTHS = 12`, `Ymd`,
    `isValidYmd`, `addMonths` (month-end clamping, `RangeError` on bad input), `resolveRange` per
    design §Design (blank-vs-invalid, defaults, `from > to`, `asOfDate: null`). Imports nothing; no clock.
    Then `backend/tests/activityTimeRange.test.ts`: `isValidYmd` table (valid pair, `2026-02-30`,
@@ -230,7 +230,7 @@ Ordered; every task ends green before the next starts. Commands run from `backen
    single-sided, both empty strings, arrays, `from > to`, `asOfDate: null`), asserting the echoed
    `range` object. Verify: `npx jest activityTimeRange` green; `npx tsc --noEmit` exit 0.
    → AC-4, AC-6 (unit half)
-3. [ ] `backend/tests/fixtures/activitySeed.ts` exactly as the Fixture plan, plus
+3. [x] `backend/tests/fixtures/activitySeed.ts` exactly as the Fixture plan, plus
    `backend/tests/activitySeed.test.ts` asserting the facts themselves: `days: 300` yields
    `distinctDays >= 300`, `>= 300` rows, `distinctTools.length === 2`, `distinctModels.length === 3`,
    `distinctTaskTypes.length === 3`, every `day_local` matches `^\d{4}-\d{2}-\d{2}$`, no `model` value
@@ -238,7 +238,7 @@ Ordered; every task ends green before the next starts. Commands run from `backen
    `finished_at = SEED_FINISHED_AT`, `withMarker` puts the marker in `source_id` and in a failed run's
    `error`, `createEmptyActivityDb` creates both tables with 0 rows. Verify:
    `npx jest activitySeed` green. → AC-2, AC-3, AC-7, AC-8 (fixture foundation)
-4. [ ] `backend/src/activity/activityRepository.ts`: `ACTIVITY_READ_OPTIONS`, `LAST_SUCCESS_RUN_SQL`,
+4. [x] `backend/src/activity/activityRepository.ts`: `ACTIVITY_READ_OPTIONS`, `LAST_SUCCESS_RUN_SQL`,
    `GROUPED_ROWS_SQL`, `openActivityView(dbPath?)` (a thin call of the reused
    `openActivityDb({ path, ...ACTIVITY_READ_OPTIONS })`, no `try/catch`, no `PRAGMA`),
    `selectLastSuccessfulRun(db)`, `selectGroupedRows(db, range)`. Then
@@ -478,3 +478,19 @@ belongs to US-13's volume/run-ordering decision.
   origin/main` (from 157b9d9, US-23 merge). `backend/node_modules` present — no install needed.
   `npm test` → **18 suites passed, 175 tests passed**; `npx tsc --noEmit` → exit 0.
   `git status --short` shows only the untracked spec + design files, which are committed with this task.
+- 2026-11-28 **Task 2 (timeRange)**: created `src/activity/timeRange.ts` (pure: `ACTIVITY_TIME_ZONE`,
+  `DEFAULT_RANGE_MONTHS`, `isValidYmd`, `isBlankActivityParam`, `addMonths`, `resolveRange`) +
+  `tests/activityTimeRange.test.ts`. `npx jest activityTimeRange` → **44 passed**;
+  `npx tsc --noEmit` → exit 0. Note: `{to}` only with `asOfDate: null` resolves via
+  `addMonths(to, -12)` (per design "no explicit pair **usable**"), pinned as an `ok` case.
+- 2026-11-28 **Task 3 (fixture seeder)**: created `tests/fixtures/activitySeed.ts` (deterministic,
+  writes via `initActivitySchema` + `upsertUsageEvents`, marker bait in `source_id` and a failed
+  `import_run.error`, `createEmptyActivityDb`) + `tests/activitySeed.test.ts`.
+  `npx jest activitySeed` → **12 passed**.
+- 2026-11-28 **Task 4 (repository)**: created `src/activity/activityRepository.ts`
+  (`ACTIVITY_READ_OPTIONS`, `LAST_SUCCESS_RUN_SQL`, `GROUPED_ROWS_SQL`,
+  `openActivityView`, `selectLastSuccessfulRun`, `selectGroupedRows`, plus
+  `selectMaxDayLocal` which derives the AC-3 anchor through `GROUPED_ROWS_SQL`
+  over a full-domain range — the module keeps exactly two statements, per the
+  task-5(g) SELECT-only scan) + `tests/activityRepository.test.ts`.
+  `npx jest activityRepository` → **8 passed**; `npx tsc --noEmit` → exit 0.
