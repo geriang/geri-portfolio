@@ -494,3 +494,20 @@ belongs to US-13's volume/run-ordering decision.
   over a full-domain range — the module keeps exactly two statements, per the
   task-5(g) SELECT-only scan) + `tests/activityRepository.test.ts`.
   `npx jest activityRepository` → **8 passed**; `npx tsc --noEmit` → exit 0.
+- 2026-11-28 **Task 5 (read-only enforcement) — BLOCKED on a factual error in the spec.**
+  `src/activity/activityErrors.ts`, `activityService.ts`, `activityRouter.ts` and
+  `tests/activityReadOnly.test.ts` are written; `npx jest activityReadOnly` → **22 passed,
+  1 failed**. The only failing assertion is the parenthetical in task 5(f): "no `-wal`/`-shm`
+  created by the reader". Reproduced without the app: with better-sqlite3 13.1.1 (SQLite 3.54.1),
+  a `{readonly: true}` open of a **checkpointed WAL** database *creates* `<db>-wal` (0 bytes) and
+  `<db>-shm` (32 KiB wal-index) in a writable directory, and they persist after close because a
+  read-only connection cannot checkpoint or remove them. (The design's probe-verified claim holds
+  only for a non-WAL database; the importer — and the mandated seeder path through
+  `openActivityDb` writable — always sets WAL, so every seeded/production `activity.db` is WAL.)
+  The main db file is byte-identical before/after 20 served requests, and WAL growth is zero
+  (`-wal` is 0 bytes) — the spec's own Postconditions wording "no writes, no schema change, no
+  WAL growth" does hold. Task 5(f) as literally written is unsatisfiable by any implementation
+  that keeps the mandated `openActivityDb({readonly: true})` open. **Not deviating**: task 5 file
+  left uncommitted; tasks 6-13 not started. Proposed fix for the tech lead: assert (i) main-db
+  bytes identical, (ii) `-wal` absent-or-zero-bytes and (iii) `-shm` absent-or-exactly-32-KiB
+  wal-index (numbers only), plus keep the task-5(g) source scan as the no-schema-touch proof.
