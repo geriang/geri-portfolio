@@ -355,7 +355,7 @@ Ordered; every task ends green before the next starts. Commands run from `backen
     routes.
     Verify: `npx jest activityMount activityApi` green; `npx tsc --noEmit` exit 0. → AC-1 (composed route
     half), AC-5 (never disturbs legacy routes)
-9. [ ] `backend/tests/activityApi.timing.test.ts` (AC-8), with `jest.setTimeout(120_000)`:
+9. [x] `backend/tests/activityApi.timing.test.ts` (AC-8), with `jest.setTimeout(120_000)`:
    `seedActivityDb({ dbPath, days: 320, rowsPerDay: 2 })` (assert facts first: `>= 300` rows,
    `>= 300` days, 3 models, 3 task types, 2 tools — the gate must not pass on a thin DB); build the
    composed app once; warm up with 5 discarded full-range requests; then
@@ -596,3 +596,15 @@ belongs to US-13's volume/run-ordering decision.
   `npx jest activitySeed` → 13 passed; `activityRepository` → 8 passed;
   `npx jest activityService` → **19 passed**; `activityReadOnly` → 23 passed;
   `npx tsc --noEmit` → exit 0.
+- 2026-11-28 **Tasks 9 + 11 (timing + payload)**: `tests/activityApi.timing.test.ts` — facts gate
+  first (>= 300 rows, >= 300 days, 3 models brace-free, 3 task types, 2 tools), 5 discarded
+  warm-up requests, (a) 20 sequential full-range `200`s, (b) 100 further `200`s timed with
+  `process.hrtime.bigint()`, `sorted[94] < 300` ms, (c) `rows.length >= 300`, (d) one
+  numbers-only `activity:timing` line; task 11's payload assertion in the same file
+  (`Buffer.byteLength(res.text) < 512 KiB` + `activity:payload` numbers-only line).
+  Sprint exit gate — `npx jest activityApi.timing` run **twice**, both green:
+  run 1: `activity:timing rows=640 requests=120 median_ms=1.254 p95_ms=2.342 max_ms=2.931`,
+  `activity:payload rows=640 bytes=107030`, Tests: 2 passed;
+  run 2: `activity:timing rows=640 requests=120 median_ms=1.309 p95_ms=2.407 max_ms=3.666`,
+  `activity:payload rows=640 bytes=107030`, Tests: 2 passed.
+  The host-side half of task 11 is **Manual (user)** (owner's host, command listed in the PR body).
