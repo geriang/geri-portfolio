@@ -642,3 +642,14 @@ belongs to US-13's volume/run-ordering decision.
   | AC-7 | Met | `activityApi` AC-7: real fixture→import→serve; marker absent from body/text/logs/stdout; key allow-list (2/8/7) + `source_id`/`occurred_at_utc`/`events_seen`/`events_written`/`"error"` leak scan; task-12 sweep 0 vendor-vocab hits |
   | AC-8 | Met | `npx jest activityApi.timing` green in consecutive runs (sprint gate): p95_ms=2.342 then 2.407; re-confirmed post-config p95_ms=1.894 then 2.092 (< 300); 120 sequential requests all 200; rows=640 ≥ 300 |
   | AC-9 | Manual (user) | Not attempted in the container (owner's host); task-13 recipe listed verbatim in the PR body; owner reports numbers at the sprint-2 exit |
+- 2026-11-28 **ORCHESTRATED FIX (reviewer round 1)**:
+  R1 (SHOULD, `tests/activityMount.test.ts` legacy-DB writes vs concurrent `entity.test.ts`
+  on another worker with `busy_timeout = 0`) — **FIXED**: every write the behavioural test
+  performs (the own-rows DELETE, `initSchema()`, both INSERTs and the post-success cleanup)
+  now lives inside the SQLITE_BUSY-tolerant retry block (also retrying `database is locked`
+  and the DROP-race `no such table`, rethrowing anything else); the cleanup deletes
+  `headings` for own `pages` **and** the `pages` rows, so no orphans accumulate; the
+  identifier is fixed (`activitymount-row`, UNIQUE-safe because each attempt deletes first).
+  Assertions unchanged; `src/db.ts` and legacy routes untouched. Verified:
+  `npx jest activityMount` x5 → 11 passed each; `npm test` x2 → 26 suites / 313 tests passed
+  each; `npx tsc --noEmit` → exit 0.

@@ -73,20 +73,46 @@ describe('activityMount (c): behaviour — new mount beside the legacy routes', 
 
   it('GET /entity/:id still answers from the legacy table (mount does not intercept)', async () => {
     // The legacy portfolio DB is shared with tests/entity.test.ts, which
-    // recreates its tables in beforeAll; retry briefly so this assertion
-    // proves coexistence, not a timing race with that suite's setup.
-    db.exec("DELETE FROM pages WHERE identifier LIKE 'activitymount-%'");
+    // DROP TABLEs and recreates the schema in beforeAll, on another jest
+    // worker and with better-sqlite3's default busy_timeout = 0. EVERY write
+    // this test makes (DELETE, initSchema, INSERTs and the cleanup) is
+    // therefore inside a SQLITE_BUSY-tolerant retry block; a concurrent
+    // write from the other suite can only delay us, never flake the gate.
+    // src/db.ts and the legacy routes stay untouched (task 8(c) mandates
+    // reading them through their own router).
+    const OWN = "identifier LIKE 'activitymount-%'";
+    const deleteOwnRows = () => {
+      // headings first, then pages: no orphan headings survive any run.
+      db.exec(`DELETE FROM headings WHERE page_id IN (SELECT id FROM pages WHERE ${OWN});`);
+      db.exec(`DELETE FROM pages WHERE ${OWN};`);
+    };
+    const isLockContention = (err: unknown) =>
+      /SQLITE_BUSY|database is locked|no such table/i.test(String((err as Error)?.message ?? err));
+
     let answered = false;
     for (let attempt = 0; attempt < 10 && !answered; attempt += 1) {
-      initSchema();
-      const pageId = db
-        .prepare('INSERT INTO pages (url, identifier) VALUES (?, ?)')
-        .run('generated://fixture', `activitymount-${attempt}`).lastInsertRowid as number;
-      const headingId = db
-        .prepare('INSERT INTO headings (page_id, level, text) VALUES (?, ?, ?)')
-        .run(pageId, 2, 'Generated mount heading').lastInsertRowid as number;
-      const res = await request(app).get(`/entity/${headingId}`);
-      answered = res.status === 200 && res.body.type === 'heading' && res.body.text === 'Generated mount heading';
+      try {
+        deleteOwnRows(); // also clears this identifier, keeping INSERT UNIQUE-safe
+        initSchema();
+        const pageId = db
+          .prepare('INSERT INTO pages (url, identifier) VALUES (?, ?)')
+          .run('generated://fixture', 'activitymount-row').lastInsertRowid as number;
+        const headingId = db
+          .prepare('INSERT INTO headings (page_id, level, text) VALUES (?, ?, ?)')
+          .run(pageId, 2, 'Generated mount heading').lastInsertRowid as number;
+        const res = await request(app).get(`/entity/${headingId}`);
+        answered =
+          res.status === 200 && res.body.type === 'heading' && res.body.text === 'Generated mount heading';
+        if (answered) {
+          try {
+            deleteOwnRows(); // leave the shared table as we found it
+          } catch (err) {
+            if (!isLockContention(err)) throw err;
+          }
+        }
+      } catch (err) {
+        if (!isLockContention(err)) throw err; // retry on contention only
+      }
     }
     expect(answered).toBe(true);
     const missing = await request(app).get('/entity/999999');
