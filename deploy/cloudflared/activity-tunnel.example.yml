@@ -1,0 +1,11 @@
+# US-5 public activity tunnel recipe. Fill the ${...} placeholders in a PRIVATE copy on the
+# owner's host; never commit real hostnames, account names, credential paths or tokens (AC-6).
+# The only forwarded backend path is /activity; the catch-all answers 404 at the tunnel.
+tunnel: ${ACTIVITY_TUNNEL_NAME}
+credentials-file: ${ACTIVITY_TUNNEL_CREDENTIALS_FILE}
+ingress:
+  - hostname: ${ACTIVITY_TUNNEL_HOSTNAME}     # placeholder example: activity.example.com
+    service: http://127.0.0.1:8080/activity   # the single forwarded path
+    originRequest:
+      httpHostHeader: 127.0.0.1:8080
+  - service: http_status:404                  # catch-all: nothing else reaches the backend
