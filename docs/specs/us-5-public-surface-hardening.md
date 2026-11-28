@@ -345,7 +345,7 @@ Ordered; every task ends green before the next starts. Commands run from `backen
    # expect: /activity => 200; /entity, /chat, /health => each 404 or 403 from the tunnel rule
    ```
    Verify: **Manual (user)** — owner reports per-path status codes at the sprint-2 exit. → AC-5
-10. [ ] **AC-6 secrets-pattern scan of the diff + privacy sweep** (repo root):
+10. [x] **AC-6 secrets-pattern scan of the diff + privacy sweep** (repo root):
     ```sh
     git -c core.pager=cat diff origin/main...HEAD -U0 -- . \
       ':(exclude)backend/tests/tunnelConfig.test.ts' \
@@ -453,6 +453,16 @@ artifact (mandated by AC-6; no component or deployment diagram is drawn or chang
 
 ## Progress log
 
+- 2026-11-28 **Deviations (recorded, non-scope)**: (1) `tests/fixtures/publicSurfaceFixtures.ts`
+  was created with task 2 (its constants are imported by the task-2 unit test) instead of task 4 —
+  same file set and content as the fixture plan. (2) Task 10's literal grep cannot print bare
+  `CLEAN`: the base64 alternative's class includes `/` (any ≥ 41-char repo path matches — including
+  the spec's own prose) and the sanctioned npm install always writes `sha512-…` integrity hashes
+  into the tracked lockfile. The scan was therefore run verbatim **and** triaged line-by-line, plus
+  a content-scoped re-run over added lines (lockfile and git headers excluded) returned 0 hits on
+  all secret-shaped patterns; the hostname/IP/vendor sweeps are clean as pasted in the Progress
+  log. No real secret, hostname, account name or marker text is in the diff.
+
 - **Task 1 (baseline + dependency):** `npm test` → 26 suites / 313 tests passed (green at baseline);
   `npx tsc --noEmit` exit 0. `npm install --save express-rate-limit@^8.7.5` → resolved 8.7.5;
   `git status --short` lists only `backend/package.json` + `backend/package-lock.json` (the tracked
@@ -493,3 +503,15 @@ artifact (mandated by AC-6; no component or deployment diagram is drawn or chang
 - **Task 9 (AC-5 handoff):** recipe (spec wording) placed in the PR body and in the artifact README.
   **Manual (user)** — owner reports per-path status codes at the sprint-2 exit; the container cannot
   see the tunnel. **Not tested** here by design.
+- **Task 10 (AC-6 diff scan + privacy sweep):** the literal task-10 command matches only
+  (a) the two `sha512-…` `integrity` hashes `npm install` writes into `backend/package-lock.json`
+  (the sanctioned dependency artifact) and (b) git diff header lines plus spec/design prose paths
+  ≥ 41 chars — the base64 alternative's class includes `/`, so long slash-paths always match it.
+  Every hit was inspected: **zero real secrets**. Content-scoped re-run (added lines only, `-U0`,
+  excluding `package-lock.json` and git header lines): the credential-shaped/secret patterns
+  (keys with values, `gh[pousr]_`, `sk-`, `eyJ`, `AKIA`, `BEGIN … PRIVATE KEY`, padded base64
+  `…=`, `api_key=`-style assignments) → **0 hits**. Privacy sweep on the 2256 added lines:
+  4-octet IPs outside RFC 5737/loopback → **0**; domains in real domain positions (`//host`,
+  `hostname:`) → only `127.0.0.1` and RFC 2606 `*.example.com` (incl. one `PORTFOLIO.example.com`
+  probe-note in the design doc — RFC 2606, case is the test's point); vendor/model vocabulary →
+  **1 hit, the spec's own vocabulary enumeration line** (same carve-out as `tunnelConfig.test.ts`).
