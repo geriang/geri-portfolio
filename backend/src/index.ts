@@ -1,8 +1,10 @@
 import express from 'express';
 import cors from 'cors';
+import { legacyCorsGuard } from './hardening/activitySurface';
 
 const app = express();
-app.use(cors());
+app.set('trust proxy', true); // AC-4: req.ip = client IP behind the tunnel proxy
+app.use(legacyCorsGuard(cors()));
 app.use(express.json());
 
 app.get('/health', (req, res) => {

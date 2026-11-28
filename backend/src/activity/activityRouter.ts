@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { getActivity } from './activityService';
+import { buildHardenedRouter } from '../hardening/activitySurface';
 
 /**
  * US-4 express adapter: the whole route is one GET handler that hands the raw
@@ -34,8 +35,10 @@ export function createActivityRouter(options: ActivityRouterOptions = {}): Route
 }
 
 /**
- * Unbound instance for src/index.ts: with no dbPath option the reused open
- * helper resolves ACTIVITY_DB_PATH at request time, so the process only
- * needs the environment variable, never a code-level path.
+ * US-5: the production mount is the hardened public surface — helmet
+ * headers, the CORS allowlist, the 60-per-minute limiter and the method lock
+ * wrap the raw factory above through a factory thunk. The factory itself
+ * stays raw on purpose: the US-4 contract and timing suites compose it
+ * directly, so a limiter baked into it would throttle those suites.
  */
-export default createActivityRouter();
+export default buildHardenedRouter(() => createActivityRouter());

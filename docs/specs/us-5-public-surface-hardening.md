@@ -288,7 +288,7 @@ Ordered; every task ends green before the next starts. Commands run from `backen
    (e) env override: `ACTIVITY_RATE_LIMIT_PER_MINUTE='3'` on a fresh default app → requests 1–3 `200`,
    `#4` `429`; restore env. Verify: `npx jest activitySurface.rateLimit` green twice (flaky-run rule:
    re-run and paste both outputs, do not weaken thresholds). → AC-4
-7. [ ] **Wire the production surface (the only source edits):**
+7. [x] **Wire the production surface (the only source edits):**
    - `src/activity/activityRouter.ts`: replace `export default createActivityRouter();` with
      `import { buildHardenedRouter } from '../hardening/activitySurface';` +
      `export default buildHardenedRouter(() => createActivityRouter());` and a short comment —
@@ -315,7 +315,7 @@ Ordered; every task ends green before the next starts. Commands run from `backen
    Verify: `npx jest activitySurface.mount activityMount activityReadOnly activityApi` green (the four
    existing US-4 suites **unmodified**); `npx tsc --noEmit` exit 0; `npm run lint` clean. → AC-1,
    AC-2, AC-3 (production form), AC-7
-8. [ ] **Tunnel artifact (AC-6) + AC-5 handoff:** write `deploy/cloudflared/activity-tunnel.example.yml`
+8. [x] **Tunnel artifact (AC-6) + AC-5 handoff:** write `deploy/cloudflared/activity-tunnel.example.yml`
    and `deploy/cloudflared/README.md` exactly per the artifact section (placeholder hostnames /
    env-var NAMES only — no values, no account names, no tokens anywhere in either file; `/activity` is
    the only backend path named in the yml). Then `backend/tests/tunnelConfig.test.ts` reading
@@ -328,7 +328,7 @@ Ordered; every task ends green before the next starts. Commands run from `backen
    (`/\b(token|secret|passwor[dt]|api[_-]?key|bearer)\b\s*[:=]\s*[^\s$]/i`, `/BEGIN [A-Z ]*PRIVATE KEY/`,
    `/[A-Za-z0-9+/]{40,}={0,2}/`); README names all five env vars. Verify: `npx jest tunnelConfig`
    green; Manual (review): read both artifacts against AC-6's wording. → AC-6 (all), AC-5 (artifact half)
-9. [ ] **AC-5 handoff (owner's host — the container cannot see the tunnel).** Put this recipe verbatim
+9. [x] **AC-5 handoff (owner's host — the container cannot see the tunnel).** Put this recipe verbatim
    in the PR body and tick only when the owner reports status codes back at the sprint exit:
    ```sh
    # on the owner's host (env-var names; values stay on the host, never in this repo):
@@ -476,3 +476,20 @@ artifact (mandated by AC-6; no component or deployment diagram is drawn or chang
   `Retry-After` and draft-7 `RateLimit`), key independence (IP B, no-XFF peer, two-hop chain keys on
   leftmost IP), window pass via `Retry-After × 1000 + 200 ms` sleep, env override `=3`;
   `npx tsc --noEmit` exit 0.
+- **Task 7 (production wiring):** `activityRouter.ts` default export → `buildHardenedRouter(() =>
+  createActivityRouter())` (comment free of AC-5(g) forbidden words); `index.ts` 3-line edit only
+  (trust proxy, `legacyCorsGuard(cors())`, one import — mount lines byte-identical).
+  `npx jest activitySurface.mount activityMount activityReadOnly activityApi` green — 5 suites / 64
+  tests, the four existing US-4 suites **unmodified** (raw factory answers with no helmet headers;
+  `/health` keeps `ACAO: *` + `X-Powered-By: Express`). `npx tsc --noEmit` exit 0;
+  `npm run lint` exit 0. Interim full `npm test`: 30 suites / 358 tests green.
+- **Task 8 (tunnel artifact):** `deploy/cloudflared/activity-tunnel.example.yml` + `README.md`
+  committed per the artifact section (placeholders and env-var NAMES only; `/activity` the only
+  forwarded path). `npx jest tunnelConfig` green — 12 tests (single forwarded service path, no
+  entity/chat/health substrings in the yml, `http_status:404` catch-all, placeholder-only URL and
+  hostname tokens, pure-placeholder credentials-file, no env assignments, no credential-shaped
+  matches, README names the five env vars); `npx tsc --noEmit` exit 0; `npm run lint` exit 0.
+  Manual (review): both artifacts read against AC-6's wording — satisfied.
+- **Task 9 (AC-5 handoff):** recipe (spec wording) placed in the PR body and in the artifact README.
+  **Manual (user)** — owner reports per-path status codes at the sprint-2 exit; the container cannot
+  see the tunnel. **Not tested** here by design.
