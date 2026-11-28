@@ -342,7 +342,7 @@ Ordered; every task ends green before the next starts. Commands run from `backen
      `source_id`, `occurred_at_utc`, `events_seen`, `events_written`, `"error"`.
    Verify: `npx jest activityApi` green; then `npm test` (everything green, no pre-existing assertion
    removed — `git diff origin/main -- backend/tests | grep -c '^-[^-]'` is 0). → AC-1, AC-2, AC-3, AC-4, AC-6, AC-7
- 8. [ ] Wire the app: add the `activityRouter` import + `app.use('/activity', activityRouter)` to
+ 8. [x] Wire the app: add the `activityRouter` import + `app.use('/activity', activityRouter)` to
     `backend/src/index.ts` after the legacy mounts (keep `/health`, `cors()`, `express.json()`, the three
     legacy mounts and `app.listen` byte-identical). Then `backend/tests/activityMount.test.ts`
     (structural: it reads source text and never imports `src/index.ts`, which would call `listen` and open

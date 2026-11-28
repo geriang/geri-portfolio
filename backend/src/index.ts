@@ -17,6 +17,10 @@ app.use('/static-data', staticDataRouter);
 app.use('/entity', entityRouter);
 app.use('/chat', chatRouter);
 
+import activityRouter from './activity/activityRouter';
+
+app.use('/activity', activityRouter);
+
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`Backend listening on port ${PORT}`);
