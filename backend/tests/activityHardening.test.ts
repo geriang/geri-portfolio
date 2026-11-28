@@ -12,6 +12,10 @@ import {
   parseAllowedOrigins,
   resolveRateLimitMax,
 } from '../src/hardening/activityHardening';
+import { legacyCorsGuard } from '../src/hardening/activitySurface';
+import cors from 'cors';
+import express from 'express';
+import request from 'supertest';
 import {
   ALLOWED_ORIGINS_ENV_VALUE,
   ORIGIN_ALLOWED_A,
@@ -121,5 +125,46 @@ describe('frozen error bodies (AC-1, AC-2, AC-4)', () => {
     expect(again.ACTIVITY_METHOD_NOT_ALLOWED_BODY).toBe(ACTIVITY_METHOD_NOT_ALLOWED_BODY);
     expect(again.ACTIVITY_RATE_LIMITED_BODY).toBe(ACTIVITY_RATE_LIMITED_BODY);
     expect(again.ACTIVITY_NOT_FOUND_BODY).toBe(ACTIVITY_NOT_FOUND_BODY);
+  });
+});
+
+describe('legacyCorsGuard (AC-7 legacy half, AC-2 hermeticity)', () => {
+  // The same wildcard cors() instance index.ts mounts, behind a spy.
+  const wildcard = cors();
+  const wildcardSpy = jest.fn((req, res, next) => wildcard(req, res, next));
+  const app = express();
+  app.use(legacyCorsGuard(wildcardSpy));
+  app.get('/health', (_req, res) => res.json({ status: 'ok' }));
+  app.get('/entity', (_req, res) => res.json({ ok: true }));
+  app.get('/activityfoo', (_req, res) => res.json({ ok: true }));
+
+  async function hit(path: string) {
+    wildcardSpy.mockClear();
+    const res = await request(app).get(path);
+    return { res, called: wildcardSpy.mock.calls.length > 0 };
+  }
+
+  it.each(['/health', '/entity'])(
+    'delegates %s untouched to the wildcard (ACAO: * survives)',
+    async (path) => {
+      const { res, called } = await hit(path);
+      expect(called).toBe(true);
+      expect(res.headers['access-control-allow-origin']).toBe('*');
+    },
+  );
+
+  it.each(['/activity', '/activity/x'])(
+    'skips the wildcard entirely for %s (never wildcarded there)',
+    async (path) => {
+      const { res, called } = await hit(path);
+      expect(called).toBe(false);
+      expect(res.headers['access-control-allow-origin']).toBeUndefined();
+    },
+  );
+
+  it('does not skip the wildcard for /activityfoo (probe fact (g): different segment)', async () => {
+    const { res, called } = await hit('/activityfoo');
+    expect(called).toBe(true);
+    expect(res.headers['access-control-allow-origin']).toBe('*');
   });
 });

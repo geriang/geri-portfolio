@@ -231,7 +231,7 @@ Ordered; every task ends green before the next starts. Commands run from `backen
    `'0'/'-5'/'abc'/'1e3'/'60.5'/unset → 60`); frozen bodies `Object.isFrozen` + `toBe` identity; the
    `60`/`60_000`/`600`/`'GET, OPTIONS'` constants. Verify: `npx jest activityHardening` green;
    `npx tsc --noEmit` exit 0. → AC-2, AC-4 (pure halves)
-3. [ ] `backend/src/hardening/activitySurface.ts` — the middleware factories and
+3. [x] `backend/src/hardening/activitySurface.ts` — the middleware factories and
    `buildHardenedRouter` per the design signatures (helmet config per decision 5, cors config per
    decision 6 read per request, limiter per decisions 2–4 including
    `validate: { trustProxy: false }` with its why-comment, method guard per decision 7, terminal 404,
@@ -241,13 +241,13 @@ Ordered; every task ends green before the next starts. Commands run from `backen
    `/activity/x` → spy **not** called; `/activityfoo` → spy called (probe fact (g)). Verify:
    `npx jest activityHardening` green; `npx tsc --noEmit` exit 0; `npm run lint` clean on the new file.
    → AC-2, AC-7 (legacy untouched half), AC-1 (chain half)
-4. [ ] `backend/tests/fixtures/publicSurfaceFixtures.ts` (constants above, nothing else) +
+4. [x] `backend/tests/fixtures/publicSurfaceFixtures.ts` (constants above, nothing else) +
    `backend/src/hardening/publicActivityApp.ts` — `createHardenedActivityApp({ dbPath, rateLimit })`
    replicating the planned `index.ts` composition (trust proxy → guarded wildcard `cors()` →
    `express.json()` → `/activity` hardened mount). No `listen`, no legacy-DB import. Verify:
    `npx tsc --noEmit` exit 0; `node -e` smoke (import via ts-node not required — the next task proves
    behaviour). → AC-1 … AC-4 (test vehicle)
-5. [ ] `backend/tests/activitySurface.api.test.ts` — the AC-1/AC-2/AC-3 contract suite over
+5. [x] `backend/tests/activitySurface.api.test.ts` — the AC-1/AC-2/AC-3 contract suite over
    `createHardenedActivityApp({ dbPath })` with `seedActivityDb({ dbPath, days: 15 })` and
    env save/restore around every test (convention from `tests/activityDb.test.ts`):
    - **AC-1**: one `it` per `post|put|patch|delete`: send junk JSON body + allowed `Origin` → `405`,
@@ -457,3 +457,10 @@ artifact (mandated by AC-6; no component or deployment diagram is drawn or chang
   `npx tsc --noEmit` exit 0. `npm install --save express-rate-limit@^8.7.5` → resolved 8.7.5;
   `git status --short` lists only `backend/package.json` + `backend/package-lock.json` (the tracked
   lockfile — sanctioned).
+- **Task 2 (pure policy):** `npx jest activityHardening` green (11 tests); `npx tsc --noEmit` exit 0.
+  (`tests/fixtures/publicSurfaceFixtures.ts` was created alongside this task because the unit test
+  imports its constants — same file set as task 4, earlier order only.)
+- **Task 3 (surface factories):** `npx jest activityHardening` green (16 tests, incl. the
+  `legacyCorsGuard` supertest table: `/health`+`/entity` spy-called with `ACAO: *`; `/activity` and
+  `/activity/x` spy-not-called; `/activityfoo` spy-called); `npx tsc --noEmit` exit 0;
+  `npm run lint` exit 0.
