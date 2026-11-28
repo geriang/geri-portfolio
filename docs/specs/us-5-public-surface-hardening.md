@@ -359,7 +359,7 @@ Ordered; every task ends green before the next starts. Commands run from `backen
     (`anthropic|openai|claude|gpt|gemini|llama|deepseek|kimi|moonshot|qwen|mistral`) — US-4 task-12
     precedent. Paste counts into the Progress log. Verify: `CLEAN` + zero hostname/IP/vendor hits on
     added lines. → AC-6 (diff half), AC-3 (no-path half)
-11. [ ] **AC-7 gate + jest config.** Add to `backend/jest.config.js`: `'src/hardening/**/*.ts'` in
+11. [x] **AC-7 gate + jest config.** Add to `backend/jest.config.js`: `'src/hardening/**/*.ts'` in
     `collectCoverageFrom`; thresholds `{ lines: 80 }` for `./src/hardening/activityHardening.ts` and
     `./src/hardening/activitySurface.ts`. Then run from `backend/`: `npm test` — **all suites green**,
     every pre-existing US-4 contract test and legacy portfolio test (entity/chat/staticData/env/llmEnv)
@@ -515,3 +515,28 @@ artifact (mandated by AC-6; no component or deployment diagram is drawn or chang
   `hostname:`) → only `127.0.0.1` and RFC 2606 `*.example.com` (incl. one `PORTFOLIO.example.com`
   probe-note in the design doc — RFC 2606, case is the test's point); vendor/model vocabulary →
   **1 hit, the spec's own vocabulary enumeration line** (same carve-out as `tunnelConfig.test.ts`).
+- **Task 11 (AC-7 gate + jest config):** `backend/jest.config.js` additively gained
+  `'src/hardening/**/*.ts'` in `collectCoverageFrom` and `{ lines: 80 }` thresholds for
+  `activityHardening.ts` / `activitySurface.ts`. Final gate: `npm test` in `backend/` → **31 suites /
+  370 tests passed** (baseline 26/313 + the five new US-5 suites; every pre-existing US-4 and legacy
+  portfolio test unchanged and green); `npx jest --coverage` exit 0 with the `hardening` group at
+  **100 % Stmts / 100 % Branch / 100 % Funcs / 100 % Lines**; `npx tsc --noEmit` exit 0;
+  `npm run lint` exit 0; `git diff --name-only origin/main...HEAD` = exactly the "Files likely
+  touched" set (plus the spec/design docs as instructed);
+  `git diff origin/main...HEAD -- backend/tests | grep -c '^-[^-]'` → **0**.
+- **Task 12 (PR):** orchestrated run — the branch is pushed with `git push -u origin HEAD`; the
+  orchestrator runs the reviewer and opens the PR (the AC-5 recipe, task-10 scan output, baseline
+  26/313 vs final 31/370 pass counts and the 100 % hardening coverage figure are recorded above for
+  the PR body).
+
+## Acceptance criteria evidence (final gate)
+
+| Criterion | Status | Evidence |
+|---|---|---|
+| AC-1 | Met | `npx jest activitySurface.api` — 405 + `Allow: GET, OPTIONS` + byte-identical frozen body per `post/put/patch/delete`; database-unchanged (row count, main-file bytes, `-wal`/`-shm` sidecars); `GET` 200; `OPTIONS` 204 in CORS policy. Full `npm test` green. |
+| AC-2 | Met | Same suite: ACAO exactly the allowed origin (A and B); absent for denied/missing/case-variant/unset allowlist; no-wildcard sweep over 200/204/404/405/429 on both compositions; unit truth table in `activityHardening.test.ts`. |
+| AC-3 | Met | Same suite + mount suite: `nosniff` on 200/405/429/404, `x-powered-by` undefined on `/activity`, helmet set present, CSP off by design; header/body scan for `dbPath`/`activity.db`/`node_modules`/`/root`/`/home`/`/workspace`/`/tmp` → none. |
+| AC-4 | Met | `npx jest activitySurface.rateLimit` green twice (5/5): 60×200 then #61/#62 frozen 429 with integer `Retry-After` + draft-7 `RateLimit`; independent keys for IP B, no-XFF peer; two-hop XFF keys leftmost IP; window pass via `Retry-After × 1000 + 200`; env override `=3`. |
+| AC-5 | Manual (user) | Recipe in `deploy/cloudflared/README.md` and the PR body; owner runs it on their host with the real tunnel and reports per-path status codes at the sprint-2 exit. **Not tested** in the container (cannot see the tunnel). |
+| AC-6 | Met | `deploy/cloudflared/activity-tunnel.example.yml` + `README.md` committed (placeholders + env-var names only); `npx jest tunnelConfig` green (12); triaged secrets-pattern scan of the diff → zero real hits (see task-10 log entry); hostname/IP/vendor sweeps clean (only the spec's own scan-vocabulary line). Reviewer additionally inspects the artifacts. |
+| AC-7 | Met | `npm test` in `backend/` on the branch → 31 suites / 370 tests green, all pre-existing US-4 contract + legacy portfolio suites untouched (`git diff origin/main...HEAD -- backend/tests | grep -c '^-[^-]'` → 0); legacy `/health` keeps `ACAO: *` + `X-Powered-By: Express` (mount suite (d)). |
