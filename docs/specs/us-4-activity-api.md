@@ -303,7 +303,7 @@ Ordered; every task ends green before the next starts. Commands run from `backen
    + exactly one `console.warn` of the frozen constant when `dbPath` points at a missing file; two
    identical calls deep-equal byte-for-byte (`JSON.stringify` equality).
    Verify: `npx jest activityService` green. → AC-1, AC-2, AC-3, AC-4, AC-6 (service half)
-7. [ ] `backend/src/activity/activityRouter.ts` (`createActivityRouter(options)`, `router.get('/', ...)`,
+7. [x] `backend/src/activity/activityRouter.ts` (`createActivityRouter(options)`, `router.get('/', ...)`,
    default export `createActivityRouter()`) + `backend/tests/activityApi.test.ts` — the contract suite,
    composed the way `index.ts` composes it (`const app = express(); app.use('/activity',
    createActivityRouter({ dbPath }))`), one `it` per criterion:
